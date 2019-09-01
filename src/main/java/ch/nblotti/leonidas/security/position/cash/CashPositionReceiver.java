@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 @Component
 public class CashPositionReceiver {
@@ -32,19 +33,19 @@ public class CashPositionReceiver {
     Optional<CashEntry> cashEntry = cashEntryService.findById(message.getEntity_id().toString());
 
     if (!cashEntry.isPresent()) {
-      LOGGER.info(String.format("No cashEntry for id %s, returning", message.getEntity_id()));
+      LOGGER.log(Level.FINE,String.format("No cashEntry for id %s, returning", message.getEntity_id()));
       return;
     }
 
     switch (message.getEntityAction()) {
 
       case CREATE:
-        LOGGER.info(String.format("Start creation of cash positions for entry with id %s", message.getEntity_id()));
+        LOGGER.log(Level.FINE, String.format("Start creation of cash positions for entry with id %s", message.getEntity_id()));
         long startTime = System.nanoTime();
         cashPositionService.updatePosition(cashEntry.get());
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-        LOGGER.info(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", message.getEntity_id(),elapsedTime));
+        LOGGER.log(Level.FINE,String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", message.getEntity_id(),elapsedTime));
 
 
 
