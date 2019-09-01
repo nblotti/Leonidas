@@ -103,14 +103,14 @@ I will not provide support until the V1 is published.
  - __Benchmark__
  - Fix for [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=leonidas)
  
- <h4>Beta</h4>
+ <h4>Beta - Q4 2019</h4>
  
  - __Attribution__
  - __Standard deviation, sharpe ratio__
  - __Inflation adjusted returns__
  - __VAR__
  
- <h4>V1</h4>
+ <h4>V1 - Q1 2020</h4>
  
  - __Projection & scenarios (stock and FX)__
 
