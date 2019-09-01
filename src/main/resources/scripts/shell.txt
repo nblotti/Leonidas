@@ -1,0 +1,44 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                                                                                   ///
+///                                 Example 1                                                         ///
+///                                                                                                   ///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//account creation
+ acc --date 15.05.2019
+
+ //cash entry
+ ordc --acc 1 --id test1 --amo 100000 --side 2 --cur USD --dtv 28.06.2019
+ ordc --acc 1 --id test1 --amo 100000 --side 2 --cur EUR --dtv 28.06.2019
+
+//security
+ ordm --acc 1 --id test1 --exch US --symb FB --side 2 --qty 250 --dtv 28.06.2019
+ ordm --acc 1 --id test1 --exch PA --symb AI --side 2 --qty 250 --dtv 28.06.2019
+
+//account 1 duplication
+ acc --date 15.06.2019 --copy 1
+
+
+perf  (replace localhost:port by your url):
+http://localhost:8080/performance/ytd/1/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                                                                                   ///
+///                                 Example 2                                                         ///
+///                                                                                                   ///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//account creation
+acc --date 15.05.2000
+
+ //cash entry
+ordc --acc 1 --id test1 --amo 100000 --side 2 --cur USD --dtv 30.12.2002
+
+//security
+ordm --acc 1 --id test1 --exch US --symb SHY --side 2 --qty 166 --dtv 30.12.2002
+ordm --acc 1 --id test1 --exch US --symb SPY --side 2 --qty 1300 --dtv 30.12.2002
+
+perf (replace localhost:port by your url):
+
+http://localhost:8080/performance/ytd/1/

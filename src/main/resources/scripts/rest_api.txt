@@ -1,0 +1,62 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                                                                                   ///
+///                                 Example 1                                                         ///
+///                                                                                                   ///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"entryDate":"2019-06-28","performanceCurrency":"CHF"}' \
+  http://localhost:8080/account
+
+ //cash entry
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"accountId":"1","cIOrdID":"test1" ,"side":"1","amount":"100000","type":"CASH_ENTRY","cashCurrency":"USD","transactTime":"2019-06-28"}' \
+  http://localhost:8080/orders
+
+  curl --header "Content-Type: application/json" \
+    --request POST \
+    --data '{"accountId":"1","cIOrdID":"test1" ,"side":"1","amount":"100000","type":"CASH_ENTRY","cashCurrency":"EUR","transactTime":"2019-06-28"}' \
+    http://localhost:8080/orders
+
+//security
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"accountId":"1","cIOrdID":"test1" ,"side":"1","exchange":"US","type":"MARKET_ORDER","symbol":"FB","orderQtyData":250,"transactTime":"2019-06-28"}' \
+  http://localhost:8080/orders
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"accountId":"1","cIOrdID":"test1" ,"side":"1","exchange":"PA","type":"MARKET_ORDER","symbol":"AI","orderQtyData":250,"transactTime":"2019-06-28"}' \
+  http://localhost:8080/orders
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+///                                                                                                   ///
+///                                 Example 2                                                         ///
+///                                                                                                   ///
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"entryDate":"2000-05-15","performanceCurrency":"CHF"}' \
+  http://localhost:8080/account
+
+ //cash entry
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"accountId":"1","cIOrdID":"test1" ,"side":"1","amount":"100000","type":"CASH_ENTRY","cashCurrency":"USD","transactTime":"30.12.2002"}' \
+  http://localhost:8080/orders
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"accountId":"1","cIOrdID":"test1" ,"side":"1","exchange":"US","type":"MARKET_ORDER","symbol":"SHY","orderQtyData":166,"transactTime":"30.12.2002"}' \
+  http://localhost:8080/orders
+
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"accountId":"1","cIOrdID":"test1" ,"side":"1","exchange":"US","type":"MARKET_ORDER","symbol":"SPY","orderQtyData":1300,"transactTime":"30.12.2002"}' \
+  http://localhost:8080/orders
