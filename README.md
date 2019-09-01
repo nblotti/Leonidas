@@ -72,7 +72,7 @@ mvn package && java -jar target/leonidas-0.0.1-SNAPSHOT.jar
 
 ## Interface
 
-Leonidas provides a set of REST API interface to let you access functions and resources. Those interfaces are designed to work with the project Themistocles (not currently public), but can also be used by other tool as [Postman](https://www.getpostman.com/) or with R. 
+Leonidas provides a set of REST API interface to let you access functions and resources. Those interfaces are designed to work with the project Themistocles (not currently public), but can also be used by other tool as [Postman](https://www.getpostman.com/) or with [R](https://www.r-project.org/). 
 Finally you can also use the shell console provided. 
 
 You will find an example for each of those interface in the [scripts](https://github.com/nblotti/leonidas/tree/master/src/main/resources/scripts) folder of resources directory.
