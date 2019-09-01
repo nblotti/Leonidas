@@ -10,7 +10,7 @@
 
 <div id="badges" align="center">
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=leonidas&metric=alert_status)](https://sonarcloud.io/dashboard?id=leonidas)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=nblotti_leonidas&metric=alert_status)](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
 
 </div>
 
@@ -72,7 +72,7 @@ mvn package && java -jar target/leonidas-0.0.1-SNAPSHOT.jar
 
 ## Interface
 
-Leonidas provides a set of REST API interface to let you access functions and resources. Those interfaces are designed to work with the project Themistocles (not currently public), but can also be used by other tool as [Postman](https://www.getpostman.com/) or with R. 
+Leonidas provides a set of REST API interface to let you access functions and resources. Those interfaces are designed to work with the project Themistocles (not currently public), but can also be used by other tool as [Postman](https://www.getpostman.com/) or with [R](https://www.r-project.org/). 
 Finally you can also use the shell console provided. 
 
 You will find an example for each of those interface in the [scripts](https://github.com/nblotti/leonidas/tree/master/src/main/resources/scripts) folder of resources directory.
@@ -101,18 +101,18 @@ I will not provide support until the V1 is published.
 
  - __Cash available management__
  - __Benchmark__
- - [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=leonidas)
+ - Fix for [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
  
- <h4>Beta</h4>
+ <h4>Beta - Q4 2019</h4>
  
  - __Attribution__
- - __CAGR, standard deviation, sharpe ratio__
+ - __Standard deviation, sharpe ratio__
  - __Inflation adjusted returns__
  - __VAR__
  
- <h4>V1</h4>
+ <h4>V1 - Q1 2020</h4>
  
- - __Projection (stock and FX)__
+ - __Projection & scenarios (stock and FX)__
 
 
 ## License
