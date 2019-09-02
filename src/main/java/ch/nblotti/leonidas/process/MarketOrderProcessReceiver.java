@@ -24,13 +24,6 @@ public class MarketOrderProcessReceiver {
   MarketProcessService marketProcessService;
 
 
-  @JmsListener(destination = "orderbox", containerFactory = "factory")
-  public void orderListener(Message message) {
-
-
-  }
-
-
   private Order getOrder(Message message) {
     Optional<Order> order = orderController.findById(String.valueOf(message.getOrderID()));
 
