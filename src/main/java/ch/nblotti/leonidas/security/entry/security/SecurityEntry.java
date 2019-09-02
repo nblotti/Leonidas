@@ -82,8 +82,6 @@ public class SecurityEntry {
   private int status;
 
 
-  public SecurityEntry() {
-  }
 
   public Long getId() {
     return id;

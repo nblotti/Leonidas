@@ -16,6 +16,7 @@ import java.util.Optional;
 @Component
 public class OrderService {
 
+  public static final String ORDERBOX = "orderbox";
   @Autowired
   private OrderRepository repository;
 
@@ -77,15 +78,15 @@ public class OrderService {
   private void postMessage(Order createdOrder) {
     switch (createdOrder.getType()) {
       case MARKET_ORDER:
-        jmsTemplate.convertAndSend("orderbox", new Message(String.valueOf(createdOrder.getId()), Message.MESSAGE_TYPE.MARKET_ORDER, Message.ENTITY_ACTION.CREATE));
+        jmsTemplate.convertAndSend(ORDERBOX, new Message(String.valueOf(createdOrder.getId()), Message.MESSAGE_TYPE.MARKET_ORDER, Message.ENTITY_ACTION.CREATE));
         break;
 
       case CASH_ENTRY:
-        jmsTemplate.convertAndSend("orderbox", new Message(String.valueOf(createdOrder.getId()), Message.MESSAGE_TYPE.CASH_ENTRY, Message.ENTITY_ACTION.CREATE));
+        jmsTemplate.convertAndSend(ORDERBOX, new Message(String.valueOf(createdOrder.getId()), Message.MESSAGE_TYPE.CASH_ENTRY, Message.ENTITY_ACTION.CREATE));
         break;
 
       case SECURITY_ENTRY:
-        jmsTemplate.convertAndSend("orderbox", new Message(String.valueOf(createdOrder.getId()), Message.MESSAGE_TYPE.SECURITY_ENTRY, Message.ENTITY_ACTION.CREATE));
+        jmsTemplate.convertAndSend(ORDERBOX, new Message(String.valueOf(createdOrder.getId()), Message.MESSAGE_TYPE.SECURITY_ENTRY, Message.ENTITY_ACTION.CREATE));
         break;
     }
   }

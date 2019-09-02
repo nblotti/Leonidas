@@ -33,7 +33,7 @@ public class CashPositionReceiver {
     Optional<CashEntry> cashEntry = cashEntryService.findById(message.getEntity_id().toString());
 
     if (!cashEntry.isPresent()) {
-      LOGGER.log(Level.FINE,String.format("No cashEntry for id %s, returning", message.getEntity_id()));
+      LOGGER.log(Level.FINE, String.format("No cashEntry for id %s, returning", message.getEntity_id()));
       return;
     }
 
@@ -45,15 +45,15 @@ public class CashPositionReceiver {
         cashPositionService.updatePosition(cashEntry.get());
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-        LOGGER.log(Level.FINE,String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", message.getEntity_id(),elapsedTime));
-
-
-
-
-
-
+        LOGGER.log(Level.FINE, String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", message.getEntity_id(), elapsedTime));
         break;
       case DELETE:
+
+        LOGGER.log(Level.FINE, String.format("Delete  cash positions for entry from order with id %s", message.getEntity_id()));
+        break;
+
+      default:
+        LOGGER.log(Level.FINE, String.format("Unknown action type for entry from order with id %s", message.getEntity_id()));
         break;
 
     }

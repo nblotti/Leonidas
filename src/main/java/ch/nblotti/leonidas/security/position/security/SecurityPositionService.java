@@ -119,14 +119,16 @@ public class SecurityPositionService {
           if (existingAggregatedEntry.getQuantity() - currentEntry.getQuantity() == 0) {
             securityEntriesIterator.remove();
             entryByDate.remove(currentEntry.getValueDate());
-          } else
+          } else {
             updateEntryWithDifferentSign(currentEntry, existingAggregatedEntry);
+          }
 
         }
 
 
-      } else
+      } else {
         entryByDate.put(currentEntry.getValueDate(), new AggregatedSecurityEntry(currentEntry));
+      }
     }
 
     //on ordonne par date valeur
@@ -152,9 +154,9 @@ public class SecurityPositionService {
     //On adapte le signe de l'entrée en fonction des cas
     if (existingEntry.getQuantity() - currentEntry.getQuantity() < 0) {
       existingEntry.setDebitCreditCode(DEBIT_CREDIT.CRDT);
-    } else
+    } else {
       existingEntry.setDebitCreditCode(DEBIT_CREDIT.DBIT);
-
+    }
     //les signes sont opposés, on soustrait donc les quantités
     existingEntry.setQuantity(existingEntry.getQuantity() - currentEntry.getQuantity());
     existingEntry.setNetPosValue(existingEntry.getNetPosValue() - currentEntry.getNetAmount());

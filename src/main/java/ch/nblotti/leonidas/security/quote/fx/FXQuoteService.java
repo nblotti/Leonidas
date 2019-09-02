@@ -19,6 +19,7 @@ public class FXQuoteService {
 
 
   private final static String FOREX = "FOREX";
+  public static final String QUOTES = "quotes";
   @Value("${spring.application.eod.api.key}")
   private String eodApiToken;
   @Value("${spring.application.eod.quote.url}")
@@ -42,21 +43,21 @@ public class FXQuoteService {
     Map<String, List<Quote>> cachedQuotes;
 
 
-    if (cacheManager.getCache("quotes").get(FOREX) == null)
+    if (cacheManager.getCache(QUOTES).get(FOREX) == null)
       cachedQuotes = new HashMap<>();
     else
-      cachedQuotes = (Map<String, List<Quote>>) cacheManager.getCache("quotes").get(FOREX).get();
+      cachedQuotes = (Map<String, List<Quote>>) cacheManager.getCache(QUOTES).get(FOREX).get();
 
     if (!cachedQuotes.containsKey(currencyPair)) {
       ResponseEntity<Quote[]> responseEntity = rt.getForEntity(String.format(quoteUrl, currencyPair + "." + FOREX, eodApiToken), Quote[].class);
 
       Map<String, List<Quote>> quotesMap = new HashMap<>();
       quotesMap.put(currencyPair, Arrays.asList(responseEntity.getBody()));
-      cacheManager.getCache("quotes").put(FOREX, quotesMap);
+      cacheManager.getCache(QUOTES).put(FOREX, quotesMap);
 
     }
 
-    return ((Map<String, List<Quote>>) cacheManager.getCache("quotes").get(FOREX).get()).get(currencyPair);
+    return ((Map<String, List<Quote>>) cacheManager.getCache(QUOTES).get(FOREX).get()).get(currencyPair);
 
 
   }
@@ -64,7 +65,7 @@ public class FXQuoteService {
 
   @Scheduled(fixedRate = 10800000)
   public void clearCache() {
-    cacheManager.getCache("quotes").clear();
+    cacheManager.getCache(QUOTES).clear();
 
   }
 

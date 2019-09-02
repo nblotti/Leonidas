@@ -19,6 +19,7 @@ public class QuoteService {
 
 
   private final static String FOREX = "FOREX";
+  public static final String QUOTES = "quotes";
   @Value("${spring.application.eod.api.key}")
   private String eodApiToken;
   @Value("${spring.application.eod.quote.url}")
@@ -41,21 +42,21 @@ public class QuoteService {
     Map<String, List<Quote>> cachedQuotes;
 
 
-    if (cacheManager.getCache("quotes").get(exchange) == null)
+    if (cacheManager.getCache(QUOTES).get(exchange) == null)
       cachedQuotes = new HashMap<>();
     else
-      cachedQuotes = (Map<String, List<Quote>>) cacheManager.getCache("quotes").get(exchange).get();
+      cachedQuotes = (Map<String, List<Quote>>) cacheManager.getCache(QUOTES).get(exchange).get();
 
     if (!cachedQuotes.containsKey(symbol)) {
       ResponseEntity<Quote[]> responseEntity = rt.getForEntity(String.format(quoteUrl, symbol + "." + exchange, eodApiToken), Quote[].class);
 
       Map<String, List<Quote>> quotesMap = new HashMap<>();
       quotesMap.put(symbol, Arrays.asList(responseEntity.getBody()));
-      cacheManager.getCache("quotes").put(exchange, quotesMap);
+      cacheManager.getCache(QUOTES).put(exchange, quotesMap);
 
     }
 
-    return ((Map<String, List<Quote>>) cacheManager.getCache("quotes").get(exchange).get()).get(symbol);
+    return ((Map<String, List<Quote>>) cacheManager.getCache(QUOTES).get(exchange).get()).get(symbol);
 
 
   }
@@ -63,7 +64,7 @@ public class QuoteService {
 
   @Scheduled(fixedRate = 10800000)
   public void clearCache() {
-    cacheManager.getCache("quotes").clear();
+    cacheManager.getCache(QUOTES).clear();
 
   }
 

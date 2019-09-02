@@ -25,7 +25,7 @@ public class OrderController {
   }
 
   @RequestMapping(value = "/orders", method = RequestMethod.POST)
-  public Order save(@Valid @RequestBody Order orders) {
+  public Order save(@Valid @RequestBody Order orders) {//NOSONAR
 
     return this.orderService.save(orders);
 

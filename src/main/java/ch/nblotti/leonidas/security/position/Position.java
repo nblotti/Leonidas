@@ -75,20 +75,6 @@ public class Position {
   @Column(name = "ACCOUNT_REPORTING_CURRENCY")
   private String accountPerformanceCurrency;
 
-/*
-  @Column(name = "ACCOUNT_REPORTING_CURRENCY_CMA")
-  private Float AccountReportingCurrencyCMA;
-
-  @Column(name = "ACCOUNT_REPORTING_UNREALIZED")
-  private Float accountReportingUnrealized;
-
-
-  @Column(name = "ACCOUNT_REPORTING_REALIZED")
-  private Float accountReportingRealized;
-*/
-
-  public Position() {
-  }
 
   public Long getId() {
     return id;
@@ -203,33 +189,6 @@ public class Position {
     this.accountPerformanceCurrency = accountPerformanceCurrency;
   }
 
-  /*
-
-    public Float getAccountReportingCurrencyCMA() {
-      return AccountReportingCurrencyCMA;
-    }
-
-    public void setAccountReportingCurrencyCMA(Float accountReportingCurrencyCMA) {
-      AccountReportingCurrencyCMA = accountReportingCurrencyCMA;
-    }
-
-
-    public Float getAccountReportingUnrealized() {
-      return accountReportingUnrealized;
-    }
-
-    public void setAccountReportingUnrealized(Float accountReportingUnrealized) {
-      this.accountReportingUnrealized = accountReportingUnrealized;
-    }
-
-  public Float getAccountReportingRealized() {
-    return accountReportingRealized;
-  }
-  public void setAccountReportingRealized(Float accountReportingRealized) {
-    this.accountReportingRealized = accountReportingRealized;
-  }
-
-*/
   public Float getPosValueReportingCurrency() {
     return posValueReportingCurrency;
   }

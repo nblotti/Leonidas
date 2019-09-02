@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -39,15 +40,21 @@ public class SecurityPositionReceiver {
     switch (message.getEntityAction()) {
 
       case CREATE:
-        LOGGER.info(String.format("Start creation of security positions for entry with id %s", message.getEntity_id()));
+        LOGGER.log(Level.FINE, String.format("Start creation of security positions for entry with id %s", message.getEntity_id()));
         long startTime = System.nanoTime();
         securityPositionService.updatePosition(securityEntry.get());
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-        LOGGER.info(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", message.getEntity_id(),elapsedTime));
+        LOGGER.log(Level.FINE, String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", message.getEntity_id(), elapsedTime));
 
         break;
       case DELETE:
+
+        LOGGER.log(Level.FINE, String.format("Delete  security positions for entry from order with id %s", message.getEntity_id()));
+        break;
+
+      default:
+        LOGGER.log(Level.FINE, String.format("Unknown action type for entry from order with id %s", message.getEntity_id()));
         break;
 
     }

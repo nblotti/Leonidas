@@ -30,8 +30,9 @@ public class AccountController {
     return this.accountService.findAll();
 
   }
+
   @PostMapping(value = "/account/")
-  public Account save(@Valid @RequestBody Account account) {
+  public Account save(@Valid @RequestBody Account account) {//NOSONAR
 
 
     return  this.accountService.save(account);

@@ -2,19 +2,18 @@ package ch.nblotti.leonidas.security.position.cash;
 
 import ch.nblotti.leonidas.security.account.Account;
 import ch.nblotti.leonidas.security.account.AccountService;
-import ch.nblotti.leonidas.security.quote.asset.QuoteService;
 import ch.nblotti.leonidas.security.entry.DEBIT_CREDIT;
 import ch.nblotti.leonidas.security.entry.cash.CashEntry;
 import ch.nblotti.leonidas.security.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.security.position.Position;
 import ch.nblotti.leonidas.security.position.PositionRepository;
+import ch.nblotti.leonidas.security.quote.asset.QuoteService;
 import ch.nblotti.leonidas.security.quote.fx.FXQuoteService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -66,7 +65,7 @@ public class CashPositionService {
   */
 
 
-//TODO NBL : test me
+  //TODO NBL : test me
   public Position updatePosition(CashEntry entry) {
 
     LOGGER.info("Started update process");
@@ -137,16 +136,18 @@ public class CashPositionService {
           //si le mouvement fait changer de sens le total on inversse
           if (existingEntry.getNetAmount() - currentCashEntry.getNetAmount() < 0 && existingEntry.getDebitCreditCode().equals(DEBIT_CREDIT.CRDT)) {
             existingEntry.setDebitCreditCode(DEBIT_CREDIT.DBIT);
-          } else
+          } else {
             existingEntry.setDebitCreditCode(DEBIT_CREDIT.CRDT);
+          }
           //on soustraitss les deux montants
           existingEntry.setNetAmount(existingEntry.getNetAmount() - currentCashEntry.getNetAmount());
           existingEntry.setGrossAmount(existingEntry.getGrossAmount() - currentCashEntry.getGrossAmount());
         }
 
 
-      } else
+      } else {
         cashEntryByDAte.put(currentCashEntry.getValueDate(), new AggregatedCashEntry(currentCashEntry));
+      }
     }
 
     //on ordonne par date valeur
@@ -198,7 +199,7 @@ public class CashPositionService {
         //il s'agit d'un achat, il faut adapter le CMA
 
         amount = lastDayPosition.getPosValue() + currentEntry.getNetAmount();
-        tma = (lastDayPosition.getTMA() * lastDayPosition.getPosValue()+ (currentEntry.getFxchangeRate() * currentEntry.getNetAmount())) / lastDayPosition.getPosValue() + currentEntry.getNetAmount();
+        tma = (lastDayPosition.getTMA() * lastDayPosition.getPosValue() + (currentEntry.getFxchangeRate() * currentEntry.getNetAmount())) / lastDayPosition.getPosValue() + currentEntry.getNetAmount();
 
       } else {
         //il s'agit d'une vente, il faut adapter le réalisé
@@ -206,12 +207,11 @@ public class CashPositionService {
       }
 
     } else {
-      if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT){
+      if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT) {
         amount = -currentEntry.getNetAmount();
         tma = currentEntry.getFxchangeRate();
 
-      }
-      else {
+      } else {
         amount = currentEntry.getNetAmount();
         tma = currentEntry.getFxchangeRate();
       }
