@@ -99,10 +99,9 @@ I will not provide support until the V1 is published.
 
 <h4>Alpha</h4>
 
- - __Order serial treatment__ - done
  - __Cash available management__
  - __Benchmark__
- - __Order sequencing__
+ - __Order sequencing__ - done
  - Fix for [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
  
  <h4>Beta - Q4 2019</h4>
