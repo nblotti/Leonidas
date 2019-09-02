@@ -46,6 +46,7 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
     switch (message.getMessageType()) {
       case MARKET_ORDER:
         LOGGER.log(Level.FINE, String.format("Create cash entry from market order with id %s", message.getEntity_id()));
+        this.receiveNewOrder(message);
         break;
       case CASH_ENTRY:
         LOGGER.log(Level.FINE, String.format("Create cash entry from cash entry with id %s", message.getEntity_id()));

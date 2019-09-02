@@ -9,8 +9,8 @@
  acc --date 15.05.2019
 
  //cash entry
- ordc --acc 1 --id test1 --amo 100000 --side 1 --cur USD --dtv 28.06.2019
- ordc --acc 1 --id test1 --amo 100000 --side 1 --cur EUR --dtv 28.06.2019
+ ordc --acc 1 --id test1 --amo 100000 --side 2 --cur USD --dtv 28.06.2019
+ ordc --acc 1 --id test1 --amo 100000 --side 2 --cur EUR --dtv 28.06.2019
 
 //security
  ordm --acc 1 --id test1 --exch US --symb FB --side 2 --qty 250 --dtv 28.06.2019
