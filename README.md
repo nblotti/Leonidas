@@ -99,6 +99,7 @@ I will not provide support until the V1 is published.
 
 <h4>Alpha</h4>
 
+ - __Order serial treatment__ - done
  - __Cash available management__
  - __Benchmark__
  - __Order sequencing__
