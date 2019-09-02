@@ -78,7 +78,7 @@ options(stringsAsFactors = FALSE)
 server_url  <- "http://localhost:8080/"
 
 
-accounts_url <- paste(server_url , "account", sep = "", collapse = NULL)
+accounts_url <- paste(server_url , "account/", sep = "", collapse = NULL)
 account_data <- '{"entryDate":"2000-05-15","performanceCurrency":"CHF"}'
 raw.result <- POST(accounts_url, content_type_json(), body = account_data)
 

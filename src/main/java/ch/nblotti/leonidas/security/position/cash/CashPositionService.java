@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -68,14 +69,14 @@ public class CashPositionService {
   //TODO NBL : test me
   public Position updatePosition(CashEntry entry) {
 
-    LOGGER.info("Started update process");
+    LOGGER.log(Level.FINE,"Started update process");
 
 
     repository.deleteByPosTypeAndAccountIdAndCurrency(Position.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());
 
     if (LocalDate.now().compareTo(entry.getValueDate()) >= 0) {
 
-      LOGGER.info("Suppression des positions");
+      LOGGER.log(Level.FINE,"Suppression des positions");
     }
 
     //3. On obtient la liste des mouvements
@@ -224,7 +225,7 @@ public class CashPositionService {
 
   private Iterable<Position> createPositions(Account currentAccount, Float netAmount, Float tma, AggregatedCashEntry currentEntry, LocalDate endDate) {
 
-    LOGGER.info(String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));
+    LOGGER.log(Level.FINE,String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));
 
     long loop = ChronoUnit.DAYS.between(currentEntry.getValueDate(), endDate);
 

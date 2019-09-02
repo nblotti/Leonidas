@@ -112,7 +112,7 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
   @Override
   protected CashEntry save(CashEntry entry) {
 
-    LOGGER.info(String.format("Created new entry with id %s", entry.getId()));
+    LOGGER.log(Level.FINE,String.format("Created new entry with id %s", entry.getId()));
     return cashEntryService.save(entry);
   }
 

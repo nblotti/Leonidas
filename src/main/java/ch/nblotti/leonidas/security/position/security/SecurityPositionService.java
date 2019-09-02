@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -64,7 +65,7 @@ public class SecurityPositionService {
   //TODO NBL : test me
   public Position updatePosition(SecurityEntry entry) {
 
-    LOGGER.info("Started update process");
+    LOGGER.log(Level.FINE,"Started update process");
     Account currentAccount = accountService.findAccountById(entry.getAccount());
 
 
@@ -74,7 +75,7 @@ public class SecurityPositionService {
       repository.deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(Position.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
 
 
-      LOGGER.info("Suppression des positions");
+      LOGGER.log(Level.FINE,"Suppression des positions");
     }
 
     //3. On obtient la liste des mouvements
@@ -292,7 +293,7 @@ public class SecurityPositionService {
 
   private Iterable<Position> createSecurityPositions(Account currentAccount, Float quantity, Float cma, Float tma/*accountReportingCurrencyCMA*/, Float realized, /*Float accountReportingRealized,*/ AggregatedSecurityEntry firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
 
-    LOGGER.info(String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
+    LOGGER.log(Level.FINE,String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
 
 
     //on valorise
