@@ -42,7 +42,7 @@ Leonidas was named after the famous spartan king, who died in the battle of Ther
 
 Leonidas is part of a broader project to create an open-source robo-advisor. Using Leonidas, you will be able to create new portfolios and duplicate existing ones, to submit orders and measure their effect on your portfolio positions and performance. Details such as stock and currency contribution will help you to refine your strategy. 
 
-The project was born after I realized that I needed a portfolio backtesting tool that allows me to construct portfolios based on mutual funds, ETFs and stocks to help me to analyze and backtest portfolio returns, risk characteristics, standard deviation, annual returns and rolling returns. 
+The project was born after I realized that I needed a tool that allows me to construct portfolios based on mutual funds, ETFs and stocks to help me to analyze and backtest portfolio returns, risk characteristics, standard deviation, annual returns and rolling returns. 
 
 ## Provider
 
