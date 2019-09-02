@@ -24,8 +24,6 @@ public class Account {
   private String performanceCurrency;
 
 
-  public Account() {
-  }
 
   public Integer getId() {
     return id;

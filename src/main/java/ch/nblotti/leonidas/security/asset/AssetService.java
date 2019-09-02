@@ -9,12 +9,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 
 @Component
 public class AssetService {
 
+  private static Logger LOGGER = Logger.getLogger("AssetService");
+
+  public static final String ASSETS = "assets";
+  public static final String ASSET_MAP = "assetMap";
+
+  @Value("${spring.application.value.date}")
+  private int valueDate;
 
   @Value("${spring.application.eod.api.key}")
 
@@ -36,10 +45,10 @@ public class AssetService {
 
     Map<String, List<Asset>> cachedAsset;
 
-    if (cacheManager.getCache("assets").get("assetMap") == null)
-      cacheManager.getCache("assets").put("assetMap", new HashMap<>());
+    if (cacheManager.getCache(ASSETS).get(ASSET_MAP) == null)
+      cacheManager.getCache(ASSETS).put(ASSET_MAP, new HashMap<>());
 
-    cachedAsset = (Map<String, List<Asset>>) cacheManager.getCache("assets").get("assetMap").get();
+    cachedAsset = (Map<String, List<Asset>>) cacheManager.getCache(ASSETS).get(ASSET_MAP).get();
 
 
     if (cachedAsset.containsKey(exchange))
@@ -47,9 +56,9 @@ public class AssetService {
     else {
 
       assetList = Arrays.asList(rt.getForEntity(String.format(assetUrl, exchange, eodApiToken), Asset[].class).getBody());
-      cachedAsset = new HashMap<String, List<Asset>>();
+      cachedAsset = new HashMap<>();
       cachedAsset.put(exchange, assetList);
-      cacheManager.getCache("assets").put("assetMap", cachedAsset);
+      cacheManager.getCache(ASSETS).put(ASSET_MAP, cachedAsset);
     }
     return assetList;
   }
@@ -57,13 +66,11 @@ public class AssetService {
 
   @Scheduled(fixedRate = 10800000)
   public void clearCache() {
-    cacheManager.getCache("assets").clear();
+    cacheManager.getCache(ASSETS).clear();
 
   }
 
-  /**
-   * Look up all employees, and transform them into a REST collection resource.
-   */
+
   public Iterable<Asset> findSymbol(String exchange, String symbol) {
 
     return getAssets(exchange).stream().filter(c -> c.getCode().toLowerCase().contains(symbol.toLowerCase())).collect(Collectors.toList());
@@ -74,14 +81,14 @@ public class AssetService {
   public Asset getSymbol(String exchange, String symbol) {
 
 
-      Optional<Asset> asset =  getAssets(exchange).stream().filter(c -> c.getCode().equalsIgnoreCase(symbol)).reduce((a, b) -> {
+    Optional<Asset> asset = getAssets(exchange).stream().filter(c -> c.getCode().equalsIgnoreCase(symbol)).reduce((a, b) -> {
       throw new IllegalStateException("Multiple elements: " + a + ", " + b);
     });
 
-  if(asset.isPresent())
-    return asset.get();
-  else
-    throw new IllegalStateException(String.format("No symbol found %s %s",exchange,symbol));
+    if (asset.isPresent())
+      return asset.get();
+    else
+      throw new IllegalStateException(String.format("No symbol found %s %s", exchange, symbol));
 
 
   }
@@ -89,7 +96,9 @@ public class AssetService {
 
   public int getValueDateForExchange(String exchangeid) {
 
-    return 3;
+    LOGGER.log(Level.FINE, exchangeid);
+
+    return valueDate;
   }
 
 

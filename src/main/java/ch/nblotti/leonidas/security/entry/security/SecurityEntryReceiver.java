@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -42,6 +43,10 @@ public class SecurityEntryReceiver extends EntryReceiver<SecurityEntry> {
     switch (message.getMessageType()) {
       case MARKET_ORDER:
         this.receiveNewOrder(message);
+        break;
+      default:
+        LOGGER.log(Level.FINE, String.format("Type unknown for entry with id %s", message.getEntity_id()));
+
         break;
     }
   }

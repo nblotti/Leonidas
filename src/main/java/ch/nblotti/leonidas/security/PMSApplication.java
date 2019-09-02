@@ -11,7 +11,6 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
-import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -38,8 +37,8 @@ public class PMSApplication {
   private JdbcTemplate jdbcTemplate;
 
   @Bean
-  public JmsListenerContainerFactory<?> factory(ConnectionFactory connectionFactory,
-                                                DefaultJmsListenerContainerFactoryConfigurer configurer) {
+  public DefaultJmsListenerContainerFactory factory(ConnectionFactory connectionFactory,
+                                                    DefaultJmsListenerContainerFactoryConfigurer configurer) {
     DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
 
     // This provides all boot's default to this factory, including the message converter

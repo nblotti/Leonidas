@@ -18,11 +18,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @ShellComponent
 public class ShellCommand {
 
+
+  private  static final Logger LOGGER = Logger.getLogger("ShellCommand");
 
   @Value("${spring.application.order.url}")
   private String orderUrl;
@@ -57,16 +61,16 @@ public class ShellCommand {
       a.setPerformanceCurrency(pcu);
       a.setEntryDate(LocalDate.parse(date, dateTimeFormatter));
       returns = rt.postForObject(accountUrl, a, Account.class);
-      return String.format("ok pal, created Account with id %s at date %s", returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));
+      return String.format("Created Account with id %s at date %s", returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));
     } else if (!copy.isEmpty() && !date.isEmpty()) {
       returns = rt.postForObject(String.format("%s/duplicateAccount/%s/%s", accountUrl, copy, date), a, Account.class);
-      return String.format("ok pal, duplicated Account with id %s at date %s. New id is : %s", copy, dateTimeFormatter.format(returns.getEntryDate()), returns.getId());
+      return String.format("Duplicated Account with id %s at date %s. New id is : %s", copy, dateTimeFormatter.format(returns.getEntryDate()), returns.getId());
 
     } else {
       a.setPerformanceCurrency(pcu);
       a.setEntryDate(LocalDate.now());
       returns = rt.postForObject(accountUrl, a, Account.class);
-      return String.format("ok pal, created Account with id %s ", returns.getId());
+      return String.format("Created Account with id %s ", returns.getId());
     }
 
 
@@ -94,7 +98,7 @@ public class ShellCommand {
     u.setTransactTime(ld);
     Order returns = rt.postForObject(orderUrl, u, Order.class);
 
-    return String.format("ok pal, created Order with id %s", returns.getId());
+    return String.format("Created Order with id %s", returns.getId());
 
   }
 
@@ -134,7 +138,7 @@ public class ShellCommand {
     Order returns = rt.postForObject(orderUrl, u, Order.class);
 
 
-    return String.format("ok pal, created Order with id %s", returns.getId());
+    return String.format("Created Order with id %s", returns.getId());
 
   }
 
@@ -151,7 +155,7 @@ public class ShellCommand {
     ResponseEntity<Order[]> responseEntity = rt.getForEntity(orderUrl, Order[].class);
     List<Order> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> System.out.println(String.format("id: %s, symbol: %s, status %s", i.getAccountId(), i.getSymbol(), i.getStatus())));
+    objects.stream().forEach(i -> LOGGER.log(Level.FINE,String.format("id: %s, symbol: %s, status %s", i.getAccountId(), i.getSymbol(), i.getStatus())));
 
   }
 
@@ -161,7 +165,7 @@ public class ShellCommand {
     ResponseEntity<Quote[]> responseEntity = rt.getForEntity(String.format("%s/%s", quoteUrl, symbol), Quote[].class);
     List<Quote> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> System.out.println(String.format("id: %s, symbol: %s, adjustedClose %s", symbol, i.getDate(), i.getAdjustedClose())));
+    objects.stream().forEach(i -> LOGGER.log(Level.FINE,String.format("id: %s, symbol: %s, adjustedClose %s", symbol, i.getDate(), i.getAdjustedClose())));
 
 
   }
@@ -172,7 +176,7 @@ public class ShellCommand {
     ResponseEntity<Asset[]> responseEntity = rt.getForEntity(String.format("%s/%s", assetUrl, symbol), Asset[].class);
     List<Asset> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> System.out.println(String.format("code: %s, exchange %s, name %s", i.getCode(), i.getExchange(), i.getName())));
+    objects.stream().forEach(i -> LOGGER.log(Level.FINE,String.format("code: %s, exchange %s, name %s", i.getCode(), i.getExchange(), i.getName())));
 
 
   }

@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -44,8 +45,15 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
 
     switch (message.getMessageType()) {
       case MARKET_ORDER:
+        LOGGER.log(Level.FINE, String.format("Create cash entry from market order with id %s", message.getEntity_id()));
+        break;
       case CASH_ENTRY:
+        LOGGER.log(Level.FINE, String.format("Create cash entry from cash entry with id %s", message.getEntity_id()));
         this.receiveNewOrder(message);
+        break;
+      default:
+        LOGGER.log(Level.FINE, String.format("Action unknown for order with id %s", message.getEntity_id()));
+
         break;
     }
 
@@ -88,6 +96,11 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
         cashEntry.setNetAmount(cashEntry.getGrossAmount());
         cashEntry.setCurrency(order.getCashCurrency());
         cashEntry.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
+        break;
+      default:
+        LOGGER.log(Level.FINE, String.format("Type unknown for order with id %s", order.getId()));
+
+        break;
     }
     cashEntry.setAccountReportingCurrency(currentAccount.getPerformanceCurrency());
     cashEntry.setEntryValueReportingCurrency(cashEntry.getFxExchangeRate() * cashEntry.getNetAmount());

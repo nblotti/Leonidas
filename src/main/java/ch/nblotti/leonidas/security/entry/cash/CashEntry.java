@@ -67,10 +67,6 @@ public class CashEntry {
   @Column(name = "STATUS")
   private int status;
 
-  public CashEntry() {
-
-  }
-
 
   public Long getId() {
     return id;
