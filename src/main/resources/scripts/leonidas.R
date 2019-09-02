@@ -95,7 +95,7 @@ order.result <- POST(order_url, content_type_json(), body = fb_order_data)
 ai_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"1","exchange":"US","type":"MARKET_ORDER","symbol":"SPY","orderQtyData":1300,"transactTime":"2002-12-30"}'
 order.result <- POST(order_url, content_type_json(), body = ai_order_data)
 
-Sys.sleep(100)
+Sys.sleep(180)
 performance_url <- paste(server_url , "performance/ytd/1/", sep = "", collapse = NULL)
 
 performance <- fromJSON(performance_url)

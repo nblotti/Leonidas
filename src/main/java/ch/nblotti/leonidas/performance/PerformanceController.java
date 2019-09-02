@@ -1,0 +1,33 @@
+package ch.nblotti.leonidas.performance;
+
+
+import javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.logging.Logger;
+
+@RestController
+public class PerformanceController {
+
+
+  private final static Logger LOGGER = Logger.getLogger("PerformanceController");
+
+  @Autowired
+  private PerformanceRepository performanceRepository;
+
+  @Autowired
+  DateTimeFormatter dateTimeFormatter;
+
+
+  @GetMapping(value = "/performance/ytd/{accountID}/")
+  public List<Performance> getTwrPerfByAccount(@PathVariable int accountID) throws NotFoundException {
+
+
+    return this.performanceRepository.getTwrPerfByAccount( accountID);
+
+  }
+
+}
