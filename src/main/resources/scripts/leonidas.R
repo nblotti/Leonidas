@@ -85,7 +85,7 @@ raw.result <- POST(accounts_url, content_type_json(), body = account_data)
 
 
 order_url <- paste(server_url , "orders", sep = "", collapse = NULL)
-cash_usd_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"1","amount":"100000","type":"CASH_ENTRY","cashCurrency":"USD","transactTime":"2002-12-30"}'
+cash_usd_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"2","amount":"100000","type":"CASH_ENTRY","cashCurrency":"USD","transactTime":"2002-12-30"}'
 order.result <- POST(order_url, content_type_json(), body = cash_usd_order_data)
 
 
