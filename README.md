@@ -42,7 +42,7 @@ Leonidas was named after the famous spartan king, who died in the battle of Ther
 
 Leonidas is part of a broader project to create an open-source robo-advisor. Using Leonidas, you will be able to create new portfolios and duplicate existing ones, to submit orders and measure their effect on your portfolio positions and performance. Details such as stock and currency contribution will help you to refine your strategy. 
 
-The project was born after I realized that I needed a portfolio backtesting tool that allows me to construct portfolios based on mutual funds, ETFs and stocks and to analyze and backtest portfolio returns, risk characteristics, standard deviation, annual returns and rolling returns. 
+The project was born after I realized that I needed a tool to construct portfolios based on mutual funds, ETFs and stocks and help me to analyze and backtest portfolio returns, risk characteristics, standard deviation, annual returns and rolling returns. 
 
 ## Provider
 
@@ -101,6 +101,7 @@ I will not provide support until the V1 is published.
 
  - __Cash available management__
  - __Benchmark__
+ - __Order sequencing__
  - Fix for [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
  
  <h4>Beta - Q4 2019</h4>
