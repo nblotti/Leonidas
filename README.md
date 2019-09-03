@@ -102,7 +102,7 @@ I will not provide support until the V1 is published.
  - __Cash available management__
  - __Benchmark__
  - __Order sequencing__ - done
- - Fix for [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas) - done
+ - __Fix for__ [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas) - done
  
  <h4>Beta - Q4 2019</h4>
  
