@@ -1,6 +1,7 @@
 package ch.nblotti.leonidas.entry.cash;
 
 
+import ch.nblotti.leonidas.entry.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class CashEntryController {
 
 
   @PostMapping(value = "/cashentry")
-  public CashEntry save(@Valid @RequestBody CashEntry cashEntry) { //NOSONAR
+  public Entry save(@Valid @RequestBody CashEntry cashEntry) { //NOSONAR
 
     //verifier que le compte existe
     //verifier que la valeur existe

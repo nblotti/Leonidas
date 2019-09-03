@@ -1,5 +1,6 @@
 package ch.nblotti.leonidas.entry.cash;
 
+import ch.nblotti.leonidas.entry.Entry;
 import ch.nblotti.leonidas.technical.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
