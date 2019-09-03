@@ -19,6 +19,7 @@ public class OrderController {
 
 
   private final static Logger LOGGER = Logger.getLogger("OrderController");
+  public static final int PROCESSING = 102;
 
   @Autowired
   OrderService orderService;
@@ -41,7 +42,7 @@ public class OrderController {
   public Order save(@Valid @RequestBody Order orders, HttpServletResponse response) {//NOSONAR
 
     if (marketProcessService.isProcessForAccountRunning(orders.getAccountId())) {
-      response.setStatus(HttpServletResponse.SC_CONFLICT);
+      response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       return null;
     }
 

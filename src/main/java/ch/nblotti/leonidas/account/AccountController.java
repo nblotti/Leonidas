@@ -31,7 +31,7 @@ public class AccountController {
 
   }
 
-  @PostMapping(value = "/account/")
+  @PostMapping(value = "/account")
   public Account save(@Valid @RequestBody Account account) {//NOSONAR
 
 
