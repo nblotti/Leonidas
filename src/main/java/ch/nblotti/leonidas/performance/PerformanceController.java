@@ -21,7 +21,7 @@ public class PerformanceController {
   DateTimeFormatter dateTimeFormatter;
 
 
-  @GetMapping(value = "/performance/ytd/{accountID}/")
+  @GetMapping(value = "/performance/{accountID}/")
   public List<Performance> getTwrPerfByAccount(@PathVariable int accountID) throws NotFoundException {
 
 

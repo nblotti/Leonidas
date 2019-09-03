@@ -73,6 +73,7 @@ public class OrderService {
     Iterable<Order> newOrders = this.repository.saveAll(orders);
 
     for (Order createdOrder : newOrders) {
+      marketProcessService.startMarketProcessService(createdOrder);
       postMessage(createdOrder);
     }
 

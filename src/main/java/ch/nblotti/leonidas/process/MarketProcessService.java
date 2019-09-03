@@ -28,9 +28,9 @@ public class MarketProcessService {
   DateTimeFormatter dateTimeFormatter;
 
 
-  public boolean isProcessForAccountRunning( int accountID) {
+  public boolean isProcessForAccountRunning(int accountID) {
 
-    int runningProcess = marketProcessRepository.findRunningProcessForAccount( accountID);
+    int runningProcess = marketProcessRepository.findRunningProcessForAccount(accountID);
 
     if (runningProcess != 0)
       return true;
@@ -38,17 +38,29 @@ public class MarketProcessService {
     return false;
   }
 
-  public void startMarketProcessService(Order order, Account account) {
+  public void startMarketProcessService(Order order, int accountID) {
 
     MarketProcess marketProcess = new MarketProcess();
-    marketProcess.setAccountID(account.getId());
+    marketProcess.setAccountID(accountID);
     marketProcess.setOrderID(order.getId());
     marketProcess.setOrderType(order.getType());
     marketProcessRepository.save(marketProcess);
   }
 
+  public void startMarketProcessService(Order order, Account account) {
+
+    startMarketProcessService(order, account.getId());
+
+  }
+
+  public void startMarketProcessService(Order order) {
+
+    startMarketProcessService(order, order.getAccountId());
+
+  }
+
   public void setCashEntryRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID,accountID);
+    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
     marketProcess.setCashEntry(LocalDate.now());
 
@@ -57,7 +69,7 @@ public class MarketProcessService {
   }
 
   public void setSecurityhEntryRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID,accountID);
+    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
     marketProcess.setSecurityEntry(LocalDate.now());
     marketProcessRepository.save(marketProcess);
@@ -65,7 +77,7 @@ public class MarketProcessService {
 
 
   public void setCashPositionRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID,accountID);
+    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
     marketProcess.setCashPosition(LocalDate.now());
     marketProcessRepository.save(marketProcess);
@@ -73,7 +85,7 @@ public class MarketProcessService {
 
 
   public void setSecurityPositionRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID,accountID);
+    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
     marketProcess.setSecurityPosition(LocalDate.now());
     marketProcessRepository.save(marketProcess);
@@ -81,7 +93,7 @@ public class MarketProcessService {
 
   public void setSecurityFinishedForProcess(long orderID, int accountID) {
 
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID,accountID);
+    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
     marketProcess.setSecurityPerformance(LocalDate.now());
     marketProcessRepository.save(marketProcess);
@@ -89,7 +101,7 @@ public class MarketProcessService {
 
   public void setCashFinishedForProcess(long orderID, int accountID) {
 
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID,accountID);
+    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
     marketProcess.setCashPerformance(LocalDate.now());
     marketProcessRepository.save(marketProcess);

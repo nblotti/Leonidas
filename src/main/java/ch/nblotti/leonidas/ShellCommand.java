@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 public class ShellCommand {
 
 
-  private  static final Logger LOGGER = Logger.getLogger("ShellCommand");
+  private static final Logger LOGGER = Logger.getLogger("ShellCommand");
 
   @Value("${spring.application.order.url}")
   private String orderUrl;
@@ -47,33 +47,41 @@ public class ShellCommand {
   /* exemple :
   acc --date 15.06.2019 --copy 1
  * */
-  @ShellMethod("Create order")
+  @ShellMethod("Create account")
   public String acc(
     @ShellOption(defaultValue = "") String date,
-    @ShellOption(defaultValue = "") String copy,
     @ShellOption(defaultValue = "CHF") String pcu
 
   ) {
     Account returns;
     Account a = new Account();
 
-    if (copy.isEmpty() && !date.isEmpty()) {
-      a.setPerformanceCurrency(pcu);
+    a.setPerformanceCurrency(pcu);
+    if (!date.isEmpty()) {
+
       a.setEntryDate(LocalDate.parse(date, dateTimeFormatter));
       returns = rt.postForObject(accountUrl, a, Account.class);
       return String.format("Created Account with id %s at date %s", returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));
-    } else if (!copy.isEmpty() && !date.isEmpty()) {
-      returns = rt.postForObject(String.format("%s/duplicateAccount/%s/%s", accountUrl, copy, date), a, Account.class);
-      return String.format("Duplicated Account with id %s at date %s. New id is : %s", copy, dateTimeFormatter.format(returns.getEntryDate()), returns.getId());
-
     } else {
-      a.setPerformanceCurrency(pcu);
       a.setEntryDate(LocalDate.now());
       returns = rt.postForObject(accountUrl, a, Account.class);
       return String.format("Created Account with id %s ", returns.getId());
     }
+  }
 
+  @ShellMethod("Duplicate account")
+  public String dup(
+    @ShellOption(defaultValue = "") String date,
+    @ShellOption(defaultValue = "") String copy,
+    @ShellOption(defaultValue = "") String pcu
 
+  ) {
+    Account returns;
+    Account a = new Account();
+    a.setPerformanceCurrency(pcu);
+    a.setEntryDate(LocalDate.parse(date, dateTimeFormatter));
+    returns = rt.postForObject(String.format("%sduplicateAccount/%s/", accountUrl, copy), a, Account.class);
+    return String.format("Duplicated Account with id %s at date %s", returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));
   }
 
 
@@ -155,7 +163,7 @@ public class ShellCommand {
     ResponseEntity<Order[]> responseEntity = rt.getForEntity(orderUrl, Order[].class);
     List<Order> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> LOGGER.log(Level.FINE,String.format("id: %s, symbol: %s, status %s", i.getAccountId(), i.getSymbol(), i.getStatus())));
+    objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("id: %s, symbol: %s, status %s", i.getAccountId(), i.getSymbol(), i.getStatus())));
 
   }
 
@@ -165,7 +173,7 @@ public class ShellCommand {
     ResponseEntity<Quote[]> responseEntity = rt.getForEntity(String.format("%s/%s", quoteUrl, symbol), Quote[].class);
     List<Quote> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> LOGGER.log(Level.FINE,String.format("id: %s, symbol: %s, adjustedClose %s", symbol, i.getDate(), i.getAdjustedClose())));
+    objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("id: %s, symbol: %s, adjustedClose %s", symbol, i.getDate(), i.getAdjustedClose())));
 
 
   }
@@ -176,7 +184,7 @@ public class ShellCommand {
     ResponseEntity<Asset[]> responseEntity = rt.getForEntity(String.format("%s/%s", assetUrl, symbol), Asset[].class);
     List<Asset> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> LOGGER.log(Level.FINE,String.format("code: %s, exchange %s, name %s", i.getCode(), i.getExchange(), i.getName())));
+    objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("code: %s, exchange %s, name %s", i.getCode(), i.getExchange(), i.getName())));
 
 
   }

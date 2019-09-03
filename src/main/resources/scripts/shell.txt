@@ -6,7 +6,7 @@
 
 
 //account creation
- acc --date 15.05.2019
+ acc --date 15.05.2019 --pcu USD
 
  //cash entry
  ordc --acc 1 --id test1 --amo 100000 --side 2 --cur USD --dtv 28.06.2019
@@ -17,7 +17,7 @@
  ordm --acc 1 --id test1 --exch PA --symb AI --side 2 --qty 250 --dtv 28.06.2019
 
 //account 1 duplication
- acc --date 15.06.2019 --copy 1
+dup --date 15.05.2019  --copy 1 --pcu CHF
 
 
 perf  (replace localhost:port by your url):

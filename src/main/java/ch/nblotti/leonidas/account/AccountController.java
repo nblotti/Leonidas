@@ -1,10 +1,12 @@
 package ch.nblotti.leonidas.account;
 
 
+import ch.nblotti.leonidas.process.MarketProcessService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -21,6 +23,9 @@ public class AccountController {
   DateTimeFormatter dateTimeFormatter;
 
 
+
+  @Autowired
+  MarketProcessService marketProcessService;
   /**
    * Look up all accounts, and transform them into a REST collection resource.
    */
@@ -39,11 +44,15 @@ public class AccountController {
 
   }
 
-  @PostMapping(value = "/account/duplicateAccount/{id}/{date}")
-  public Account duplicateAccount(@PathVariable String id, @PathVariable String date) {
+  @PostMapping(value = "/account/duplicateAccount/{id}/")
+  public Account duplicateAccount(@PathVariable int id, @Valid @RequestBody Account account, HttpServletResponse response) {
 
+    if (marketProcessService.isProcessForAccountRunning(id)) {
+      response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+      return null;
+    }
 
-    return accountService.duplicateAccount(Integer.valueOf(id), LocalDate.parse(date, dateTimeFormatter));
+    return accountService.duplicateAccount(id, account);
   }
 
   @PostMapping(value = "/account/{id}/")

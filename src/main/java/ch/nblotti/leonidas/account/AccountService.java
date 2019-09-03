@@ -3,6 +3,7 @@ package ch.nblotti.leonidas.account;
 
 import ch.nblotti.leonidas.order.Order;
 import ch.nblotti.leonidas.order.OrderService;
+import ch.nblotti.leonidas.process.MarketProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,8 @@ import static java.util.stream.Collectors.groupingBy;
 @Component
 public class AccountService {
 
-
+  @Autowired
+  MarketProcessService marketProcessService;
   @Autowired
   private AccountRepository accountRepository;
 
@@ -43,33 +45,34 @@ public class AccountService {
     return accountRepository.findAccountById(id);
   }
 
-  public Account duplicateAccount(Integer oldAccountId, LocalDate date) {
+  public Account duplicateAccount(Integer oldAccountId, Account account) {
 
-    Account newAccount = duplicate(oldAccountId, date);
-    duplicateOrder(newAccount, oldAccountId, date);
+
+    Account newAccount = duplicate(oldAccountId, account.getEntryDate(), account.getPerformanceCurrency());
+    duplicateOrder(newAccount, oldAccountId);
 
     return newAccount;
   }
 
-  private Account duplicate(Integer oldAccountId, LocalDate date) {
+  private Account duplicate(Integer oldAccountId, LocalDate date, String perfcurrency) {
 
     Account acc = accountRepository.findAccountById(oldAccountId);
     if (acc == null)
       throw new IllegalStateException("Reference Account not found");
     Account newAccount = new Account();
     newAccount.setEntryDate(date);
-    newAccount.setPerformanceCurrency(acc.getPerformanceCurrency());
+    newAccount.setPerformanceCurrency(perfcurrency == null ? acc.getPerformanceCurrency() : perfcurrency);
     return this.accountRepository.save(newAccount);
 
 
   }
 
 
-  private void duplicateOrder(Account newAccount, Integer oldAccountId, LocalDate date) {
+  private void duplicateOrder(Account newAccount, Integer oldAccountId) {
 
     List<Order> newOrders = new ArrayList<>();
 
-    Iterable<Order> orders = orderService.findByAccountIdAndTransactTimeAfter(oldAccountId, date);
+    Iterable<Order> orders = orderService.findByAccountIdAndTransactTimeAfter(oldAccountId, newAccount.getEntryDate());
     for (Order currentOrder : orders) {
       Order newOrder = new Order();
       newOrder.setAccountId(newAccount.getId());

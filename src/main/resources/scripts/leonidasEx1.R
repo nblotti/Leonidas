@@ -25,7 +25,7 @@ server_url  <- "http://localhost:8080/"
 
 
 doCallJsonRestApi <- function(verb, url, data) {
- 
+
    repeat {
     switch(verb,
            'GET'= {
@@ -35,7 +35,7 @@ doCallJsonRestApi <- function(verb, url, data) {
              order.result  <- POST(url, content_type_json(), body = data)
            }
     )
-    
+
     if(order.result$status_code !=503){
       break
     }else {
@@ -43,7 +43,7 @@ doCallJsonRestApi <- function(verb, url, data) {
     }
    }
   return(fromJSON(content(order.result, as = "text")))
-  
+
 }
 
 
@@ -70,7 +70,7 @@ ai_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"1","exchange":"PA"
 order.result <- doCallJsonRestApi('POST',order_url,  ai_order_data)
 
 
-performance_url <- paste(server_url , "performance/ytd/1/", sep = "", collapse = NULL)
+performance_url <- paste(server_url , "performance/1/", sep = "", collapse = NULL)
 
 performance <- doCallJsonRestApi('GET',performance_url)
 
@@ -90,4 +90,4 @@ geom_line(aes(y = perf, col = "cash"))
 
 p + scale_x_date(date_labels = "%d/%b/%Y")
 
-#rm(list=ls()) 
+#rm(list=ls())
