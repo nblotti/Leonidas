@@ -67,8 +67,6 @@
                   <goal>report</goal>
                 </goals>
                 <configuration>
-                  <outputDirectory>src/main/jacoco</outputDirectory>
-
                   <excludes>
                     <exclude>ch/nblotti/leonidas/**/*Repository.class</exclude>
                     <exclude>ch/nblotti/leonidas/**/*Controller.class</exclude>
