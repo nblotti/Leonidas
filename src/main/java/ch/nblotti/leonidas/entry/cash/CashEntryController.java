@@ -25,7 +25,7 @@ public class CashEntryController {
   }
 
 
-  @RequestMapping(value = "/cashentry", method = RequestMethod.POST)
+  @PostMapping(value = "/cashentry")
   public CashEntry save(@Valid @RequestBody CashEntry cashEntry) { //NOSONAR
 
     //verifier que le compte existe

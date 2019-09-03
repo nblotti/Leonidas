@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 @Component
 public class CashEntryReceiver extends EntryReceiver<CashEntry> {
 
-  private final static Logger LOGGER = Logger.getLogger("CashEntryReceiver");
+  private  static final Logger LOGGER = Logger.getLogger("CashEntryReceiver");
 
   @Autowired
   CashEntryService cashEntryService;

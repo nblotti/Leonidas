@@ -81,4 +81,11 @@ public class LeonidasApplication {
     return DateTimeFormatter.ofPattern("dd.MM.yyyy");
   }
 
+  @Bean
+  public DateTimeFormatter quoteDateTimeFormatter() {
+    return    DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  }
+
+
+
 }

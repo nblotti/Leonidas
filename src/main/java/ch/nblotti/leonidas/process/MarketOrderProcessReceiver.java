@@ -12,27 +12,8 @@ import java.util.logging.Logger;
 
 public class MarketOrderProcessReceiver {
 
-  private final static Logger LOGGER = Logger.getLogger("MarketOrder");
-
-  @Autowired
-  AccountService acountService;
-
-  @Autowired
-  OrderController orderController;
-
-  @Autowired
-  MarketProcessService marketProcessService;
 
 
-  private Order getOrder(Message message) {
-    Optional<Order> order = orderController.findById(String.valueOf(message.getOrderID()));
-
-    if (!order.isPresent()) {
-      throw new IllegalStateException(String.format("No order for id %s, returning", message.getOrderID()));
-    }
-    return order.get();
-
-  }
 
 
 }

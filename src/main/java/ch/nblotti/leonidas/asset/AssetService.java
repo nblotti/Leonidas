@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Component
 public class AssetService {
 
-  private static Logger LOGGER = Logger.getLogger("AssetService");
+  private static  final Logger LOGGER = Logger.getLogger("AssetService");
 
   public static final String ASSETS = "assets";
   public static final String ASSET_MAP = "assetMap";

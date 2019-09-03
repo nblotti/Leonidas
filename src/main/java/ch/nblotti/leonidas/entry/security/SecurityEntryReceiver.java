@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 public class SecurityEntryReceiver extends EntryReceiver<SecurityEntry> {
 
 
-  private final static Logger LOGGER = Logger.getLogger("SecurityEntryReceiver");
+  private static final Logger LOGGER = Logger.getLogger("SecurityEntryReceiver");
 
   @Autowired
   AccountService accountService;
@@ -48,6 +48,11 @@ public class SecurityEntryReceiver extends EntryReceiver<SecurityEntry> {
     switch (message.getMessageType()) {
       case MARKET_ORDER:
         this.receiveNewOrder(message);
+        break;
+      case CASH_ENTRY:
+      case CASH_POSITION:
+      case SECURITY_ENTRY:
+      case SECURITY_POSITION:
         break;
       default:
         if (LOGGER.isLoggable(Level.FINE)) {

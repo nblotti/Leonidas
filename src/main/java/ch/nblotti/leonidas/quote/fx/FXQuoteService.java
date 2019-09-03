@@ -2,6 +2,7 @@ package ch.nblotti.leonidas.quote.fx;
 
 
 import ch.nblotti.leonidas.quote.Quote;
+import ch.nblotti.leonidas.quote.asset.AbstractQuoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -15,60 +16,29 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
-public class FXQuoteService {
+public class FXQuoteService extends AbstractQuoteService {
 
 
-  private final static String FOREX = "FOREX";
   public static final String QUOTES = "quotes";
-  @Value("${spring.application.eod.api.key}")
-  private String eodApiToken;
-  @Value("${spring.application.eod.quote.url}")
-  private String quoteUrl;
-
-  @Autowired
-  private RestTemplate rt;
-
-  @Autowired
-  private CacheManager cacheManager;
+  private final static String FOREX = "FOREX";
 
 
-  DateTimeFormatter quoteDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
   @Autowired
   private DateTimeFormatter dateTimeFormatter;
 
 
-  //TODO NBL : test me
+
+  @Override
+  protected String getCashName() {
+    return QUOTES;
+  }
+
+
   public List<Quote> getFXQuotes(String currencyPair) {
 
-    Map<String, List<Quote>> cachedQuotes;
-
-
-    if (cacheManager.getCache(QUOTES).get(FOREX) == null)
-      cachedQuotes = new HashMap<>();
-    else
-      cachedQuotes = (Map<String, List<Quote>>) cacheManager.getCache(QUOTES).get(FOREX).get();
-
-    if (!cachedQuotes.containsKey(currencyPair)) {
-      ResponseEntity<Quote[]> responseEntity = rt.getForEntity(String.format(quoteUrl, currencyPair + "." + FOREX, eodApiToken), Quote[].class);
-
-      Map<String, List<Quote>> quotesMap = new HashMap<>();
-      quotesMap.put(currencyPair, Arrays.asList(responseEntity.getBody()));
-      cacheManager.getCache(QUOTES).put(FOREX, quotesMap);
-
-    }
-
-    return ((Map<String, List<Quote>>) cacheManager.getCache(QUOTES).get(FOREX).get()).get(currencyPair);
-
+    return getQuotes(FOREX, currencyPair);
 
   }
-
-
-  @Scheduled(fixedRate = 10800000)
-  public void clearCache() {
-    cacheManager.getCache(QUOTES).clear();
-
-  }
-
 
   //TODO NBL : test me
   /*Gestion des jours fériés et week-end : on prend le dernier disponible*/
@@ -86,7 +56,7 @@ public class FXQuoteService {
       quote.setLow("1");
       quote.setOpen("1");
       quote.setVolume("0");
-      quote.setDate(date.format(quoteDateTimeFormatter));
+      quote.setDate(date.format(getQuoteDateTimeFormatter()));
       return quote;
 
     } else {
@@ -99,7 +69,7 @@ public class FXQuoteService {
       for (Iterator<Quote> collectionItr = getFXQuotes(currencyPair).iterator(); collectionItr.hasNext(); ) {
 
         Quote currentQuote = collectionItr.next();
-        if (currentQuote.getDate().equals(localDate.format(quoteDateTimeFormatter))) {
+        if (currentQuote.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
           lastElement = currentQuote;
           break;
         }

@@ -60,17 +60,16 @@ public class SecurityPositionService {
   //TODO NBL : test me
   public Position updatePosition(SecurityEntry entry) {
 
-    LOGGER.log(Level.FINE,"Started update process");
+    LOGGER.log(Level.FINE, "Started update process");
     Account currentAccount = accountService.findAccountById(entry.getAccount());
 
 
     if (LocalDate.now().compareTo(entry.getValueDate()) >= 0) {
       //2. oui -Suppression position futures
-      //deleteAll(entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
       repository.deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(Position.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
 
 
-      LOGGER.log(Level.FINE,"Suppression des positions");
+      LOGGER.log(Level.FINE, "Suppression des positions");
     }
 
     //3. On obtient la liste des mouvements
@@ -82,9 +81,7 @@ public class SecurityPositionService {
     //5. On duplique les quantités entre les deux dates
     updatePositions(currentAccount, aggregatedSecurityEntries);
 
-    jmsOrderTemplate.convertAndSend("securitypositionbox", new Message(entry.getOrderID(), entry.getAccount() , Message.MESSAGE_TYPE.SECURITY_POSITION, Message.ENTITY_ACTION.CREATE));
-
-
+    jmsOrderTemplate.convertAndSend("securitypositionbox", new Message(entry.getOrderID(), entry.getAccount(), Message.MESSAGE_TYPE.SECURITY_POSITION, Message.ENTITY_ACTION.CREATE));
 
 
     return null;
@@ -135,13 +132,8 @@ public class SecurityPositionService {
 
     List<AggregatedSecurityEntry> aggregatedSecurityEntries = Lists.newArrayList(entryByDate.values());
 
-    Collections.sort(aggregatedSecurityEntries, new Comparator<AggregatedSecurityEntry>() {
-      @Override
-      public int compare(AggregatedSecurityEntry entry1, AggregatedSecurityEntry entry2) {
 
-        return entry1.getValueDate().compareTo(entry2.getValueDate());
-      }
-    });
+    aggregatedSecurityEntries.sort((AggregatedSecurityEntry entry1, AggregatedSecurityEntry entry2) -> entry1.getValueDate().compareTo(entry2.getValueDate()));
 
 
     return aggregatedSecurityEntries;
@@ -161,7 +153,8 @@ public class SecurityPositionService {
     existingEntry.setQuantity(existingEntry.getQuantity() - currentEntry.getQuantity());
     existingEntry.setNetPosValue(existingEntry.getNetPosValue() - currentEntry.getNetAmount());
     existingEntry.setGrossPosValue(existingEntry.getGrossPosValue() - currentEntry.getGrossAmount());
-//la somme est non null on retourne false;
+
+    //la somme est non null on retourne false
     return false;
   }
 
@@ -232,11 +225,9 @@ public class SecurityPositionService {
 
 
     Float realized = 0F;
-    Float accountReportingRealized = 0F;
-    Float quantity = 0F;
-    Float cma = 0F;
-    Float tma = 0F;
-    //Float accountReportingCurrencyCMA = 0F;
+    Float quantity;
+    Float cma;
+    Float tma;
 
 
     //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
@@ -247,8 +238,6 @@ public class SecurityPositionService {
 
     LocalDate endDate = currentEntry.getValueDate().isAfter(LocalDate.now()) ? currentEntry.getValueDate().minusDays(1) : LocalDate.now();
 
-
-    Float currencyNetPosValue = currentEntry.getNetPosValue() * currentEntry.getFxchangeRate();
 
     if (nextEntry != null) {
       endDate = nextEntry.getValueDate().minusDays(1);
@@ -286,14 +275,15 @@ public class SecurityPositionService {
     }
 
 
-    return createSecurityPositions(currentAccount, quantity, cma, tma, /*accountReportingCurrencyCMA, */realized /*accountReportingRealized*/, currentEntry, endDate, uuidHolder);
+    return createSecurityPositions(currentAccount, quantity, cma, tma, realized, currentEntry, endDate, uuidHolder);
 
   }
 
-  private Iterable<Position> createSecurityPositions(Account currentAccount, Float quantity, Float cma, Float tma/*accountReportingCurrencyCMA*/, Float realized, /*Float accountReportingRealized,*/ AggregatedSecurityEntry firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
+  private Iterable<Position> createSecurityPositions(Account currentAccount, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntry firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
 
-    LOGGER.log(Level.FINE,String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
-
+    if (LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.fine(String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
+    }
 
     //on valorise
 

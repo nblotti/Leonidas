@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public abstract class EntryReceiver<T> {
 
 
-  private static Logger LOGGER = Logger.getLogger("EntryReceiver");
+  private static final Logger LOGGER = Logger.getLogger("EntryReceiver");
 
 
   @Autowired
