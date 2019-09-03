@@ -10,7 +10,7 @@
 
 <div id="badges" align="center">
 
-
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=nblotti_leonidas&metric=alert_status)](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
 
 </div>
 
