@@ -8,6 +8,7 @@ target/*
 security.iml
 src/main/resources/override.properties
 
+.sonarcloud.properties
 # Compiled class file
 *.class
 
