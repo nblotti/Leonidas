@@ -61,18 +61,17 @@ public class CashPositionService {
   }
 
 
-
   //TODO NBL : test me
   public Position updatePosition(CashEntry entry) {
 
-    LOGGER.log(Level.FINE,"Started update process");
+    LOGGER.log(Level.FINE, "Started update process");
 
 
     repository.deleteByPosTypeAndAccountIdAndCurrency(Position.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());
 
     if (LocalDate.now().compareTo(entry.getValueDate()) >= 0) {
 
-      LOGGER.log(Level.FINE,"Suppression des positions");
+      LOGGER.log(Level.FINE, "Suppression des positions");
     }
 
     //3. On obtient la liste des mouvements
@@ -89,7 +88,7 @@ public class CashPositionService {
     updatePositions(currentAccount, aggegatedCashEntries);
 
 
-    jmsOrderTemplate.convertAndSend("cashpositionbox", new Message(entry.getOrderID(),entry.getAccount(), Message.MESSAGE_TYPE.CASH_POSITION, Message.ENTITY_ACTION.CREATE));
+    jmsOrderTemplate.convertAndSend("cashpositionbox", new Message(entry.getOrderID(), entry.getAccount(), Message.MESSAGE_TYPE.CASH_POSITION, Message.ENTITY_ACTION.CREATE));
 
 
     return null;
@@ -154,13 +153,8 @@ public class CashPositionService {
 
     List<AggregatedCashEntry> sortedCashEntry = Lists.newArrayList(cashEntryByDAte.values());
 
-    Collections.sort(sortedCashEntry, new Comparator<AggregatedCashEntry>() {
-      @Override
-      public int compare(AggregatedCashEntry cashEntry1, AggregatedCashEntry cashEntry2) {
 
-        return cashEntry1.getValueDate().compareTo(cashEntry2.getValueDate());
-      }
-    });
+    sortedCashEntry.sort((AggregatedCashEntry cashEntry1, AggregatedCashEntry cashEntry2) -> cashEntry1.getValueDate().compareTo(cashEntry2.getValueDate()));
 
     return sortedCashEntry;
 
@@ -188,12 +182,10 @@ public class CashPositionService {
 
     if (positions != null && !Lists.newArrayList(positions).isEmpty()) {
 
-      Float currencyNetPosValue = currentEntry.getNetAmount() * currentEntry.getFxchangeRate();
 
       //la position de la veille
       Position lastDayPosition = Lists.newArrayList(positions).get(Lists.newArrayList(positions).size() - 1);
 
-      //accountReportingRealized = lastDayPosition.getAccountReportingRealized();
       //on additionne la quantité à la quantité de la valeur existante.
       if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT) {
         //il s'agit d'un achat, il faut adapter le CMA
@@ -224,8 +216,9 @@ public class CashPositionService {
 
   private Iterable<Position> createPositions(Account currentAccount, Float netAmount, Float tma, AggregatedCashEntry currentEntry, LocalDate endDate) {
 
-    LOGGER.log(Level.FINE,String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));
-
+    if(LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.fine(String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));
+    }
     long loop = ChronoUnit.DAYS.between(currentEntry.getValueDate(), endDate);
 
     List<Position> positions = Lists.newArrayList();

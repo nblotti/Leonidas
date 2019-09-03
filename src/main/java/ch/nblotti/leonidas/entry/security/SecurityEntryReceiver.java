@@ -50,8 +50,9 @@ public class SecurityEntryReceiver extends EntryReceiver<SecurityEntry> {
         this.receiveNewOrder(message);
         break;
       default:
-        LOGGER.log(Level.FINE, String.format("Type unknown for entry with id %s", message.getOrderID()));
-
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Type unknown for entry with id %s", message.getOrderID()));
+        }
         break;
     }
   }
@@ -88,10 +89,12 @@ public class SecurityEntryReceiver extends EntryReceiver<SecurityEntry> {
   @Override
   protected SecurityEntry save(SecurityEntry entry) {
 
-    LOGGER.log(Level.FINE, String.format("Created new entry with id %s", entry.getId()));
+    if (LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.fine(String.format("Created new entry with id %s", entry.getId()));
+    }
     SecurityEntry saved = securityEntryService.save(entry);
 
-    marketProcessService.setSecurityhEntryRunningForProcess(entry.getOrderID(),entry.getAccount());
+    marketProcessService.setSecurityhEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
 
 
     return saved;

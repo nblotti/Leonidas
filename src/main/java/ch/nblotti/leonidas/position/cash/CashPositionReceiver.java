@@ -38,7 +38,9 @@ public class CashPositionReceiver {
     marketProcessService.setCashPositionRunningForProcess(message.getOrderID(), message.getAccountID());
 
     if (cashEntry == null) {
-      LOGGER.log(Level.FINE, String.format("No cashEntry for id %s, returning", message.getOrderID()));
+      if (LOGGER.isLoggable(Level.FINE)) {
+        LOGGER.fine(String.format("No cashEntry for id %s, returning", message.getOrderID()));
+      }
       return;
     }
 
@@ -46,20 +48,27 @@ public class CashPositionReceiver {
     switch (message.getEntityAction()) {
 
       case CREATE:
-        LOGGER.log(Level.FINE, String.format("Start creation of cash positions for entry with id %s", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Start creation of cash positions for entry with id %s", message.getOrderID()));
+        }
         long startTime = System.nanoTime();
         cashPositionService.updatePosition(cashEntry);
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-        LOGGER.log(Level.FINE, String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", message.getOrderID(), elapsedTime));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", message.getOrderID(), elapsedTime));
+        }
         break;
       case DELETE:
-
-        LOGGER.log(Level.FINE, String.format("Delete  cash positions for entry from order with id %s", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Delete  cash positions for entry from order with id %s", message.getOrderID()));
+        }
         break;
 
       default:
-        LOGGER.log(Level.FINE, String.format("Unknown action type for entry from order with id %s", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Unknown action type for entry from order with id %s", message.getOrderID()));
+        }
         break;
 
     }

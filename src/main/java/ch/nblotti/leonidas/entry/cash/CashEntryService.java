@@ -6,12 +6,10 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Component
 public class CashEntryService {
 
-  private static Logger LOGGER = Logger.getLogger("CashEntryService");
 
   @Autowired
   private CashEntryRepository repository;

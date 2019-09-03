@@ -31,15 +31,13 @@ public class CashEntryController {
     //verifier que le compte existe
     //verifier que la valeur existe
 
-    CashEntry createdCashEntry = this.cashEntryService.save(cashEntry);
+    return this.cashEntryService.save(cashEntry);
 
-
-    return cashEntry;
   }
 
 
-  public Iterable<CashEntry> findAllByCurrencyOrderByValueDateAsc(int account,String currency) {
+  public Iterable<CashEntry> findAllByCurrencyOrderByValueDateAsc(int account, String currency) {
 
-    return this.cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(account,currency);
+    return this.cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(account, currency);
   }
 }

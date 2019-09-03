@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -34,7 +35,9 @@ public class CashPerformanceReceiver {
 
     marketProcessService.setCashFinishedForProcess( message.getOrderID(),  message.getAccountID());
 
-    LOGGER.info(String.format("Recalcul de la performance cash pour le compte %s", message.getAccountID()));
+    if(LOGGER.isLoggable(Level.FINE)){
+      LOGGER.fine(String.format("Recalcul de la performance cash pour le compte %s", message.getAccountID()));
+    };
 
 
   }

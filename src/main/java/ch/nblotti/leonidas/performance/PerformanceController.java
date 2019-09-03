@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 public class PerformanceController {
 
 
-  private final static Logger LOGGER = Logger.getLogger("PerformanceController");
 
   @Autowired
   private PerformanceRepository performanceRepository;

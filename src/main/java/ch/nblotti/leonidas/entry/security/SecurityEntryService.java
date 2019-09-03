@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 @Component
 public class SecurityEntryService {
 
-  private static Logger LOGGER = Logger.getLogger("SecurityEntryService");
 
   @Autowired
   private SecurityEntryRepository repository;

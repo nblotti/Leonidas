@@ -49,16 +49,22 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
 
     switch (message.getMessageType()) {
       case MARKET_ORDER:
-        LOGGER.log(Level.FINE, String.format("Create cash entry from market order with id %s", message.getOrderID()));
 
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Create cash entry from market order with id %s", message.getOrderID()));
+        }
         this.receiveNewOrder(message);
         break;
       case CASH_ENTRY:
-        LOGGER.log(Level.FINE, String.format("Create cash entry from cash order with id %s", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Create cash entry from cash order with id %s", message.getOrderID()));
+        }
         this.receiveNewOrder(message);
         break;
       default:
-        LOGGER.log(Level.FINE, String.format("Action unknown for order with id %s", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Action unknown for order with id %s", message.getOrderID()));
+        }
 
         break;
     }
@@ -105,8 +111,9 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
         cashEntry.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
         break;
       default:
-        LOGGER.log(Level.FINE, String.format("Type unknown for order with id %s", order.getId()));
-
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Type unknown for order with id %s", order.getId()));
+        }
         break;
     }
     cashEntry.setAccountReportingCurrency(currentAccount.getPerformanceCurrency());
@@ -119,10 +126,12 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
   @Override
   protected CashEntry save(CashEntry entry) {
 
-    LOGGER.log(Level.FINE, String.format("Created new entry with id %s", entry.getId()));
+    if (LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.fine(String.format("Created new entry with id %s", entry.getId()));
+    }
     CashEntry saved = cashEntryService.save(entry);
 
-    marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(),entry.getAccount());
+    marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
 
 
     return saved;

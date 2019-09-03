@@ -45,26 +45,12 @@ public class OrderController {
       return null;
     }
 
-    LOGGER.log(Level.FINE, String.format("Create market order process for market order with id %s", orders.getId()));
-
-    Account account = getAccount(orders);
-
-
+    if (LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.fine(String.format("Create market order process for market order with id %s", orders.getId()));
+    }
 
 
     return this.orderService.save(orders);
-
-  }
-
-  private Account getAccount(Order order) {
-
-    Account account = acountService.findAccountById(order.getAccountId());
-
-    if (account == null) {
-      throw new IllegalStateException(String.format("No account %s for order %s, returning", order.getAccountId(), order.getId()));
-    }
-    return account;
-
 
   }
 

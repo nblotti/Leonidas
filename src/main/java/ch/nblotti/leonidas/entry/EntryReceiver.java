@@ -42,14 +42,20 @@ public abstract class EntryReceiver<T> {
     switch (message.getEntityAction()) {
 
       case CREATE:
-        LOGGER.log(Level.FINE, String.format("Create entry from order with id %s", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.fine(String.format("Create entry from order with id %s", message.getOrderID()));
+        }
         save(fromOrder(order));
         break;
       case DELETE:
-        LOGGER.log(Level.FINE, String.format("Delete entry from order with id %s", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.log(Level.FINE, String.format("Delete entry from order with id %s", message.getOrderID()));
+        }
         break;
       default:
-        LOGGER.log(Level.FINE, String.format("Unsupported action type", message.getOrderID()));
+        if (LOGGER.isLoggable(Level.FINE)) {
+          LOGGER.log(Level.FINE, String.format("Unsupported action type for order with id %s", message.getOrderID()));
+        }
         break;
 
     }

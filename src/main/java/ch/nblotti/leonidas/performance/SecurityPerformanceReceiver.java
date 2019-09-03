@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
@@ -31,12 +32,11 @@ public class SecurityPerformanceReceiver {
   public void receiveNewEntry(Message message) {
 
 
+    marketProcessService.setSecurityFinishedForProcess(message.getOrderID(), message.getAccountID());
 
-
-    marketProcessService.setSecurityFinishedForProcess( message.getOrderID(),message.getAccountID());
-
-    LOGGER.info(String.format("Recalcul de la performance titre pour le compte %s", message.getAccountID()));
-
+    if (LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.fine(String.format("Recalcul de la performance titre pour le compte %s", message.getAccountID()));
+    }
 
   }
 

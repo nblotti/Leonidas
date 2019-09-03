@@ -9,7 +9,7 @@ public class Performance {
   private double perf;
   private int accountId;
 
-  public Performance(int accountId,  LocalDate posDate, int type, double perf) {
+  public Performance(int accountId, LocalDate posDate, int type, double perf) {
     this.accountId = accountId;
     this.type = type;
     this.posDate = posDate;
@@ -38,5 +38,13 @@ public class Performance {
 
   public void setPerf(double perf) {
     this.perf = perf;
+  }
+
+  public int getAccountId() {
+    return accountId;
+  }
+
+  public void setAccountId(int accountId) {
+    this.accountId = accountId;
   }
 }
