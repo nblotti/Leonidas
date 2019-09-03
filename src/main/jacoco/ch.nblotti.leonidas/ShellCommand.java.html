@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShellCommand.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">leonidas</a> &gt; <a href="index.source.html" class="el_package">ch.nblotti.leonidas</a> &gt; <span class="el_source">ShellCommand.java</span></div><h1>ShellCommand.java</h1><pre class="source lang-java linenums">package ch.nblotti.leonidas;
+
+import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.asset.AssetPO;
+import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.quote.QuoteDTO;
+import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.order.ORDER_TYPE;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.shell.standard.ShellComponent;
+import org.springframework.shell.standard.ShellMethod;
+import org.springframework.shell.standard.ShellOption;
+import org.springframework.web.client.RestTemplate;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+@ShellComponent
+<span class="nc" id="L26">public class ShellCommand {</span>
+
+
+<span class="nc" id="L29">  private static final Logger LOGGER = Logger.getLogger(&quot;ShellCommand&quot;);</span>
+
+  @Value(&quot;${spring.application.order.url}&quot;)
+  private String orderUrl;
+  @Value(&quot;${spring.application.quote.url}&quot;)
+  private String quoteUrl;
+  @Value(&quot;${spring.application.asset.url}&quot;)
+  private String assetUrl;
+  @Value(&quot;${spring.application.account.url}&quot;)
+  private String accountUrl;
+
+  @Autowired
+  DateTimeFormatter dateTimeFormatter;
+
+  @Autowired
+  private RestTemplate rt;
+
+
+  /* exemple :
+  acc --date 15.06.2019 --copy 1
+ * */
+  @ShellMethod(&quot;Create account&quot;)
+  public String acc(
+    @ShellOption(defaultValue = &quot;&quot;) String date,
+    @ShellOption(defaultValue = &quot;CHF&quot;) String pcu
+
+  ) {
+    AccountPO returns;
+<span class="nc" id="L57">    AccountPO a = new AccountPO();</span>
+
+<span class="nc" id="L59">    a.setPerformanceCurrency(pcu);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    if (!date.isEmpty()) {</span>
+
+<span class="nc" id="L62">      a.setEntryDate(LocalDate.parse(date, dateTimeFormatter));</span>
+<span class="nc" id="L63">      returns = rt.postForObject(accountUrl, a, AccountPO.class);</span>
+<span class="nc" id="L64">      return String.format(&quot;Created Account with id %s at date %s&quot;, returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));</span>
+    } else {
+<span class="nc" id="L66">      a.setEntryDate(LocalDate.now());</span>
+<span class="nc" id="L67">      returns = rt.postForObject(accountUrl, a, AccountPO.class);</span>
+<span class="nc" id="L68">      return String.format(&quot;Created Account with id %s &quot;, returns.getId());</span>
+    }
+  }
+
+  @ShellMethod(&quot;Duplicate account&quot;)
+  public String dup(
+    @ShellOption(defaultValue = &quot;&quot;) String date,
+    @ShellOption(defaultValue = &quot;&quot;) String copy,
+    @ShellOption(defaultValue = &quot;&quot;) String pcu
+
+  ) {
+    AccountPO returns;
+<span class="nc" id="L80">    AccountPO a = new AccountPO();</span>
+<span class="nc" id="L81">    a.setPerformanceCurrency(pcu);</span>
+<span class="nc" id="L82">    a.setEntryDate(LocalDate.parse(date, dateTimeFormatter));</span>
+<span class="nc" id="L83">    returns = rt.postForObject(String.format(&quot;%s/duplicateAccount/%s/&quot;, accountUrl, copy), a, AccountPO.class);</span>
+<span class="nc" id="L84">    return String.format(&quot;Duplicated Account with id %s at date %s&quot;, returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));</span>
+  }
+
+
+  @ShellMethod(&quot;Create cash transaction&quot;)
+  public String ordc(
+    @ShellOption String id,
+    @ShellOption int acc,
+    @ShellOption String cur,
+    @ShellOption int side,
+    @ShellOption int amo,
+    @ShellOption(defaultValue = &quot;-1&quot;) String dtv) {
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">    LocalDate ld = dtv.equalsIgnoreCase(&quot;-1&quot;) ? LocalDate.now() : LocalDate.parse(dtv, dateTimeFormatter);</span>
+
+<span class="nc" id="L99">    OrderPO u = new OrderPO();</span>
+<span class="nc" id="L100">    u.setcIOrdID(id);</span>
+<span class="nc" id="L101">    u.setAccountId(acc);</span>
+<span class="nc" id="L102">    u.setAmount(amo);</span>
+<span class="nc" id="L103">    u.setCashCurrency(cur);</span>
+<span class="nc" id="L104">    u.setSide(DEBIT_CREDIT.fromType(side));</span>
+<span class="nc" id="L105">    u.setType(ORDER_TYPE.CASH_ENTRY);</span>
+<span class="nc" id="L106">    u.setTransactTime(ld);</span>
+<span class="nc" id="L107">    OrderPO returns = rt.postForObject(orderUrl, u, OrderPO.class);</span>
+
+<span class="nc" id="L109">    return String.format(&quot;Created Order with id %s&quot;, returns.getId());</span>
+
+  }
+
+  /* exemple :
+  acc
+  ordm --acc 1 --id test1 --exch US --symb FB --side 2 --qty 100 --dtv 07.06.2019
+  ordm --acc 1 --id test1 --exch US --symb FB --side 2 --qty 100 --dtv 11.06.2019
+  ordm --acc 1 --id test1 --exch US --symb FB --side 2 --qty 50 --dtv 25.06.2019
+  ordm --acc 1 --id test1 --exch US --symb FB --side 1 --qty 200 --dtv 12.07.2019
+
+
+    ordm --acc 1 --id test1 --exch PA --symb AI --side 2 --qty 100 --dtv 07.06.2019
+  * */
+  @ShellMethod(&quot;Create order&quot;)
+  public String ordm(
+    @ShellOption String id,
+    @ShellOption int acc,
+    @ShellOption String exch,
+    @ShellOption String symb,
+    @ShellOption int side,
+    @ShellOption int qty,
+    @ShellOption(defaultValue = &quot;-1&quot;) String dtv
+
+  ) {
+
+<span class="nc bnc" id="L135" title="All 2 branches missed.">    LocalDate ld = dtv.equalsIgnoreCase(&quot;-1&quot;) ? LocalDate.now() : LocalDate.parse(dtv, dateTimeFormatter);</span>
+
+<span class="nc" id="L137">    OrderPO u = new OrderPO();</span>
+<span class="nc" id="L138">    u.setcIOrdID(id);</span>
+<span class="nc" id="L139">    u.setAccountId(acc);</span>
+<span class="nc" id="L140">    u.setExchange(exch);</span>
+<span class="nc" id="L141">    u.setSymbol(symb);</span>
+<span class="nc" id="L142">    u.setSide(DEBIT_CREDIT.fromType(side));</span>
+<span class="nc" id="L143">    u.setOrderQtyData(qty);</span>
+<span class="nc" id="L144">    u.setType(ORDER_TYPE.MARKET_ORDER);</span>
+<span class="nc" id="L145">    u.setTransactTime(ld);</span>
+<span class="nc" id="L146">    OrderPO returns = rt.postForObject(orderUrl, u, OrderPO.class);</span>
+
+
+<span class="nc" id="L149">    return String.format(&quot;Created Order with id %s&quot;, returns.getId());</span>
+
+  }
+
+  /* exemple : val --id 1*/
+  @ShellMethod(&quot;Translate text from one language to another.&quot;)
+  public void val(@ShellOption String id) {
+
+<span class="nc" id="L157">    rt.put(String.format(&quot;%s/validate/%s&quot;, orderUrl, id), null);</span>
+
+<span class="nc" id="L159">  }</span>
+
+  @ShellMethod(&quot;read all Order&quot;)
+  public void rea() {
+<span class="nc" id="L163">    ResponseEntity&lt;OrderPO[]&gt; responseEntity = rt.getForEntity(orderUrl, OrderPO[].class);</span>
+<span class="nc" id="L164">    List&lt;OrderPO&gt; objects = Arrays.asList(responseEntity.getBody());</span>
+
+<span class="nc" id="L166">    objects.stream().forEach(i -&gt; LOGGER.log(Level.FINE, String.format(&quot;id: %s, symbol: %s, status %s&quot;, i.getAccountId(), i.getSymbol(), i.getStatus())));</span>
+
+<span class="nc" id="L168">  }</span>
+
+  //ex qot --symbol GSPC.INDX
+  @ShellMethod(&quot;Get quote for a symbol&quot;)
+  public void qot(@ShellOption String symbol) {
+<span class="nc" id="L173">    ResponseEntity&lt;QuoteDTO[]&gt; responseEntity = rt.getForEntity(String.format(&quot;%s/%s&quot;, quoteUrl, symbol), QuoteDTO[].class);</span>
+<span class="nc" id="L174">    List&lt;QuoteDTO&gt; objects = Arrays.asList(responseEntity.getBody());</span>
+
+<span class="nc" id="L176">    objects.stream().forEach(i -&gt; LOGGER.log(Level.FINE, String.format(&quot;id: %s, symbol: %s, adjustedClose %s&quot;, symbol, i.getDate(), i.getAdjustedClose())));</span>
+
+
+<span class="nc" id="L179">  }</span>
+
+  //ex ass --symbol GO
+  @ShellMethod(&quot;Get quote for a symbol&quot;)
+  public void ass(@ShellOption String symbol) {
+<span class="nc" id="L184">    ResponseEntity&lt;AssetPO[]&gt; responseEntity = rt.getForEntity(String.format(&quot;%s/%s&quot;, assetUrl, symbol), AssetPO[].class);</span>
+<span class="nc" id="L185">    List&lt;AssetPO&gt; objects = Arrays.asList(responseEntity.getBody());</span>
+
+<span class="nc" id="L187">    objects.stream().forEach(i -&gt; LOGGER.log(Level.FINE, String.format(&quot;code: %s, exchange %s, name %s&quot;, i.getCode(), i.getExchange(), i.getName())));</span>
+
+
+<span class="nc" id="L190">  }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

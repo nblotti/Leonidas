@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccountService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">leonidas</a> &gt; <a href="index.source.html" class="el_package">ch.nblotti.leonidas.account</a> &gt; <span class="el_source">AccountService.java</span></div><h1>AccountService.java</h1><pre class="source lang-java linenums">package ch.nblotti.leonidas.account;
+
+
+import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.order.OrderService;
+import ch.nblotti.leonidas.process.MarketProcessService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.stream.Collectors.groupingBy;
+
+@Component
+<span class="nc" id="L18">public class AccountService {</span>
+
+  @Autowired
+  MarketProcessService marketProcessService;
+  @Autowired
+  private AccountRepository accountRepository;
+
+  @Autowired
+  private OrderService orderService;
+
+
+  @Autowired
+  DateTimeFormatter dateTimeFormatter;
+
+
+  public Iterable&lt;AccountPO&gt; findAll() {
+
+<span class="nc" id="L35">    return accountRepository.findAll();</span>
+  }
+
+  public AccountPO save(AccountPO accountPO) {
+
+<span class="nc" id="L40">    return accountRepository.save(accountPO);</span>
+  }
+
+  public AccountPO findAccountById(Integer id) {
+
+<span class="nc" id="L45">    return accountRepository.findAccountById(id);</span>
+  }
+
+  public AccountPO duplicateAccount(Integer oldAccountId, AccountPO accountPO) {
+
+
+<span class="nc" id="L51">    AccountPO newAccountPO = duplicate(oldAccountId, accountPO.getEntryDate(), accountPO.getPerformanceCurrency());</span>
+<span class="nc" id="L52">    duplicateOrder(newAccountPO, oldAccountId);</span>
+
+<span class="nc" id="L54">    return newAccountPO;</span>
+  }
+
+  private AccountPO duplicate(Integer oldAccountId, LocalDate date, String perfcurrency) {
+
+<span class="nc" id="L59">    AccountPO acc = accountRepository.findAccountById(oldAccountId);</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">    if (acc == null)</span>
+<span class="nc" id="L61">      throw new IllegalStateException(&quot;Reference Account not found&quot;);</span>
+<span class="nc" id="L62">    AccountPO newAccountPO = new AccountPO();</span>
+<span class="nc" id="L63">    newAccountPO.setEntryDate(date);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">    newAccountPO.setPerformanceCurrency(perfcurrency == null ? acc.getPerformanceCurrency() : perfcurrency);</span>
+<span class="nc" id="L65">    return this.accountRepository.save(newAccountPO);</span>
+
+
+  }
+
+
+  private void duplicateOrder(AccountPO newAccountPO, Integer oldAccountId) {
+
+<span class="nc" id="L73">    List&lt;OrderPO&gt; newOrderPOS = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L75">    Iterable&lt;OrderPO&gt; orders = orderService.findByAccountIdAndTransactTimeAfter(oldAccountId, newAccountPO.getEntryDate());</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">    for (OrderPO currentOrderPO : orders) {</span>
+<span class="nc" id="L77">      OrderPO newOrderPO = new OrderPO();</span>
+<span class="nc" id="L78">      newOrderPO.setAccountId(newAccountPO.getId());</span>
+<span class="nc" id="L79">      newOrderPO.setcIOrdID(currentOrderPO.getcIOrdID());</span>
+<span class="nc" id="L80">      newOrderPO.setOrderQtyData(currentOrderPO.getOrderQtyData());</span>
+<span class="nc" id="L81">      newOrderPO.setSide(currentOrderPO.getSide());</span>
+<span class="nc" id="L82">      newOrderPO.setStatus(currentOrderPO.getStatus());</span>
+<span class="nc" id="L83">      newOrderPO.setSymbol(currentOrderPO.getSymbol());</span>
+<span class="nc" id="L84">      newOrderPO.setTransactTime(currentOrderPO.getTransactTime());</span>
+<span class="nc" id="L85">      newOrderPO.setType(currentOrderPO.getType());</span>
+<span class="nc" id="L86">      newOrderPO.setCashCurrency(currentOrderPO.getCashCurrency());</span>
+<span class="nc" id="L87">      newOrderPO.setExchange(currentOrderPO.getExchange());</span>
+<span class="nc" id="L88">      newOrderPO.setSide(currentOrderPO.getSide());</span>
+<span class="nc" id="L89">      newOrderPO.setAmount(currentOrderPO.getAmount());</span>
+
+<span class="nc" id="L91">      newOrderPOS.add(newOrderPO);</span>
+<span class="nc" id="L92">    }</span>
+<span class="nc" id="L93">    orderService.saveAll(newOrderPOS);</span>
+<span class="nc" id="L94">  }</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

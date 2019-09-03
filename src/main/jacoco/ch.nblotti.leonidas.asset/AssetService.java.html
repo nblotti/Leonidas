@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">leonidas</a> &gt; <a href="index.source.html" class="el_package">ch.nblotti.leonidas.asset</a> &gt; <span class="el_source">AssetService.java</span></div><h1>AssetService.java</h1><pre class="source lang-java linenums">package ch.nblotti.leonidas.asset;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+
+@Component
+<span class="nc" id="L18">public class AssetService {</span>
+
+<span class="nc" id="L20">  private static  final Logger LOGGER = Logger.getLogger(&quot;AssetService&quot;);</span>
+
+  public static final String ASSETS = &quot;assets&quot;;
+  public static final String ASSET_MAP = &quot;assetMap&quot;;
+
+  @Value(&quot;${spring.application.value.date}&quot;)
+  private int valueDate;
+
+  @Value(&quot;${spring.application.eod.api.key}&quot;)
+
+  private String eodApiToken;
+  @Value(&quot;${spring.application.eod.asset.url}&quot;)
+  private String assetUrl;
+
+
+  @Autowired
+  private CacheManager cacheManager;
+
+  @Autowired
+  private RestTemplate rt;
+
+
+  private List&lt;AssetPO&gt; getAssets(String exchange) {
+
+    List&lt;AssetPO&gt; assetPOList;
+
+    Map&lt;String, List&lt;AssetPO&gt;&gt; cachedAsset;
+
+<span class="nc bnc" id="L48" title="All 2 branches missed.">    if (cacheManager.getCache(ASSETS).get(ASSET_MAP) == null)</span>
+<span class="nc" id="L49">      cacheManager.getCache(ASSETS).put(ASSET_MAP, new HashMap&lt;&gt;());</span>
+
+<span class="nc" id="L51">    cachedAsset = (Map&lt;String, List&lt;AssetPO&gt;&gt;) cacheManager.getCache(ASSETS).get(ASSET_MAP).get();</span>
+
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">    if (cachedAsset.containsKey(exchange))</span>
+<span class="nc" id="L55">      assetPOList = cachedAsset.get(exchange);</span>
+    else {
+
+<span class="nc" id="L58">      assetPOList = Arrays.asList(rt.getForEntity(String.format(assetUrl, exchange, eodApiToken), AssetPO[].class).getBody());</span>
+<span class="nc" id="L59">      cachedAsset = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L60">      cachedAsset.put(exchange, assetPOList);</span>
+<span class="nc" id="L61">      cacheManager.getCache(ASSETS).put(ASSET_MAP, cachedAsset);</span>
+    }
+<span class="nc" id="L63">    return assetPOList;</span>
+  }
+
+
+  @Scheduled(fixedRate = 10800000)
+  public void clearCache() {
+<span class="nc" id="L69">    cacheManager.getCache(ASSETS).clear();</span>
+
+<span class="nc" id="L71">  }</span>
+
+
+  public Iterable&lt;AssetPO&gt; findSymbol(String exchange, String symbol) {
+
+<span class="nc" id="L76">    return getAssets(exchange).stream().filter(c -&gt; c.getCode().toLowerCase().contains(symbol.toLowerCase())).collect(Collectors.toList());</span>
+
+
+  }
+
+  public AssetPO getSymbol(String exchange, String symbol) {
+
+
+<span class="nc" id="L84">    Optional&lt;AssetPO&gt; asset = getAssets(exchange).stream().filter(c -&gt; c.getCode().equalsIgnoreCase(symbol)).reduce((a, b) -&gt; {</span>
+<span class="nc" id="L85">      throw new IllegalStateException(&quot;Multiple elements: &quot; + a + &quot;, &quot; + b);</span>
+    });
+
+<span class="nc bnc" id="L88" title="All 2 branches missed.">    if (asset.isPresent())</span>
+<span class="nc" id="L89">      return asset.get();</span>
+    else
+<span class="nc" id="L91">      throw new IllegalStateException(String.format(&quot;No symbol found %s %s&quot;, exchange, symbol));</span>
+
+
+  }
+
+
+  public int getValueDateForExchange(String exchangeid) {
+
+<span class="nc" id="L99">    LOGGER.log(Level.FINE, exchangeid);</span>
+
+<span class="nc" id="L101">    return valueDate;</span>
+  }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

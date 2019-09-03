@@ -1,7 +1,7 @@
 package ch.nblotti.leonidas.entry.cash;
 
 
-import ch.nblotti.leonidas.entry.Entry;
+import ch.nblotti.leonidas.entry.EntryPO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +19,7 @@ public class CashEntryController {
    * Look up all employees, and transform them into a REST collection resource.
    */
   @GetMapping("/cashentry")
-  public Iterable<CashEntry> findAll() {
+  public Iterable<CashEntryPO> findAll() {
 
     return this.cashEntryService.findAll();
 
@@ -27,17 +27,17 @@ public class CashEntryController {
 
 
   @PostMapping(value = "/cashentry")
-  public Entry save(@Valid @RequestBody CashEntry cashEntry) { //NOSONAR
+  public EntryPO save(@Valid @RequestBody CashEntryPO cashEntryTO) { //NOSONAR
 
     //verifier que le compte existe
     //verifier que la valeur existe
 
-    return this.cashEntryService.save(cashEntry);
+    return this.cashEntryService.save(cashEntryTO);
 
   }
 
 
-  public Iterable<CashEntry> findAllByCurrencyOrderByValueDateAsc(int account, String currency) {
+  public Iterable<CashEntryPO> findAllByCurrencyOrderByValueDateAsc(int account, String currency) {
 
     return this.cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(account, currency);
   }

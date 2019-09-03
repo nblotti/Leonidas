@@ -15,7 +15,7 @@ public class AssetController {
 
 
   @GetMapping(value = "/assets/{exchange}/{symbol}")
-  public Iterable<Asset> getSymbol(@PathVariable String exchange, @PathVariable String symbol) {
+  public Iterable<AssetPO> getSymbol(@PathVariable String exchange, @PathVariable String symbol) {
 
     return assetService.findSymbol(exchange, symbol);
 

@@ -1,14 +1,9 @@
 package ch.nblotti.leonidas.quote.asset;
 
 
-import ch.nblotti.leonidas.quote.Quote;
+import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -32,11 +27,11 @@ public class QuoteService extends AbstractQuoteService {
   }
 
 
-  public Quote getLastQuote(String exchange, String symbol) {
+  public QuoteDTO getLastQuote(String exchange, String symbol) {
 
-    Quote lastElement = null;
+    QuoteDTO lastElement = null;
 
-    for (Iterator<Quote> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
+    for (Iterator<QuoteDTO> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
       lastElement = collectionItr.next();
     }
     return lastElement;
@@ -44,18 +39,18 @@ public class QuoteService extends AbstractQuoteService {
 
   //TODO NBL : test me
   /*Gestion des jours fériés et week-end : on prend le dernier disponible*/
-  public Quote getQuoteForDate(String exchange, String symbol, LocalDate date) {
+  public QuoteDTO getQuoteForDate(String exchange, String symbol, LocalDate date) {
 
-    Quote lastElement = null;
+    QuoteDTO lastElement = null;
     LocalDate localDate = date;
 
     while (lastElement == null) {
 
-      for (Iterator<Quote> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
+      for (Iterator<QuoteDTO> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
 
-        Quote currentQuote = collectionItr.next();
-        if (currentQuote.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
-          lastElement = currentQuote;
+        QuoteDTO currentQuoteDTO = collectionItr.next();
+        if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
+          lastElement = currentQuoteDTO;
           break;
         }
       }

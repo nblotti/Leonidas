@@ -22,8 +22,8 @@ public class PositionController {
 
 
   @RequestMapping(value = "/position", method = RequestMethod.POST)
-  public Iterable<Position> save(@Valid @RequestBody List<Position> positions) {
-    return cashPositionService.saveAll(positions);
+  public Iterable<PositionPO> save(@Valid @RequestBody List<PositionPO> positionPOS) {
+    return cashPositionService.saveAll(positionPOS);
   }
 
 

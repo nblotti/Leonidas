@@ -1,7 +1,6 @@
 package ch.nblotti.leonidas.entry.cash;
 
-import ch.nblotti.leonidas.entry.Entry;
-import ch.nblotti.leonidas.technical.Message;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
@@ -19,38 +18,38 @@ public class CashEntryService {
   private JmsTemplate jmsOrderTemplate;
 
 
-  public Iterable<CashEntry> findAll() {
+  public Iterable<CashEntryPO> findAll() {
 
     return this.repository.findAll();
 
   }
 
   //TODO NBL : test me
-  public CashEntry save(CashEntry cashEntry) {
+  public CashEntryPO save(CashEntryPO cashEntryTO) {
 
-    CashEntry createdCashEntry = this.repository.save(cashEntry);
+    CashEntryPO createdCashEntryTO = this.repository.save(cashEntryTO);
 
-    jmsOrderTemplate.convertAndSend("cashentrybox", new Message(cashEntry.getOrderID(), cashEntry.getAccount(), Message.MESSAGE_TYPE.CASH_ENTRY, Message.ENTITY_ACTION.CREATE));
+    jmsOrderTemplate.convertAndSend("cashentrybox", new MessageVO(cashEntryTO.getOrderID(), cashEntryTO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
 
 
-    return createdCashEntry;
+    return createdCashEntryTO;
 
   }
 
 
-  public Iterable<CashEntry> findAllByAccountAndCurrencyOrderByValueDateAsc(int account, String currency) {
+  public Iterable<CashEntryPO> findAllByAccountAndCurrencyOrderByValueDateAsc(int account, String currency) {
 
     return this.repository.findAllByAccountAndCurrencyOrderByValueDateAsc(account, currency);
   }
 
 
-  public CashEntry findByAccountAndOrderID(int account, long orderID) {
+  public CashEntryPO findByAccountAndOrderID(int account, long orderID) {
 
     return this.repository.findByAccountAndOrderID(account, orderID);
   }
 
 
-  public Optional<CashEntry> findById(String toString) {
+  public Optional<CashEntryPO> findById(String toString) {
     return this.repository.findById(Long.valueOf(toString));
   }
 

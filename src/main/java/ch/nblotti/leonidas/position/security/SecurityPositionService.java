@@ -1,15 +1,15 @@
 package ch.nblotti.leonidas.position.security;
 
-import ch.nblotti.leonidas.account.Account;
+import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.quote.asset.QuoteService;
 import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
-import ch.nblotti.leonidas.entry.security.SecurityEntry;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
-import ch.nblotti.leonidas.position.Position;
 import ch.nblotti.leonidas.position.PositionRepository;
 import ch.nblotti.leonidas.quote.fx.FXQuoteService;
-import ch.nblotti.leonidas.technical.Message;
+import ch.nblotti.leonidas.technical.MessageVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,35 +53,35 @@ public class SecurityPositionService {
   @Autowired
   JmsTemplate jmsOrderTemplate;
 
-  public Iterable<Position> saveAll(List<Position> positions) {
-    return repository.saveAll(positions);
+  public Iterable<PositionPO> saveAll(List<PositionPO> positionPOS) {
+    return repository.saveAll(positionPOS);
   }
 
   //TODO NBL : test me
-  public Position updatePosition(SecurityEntry entry) {
+  public PositionPO updatePosition(SecurityEntryPO entry) {
 
     LOGGER.log(Level.FINE, "Started update process");
-    Account currentAccount = accountService.findAccountById(entry.getAccount());
+    AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
 
 
     if (LocalDate.now().compareTo(entry.getValueDate()) >= 0) {
       //2. oui -Suppression position futures
-      repository.deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(Position.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
+      repository.deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
 
 
       LOGGER.log(Level.FINE, "Suppression des positions");
     }
 
     //3. On obtient la liste des mouvements
-    Iterable<SecurityEntry> securityEntries = securityEntryService.findAllByAccountAndSecurityIDOrderByValueDateAsc(entry.getAccount(), entry.getSecurityID());
+    Iterable<SecurityEntryPO> securityEntries = securityEntryService.findAllByAccountAndSecurityIDOrderByValueDateAsc(entry.getAccount(), entry.getSecurityID());
 
     //4. On les aggrège par jour
-    Iterable<AggregatedSecurityEntry> aggregatedSecurityEntries = aggregateSecuritiesEntriesByDay(securityEntries);
+    Iterable<AggregatedSecurityEntryVO> aggregatedSecurityEntries = aggregateSecuritiesEntriesByDay(securityEntries);
 
     //5. On duplique les quantités entre les deux dates
-    updatePositions(currentAccount, aggregatedSecurityEntries);
+    updatePositions(currentAccountPO, aggregatedSecurityEntries);
 
-    jmsOrderTemplate.convertAndSend("securitypositionbox", new Message(entry.getOrderID(), entry.getAccount(), Message.MESSAGE_TYPE.SECURITY_POSITION, Message.ENTITY_ACTION.CREATE));
+    jmsOrderTemplate.convertAndSend("securitypositionbox", new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.SECURITY_POSITION, MessageVO.ENTITY_ACTION.CREATE));
 
 
     return null;
@@ -89,19 +89,19 @@ public class SecurityPositionService {
   }
 
 
-  private Iterable<AggregatedSecurityEntry> aggregateSecuritiesEntriesByDay(Iterable<SecurityEntry> securityEntries) {
+  private Iterable<AggregatedSecurityEntryVO> aggregateSecuritiesEntriesByDay(Iterable<SecurityEntryPO> securityEntries) {
 
 
-    Map<LocalDate, AggregatedSecurityEntry> entryByDate = Maps.newHashMap();
+    Map<LocalDate, AggregatedSecurityEntryVO> entryByDate = Maps.newHashMap();
 
 
-    for (Iterator<SecurityEntry> securityEntriesIterator = securityEntries.iterator(); securityEntriesIterator.hasNext(); ) {
+    for (Iterator<SecurityEntryPO> securityEntriesIterator = securityEntries.iterator(); securityEntriesIterator.hasNext(); ) {
 
-      SecurityEntry currentEntry = securityEntriesIterator.next();
+      SecurityEntryPO currentEntry = securityEntriesIterator.next();
 
       if (entryByDate.containsKey(currentEntry.getValueDate())) {
 
-        AggregatedSecurityEntry existingAggregatedEntry = entryByDate.get(currentEntry.getValueDate());
+        AggregatedSecurityEntryVO existingAggregatedEntry = entryByDate.get(currentEntry.getValueDate());
 
 
         if (existingAggregatedEntry.getDebitCreditCode().equals(DEBIT_CREDIT.ZERO)) {
@@ -124,16 +124,16 @@ public class SecurityPositionService {
 
 
       } else {
-        entryByDate.put(currentEntry.getValueDate(), new AggregatedSecurityEntry(currentEntry));
+        entryByDate.put(currentEntry.getValueDate(), new AggregatedSecurityEntryVO(currentEntry));
       }
     }
 
     //on ordonne par date valeur
 
-    List<AggregatedSecurityEntry> aggregatedSecurityEntries = Lists.newArrayList(entryByDate.values());
+    List<AggregatedSecurityEntryVO> aggregatedSecurityEntries = Lists.newArrayList(entryByDate.values());
 
 
-    aggregatedSecurityEntries.sort((AggregatedSecurityEntry entry1, AggregatedSecurityEntry entry2) -> entry1.getValueDate().compareTo(entry2.getValueDate()));
+    aggregatedSecurityEntries.sort((AggregatedSecurityEntryVO entry1, AggregatedSecurityEntryVO entry2) -> entry1.getValueDate().compareTo(entry2.getValueDate()));
 
 
     return aggregatedSecurityEntries;
@@ -141,7 +141,7 @@ public class SecurityPositionService {
 
   }
 
-  private boolean updateEntryWithDifferentSign(SecurityEntry currentEntry, AggregatedSecurityEntry existingEntry) {
+  private boolean updateEntryWithDifferentSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
 
     //On adapte le signe de l'entrée en fonction des cas
     if (existingEntry.getQuantity() - currentEntry.getQuantity() < 0) {
@@ -158,23 +158,23 @@ public class SecurityPositionService {
     return false;
   }
 
-  private void updateEntryWithSameSign(SecurityEntry currentEntry, AggregatedSecurityEntry existingEntry) {
+  private void updateEntryWithSameSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
     //les signes sont opposés, on cumule donc les quantités
     existingEntry.setQuantity(existingEntry.getQuantity() + currentEntry.getQuantity());
     existingEntry.setNetPosValue(existingEntry.getNetPosValue() + currentEntry.getNetAmount());
     existingEntry.setGrossPosValue(existingEntry.getGrossPosValue() + currentEntry.getGrossAmount());
   }
 
-  private void updateEntryAtZero(SecurityEntry currentEntry, AggregatedSecurityEntry aggregatedSecurityEntry) {
+  private void updateEntryAtZero(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO aggregatedSecurityEntryVO) {
 
     if (currentEntry.getDebitCreditCode().equals(DEBIT_CREDIT.DBIT)) {
-      aggregatedSecurityEntry.setQuantity(currentEntry.getQuantity());
-      aggregatedSecurityEntry.setNetPosValue(currentEntry.getNetAmount());
-      aggregatedSecurityEntry.setGrossPosValue(currentEntry.getGrossAmount());
+      aggregatedSecurityEntryVO.setQuantity(currentEntry.getQuantity());
+      aggregatedSecurityEntryVO.setNetPosValue(currentEntry.getNetAmount());
+      aggregatedSecurityEntryVO.setGrossPosValue(currentEntry.getGrossAmount());
     } else {
-      aggregatedSecurityEntry.setQuantity(-currentEntry.getQuantity());
-      aggregatedSecurityEntry.setNetPosValue(-currentEntry.getNetAmount());
-      aggregatedSecurityEntry.setGrossPosValue(-currentEntry.getGrossAmount());
+      aggregatedSecurityEntryVO.setQuantity(-currentEntry.getQuantity());
+      aggregatedSecurityEntryVO.setNetPosValue(-currentEntry.getNetAmount());
+      aggregatedSecurityEntryVO.setGrossPosValue(-currentEntry.getGrossAmount());
     }
   }
 
@@ -185,9 +185,9 @@ public class SecurityPositionService {
 
   }
 
-  private void updatePositions(Account currentAccount, Iterable<AggregatedSecurityEntry> securityEntries) {
+  private void updatePositions(AccountPO currentAccountPO, Iterable<AggregatedSecurityEntryVO> securityEntries) {
 
-    Iterable<Position> positions = null;
+    Iterable<PositionPO> positions = null;
 
     UUIDHolder uUIDHolder = new UUIDHolder() {
       private String uniqueID;
@@ -206,22 +206,22 @@ public class SecurityPositionService {
     };
 
 
-    List<AggregatedSecurityEntry> entries = Lists.newArrayList(securityEntries);
+    List<AggregatedSecurityEntryVO> entries = Lists.newArrayList(securityEntries);
 
 
     for (int i = 0; i < entries.size(); i++) {
 
       int nextEntryIndex = i + 1;
 
-      AggregatedSecurityEntry currentEntry = entries.get(i);
-      AggregatedSecurityEntry nextEntry = entries.size() > i + 1 ? entries.get(nextEntryIndex) : null;
-      positions = positionFromEntry(currentAccount, positions, currentEntry, nextEntry, uUIDHolder);
+      AggregatedSecurityEntryVO currentEntry = entries.get(i);
+      AggregatedSecurityEntryVO nextEntry = entries.size() > i + 1 ? entries.get(nextEntryIndex) : null;
+      positions = positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry, uUIDHolder);
     }
 
   }
 
 
-  private Iterable<Position> positionFromEntry(Account currentAccount, Iterable<Position> positions, AggregatedSecurityEntry currentEntry, AggregatedSecurityEntry nextEntry, UUIDHolder uuidHolder) {
+  private Iterable<PositionPO> positionFromEntry(AccountPO currentAccountPO, Iterable<PositionPO> positions, AggregatedSecurityEntryVO currentEntry, AggregatedSecurityEntryVO nextEntry, UUIDHolder uuidHolder) {
 
 
     Float realized = 0F;
@@ -247,22 +247,22 @@ public class SecurityPositionService {
     //Il existe des entrées dans la journée et il existe des positions le jour précédent
     if (positions != null && !Lists.newArrayList(positions).isEmpty()) {
       //la position de la veille
-      Position lastDayPosition = Lists.newArrayList(positions).get(Lists.newArrayList(positions).size() - 1);
-      realized = lastDayPosition.getRealized();
+      PositionPO lastDayPositionPO = Lists.newArrayList(positions).get(Lists.newArrayList(positions).size() - 1);
+      realized = lastDayPositionPO.getRealized();
       //on additionne la quantité à la quantité de la valeur existante.
       if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.CRDT) {
         //il s'agit d'un achat, il faut adapter le CMA
-        quantity = currentEntry.getQuantity() + lastDayPosition.getQuantity();
-        cma = ((lastDayPosition.getCMA() * lastDayPosition.getQuantity()) + (currentEntry.getNetPosValue())) / (lastDayPosition.getQuantity() + currentEntry.getQuantity());
-        tma = (lastDayPosition.getTMA() * lastDayPosition.getQuantity() + (currentEntry.getFxchangeRate() * currentEntry.getQuantity())) / lastDayPosition.getQuantity() + currentEntry.getQuantity();
+        quantity = currentEntry.getQuantity() + lastDayPositionPO.getQuantity();
+        cma = ((lastDayPositionPO.getCMA() * lastDayPositionPO.getQuantity()) + (currentEntry.getNetPosValue())) / (lastDayPositionPO.getQuantity() + currentEntry.getQuantity());
+        tma = (lastDayPositionPO.getTMA() * lastDayPositionPO.getQuantity() + (currentEntry.getFxchangeRate() * currentEntry.getQuantity())) / lastDayPositionPO.getQuantity() + currentEntry.getQuantity();
 
 
       } else {
         //il s'agit d'une vente, il faut adapter le réalisé
-        quantity = -currentEntry.getQuantity() + lastDayPosition.getQuantity();
-        realized += currentEntry.getNetPosValue() - (lastDayPosition.getCMA() * currentEntry.getQuantity());
-        cma = quantity == 0 ? 0 : lastDayPosition.getCMA();
-        tma = quantity == 0 ? 0 : lastDayPosition.getTMA();
+        quantity = -currentEntry.getQuantity() + lastDayPositionPO.getQuantity();
+        realized += currentEntry.getNetPosValue() - (lastDayPositionPO.getCMA() * currentEntry.getQuantity());
+        cma = quantity == 0 ? 0 : lastDayPositionPO.getCMA();
+        tma = quantity == 0 ? 0 : lastDayPositionPO.getTMA();
 
 
       }
@@ -275,11 +275,11 @@ public class SecurityPositionService {
     }
 
 
-    return createSecurityPositions(currentAccount, quantity, cma, tma, realized, currentEntry, endDate, uuidHolder);
+    return createSecurityPositions(currentAccountPO, quantity, cma, tma, realized, currentEntry, endDate, uuidHolder);
 
   }
 
-  private Iterable<Position> createSecurityPositions(Account currentAccount, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntry firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
+  private Iterable<PositionPO> createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
 
     if (LOGGER.isLoggable(Level.FINE)) {
       LOGGER.fine(String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
@@ -295,33 +295,33 @@ public class SecurityPositionService {
     }
 
 
-    List<Position> positions = Lists.newArrayList();
+    List<PositionPO> positionPOS = Lists.newArrayList();
     for (int i = 0; i <= loop; i++) {
 
 
-      Position position = new Position();
-      position.setUniqueID(uuidHolder.getCurrentRandomUUID());
-      position.setPosDate(firstEntry.getValueDate().plusDays(i));
-      position.setAccountId(firstEntry.getAccount());
-      position.setPosType(Position.POS_TYPE.SECURITY);
-      position.setQuantity(quantity);
-      position.setCMA(cma);
-      position.setTMA(tma);
-      position.setSecurityID(firstEntry.getSecurityID());
-      position.setRealized(realized);
-      position.setAccountPerformanceCurrency(currentAccount.getPerformanceCurrency());
-      position.setPosValue(Float.valueOf(quoteService.getQuoteForDate(firstEntry.getExchange(), firstEntry.getSecurityID(), position.getPosDate()).getAdjustedClose()) * quantity);
-      position.setUnrealized(position.getPosValue() - (position.getCMA() * quantity));
-      position.setCurrency(firstEntry.getCurrency());
-      position.setPosValueReportingCurrency(position.getPosValue() * Float.valueOf(fxQuoteService.getFXQuoteForDate(position.getCurrency(), currentAccount.getPerformanceCurrency(), position.getPosDate()).getAdjustedClose()));
+      PositionPO positionPO = new PositionPO();
+      positionPO.setUniqueID(uuidHolder.getCurrentRandomUUID());
+      positionPO.setPosDate(firstEntry.getValueDate().plusDays(i));
+      positionPO.setAccountId(firstEntry.getAccount());
+      positionPO.setPosType(PositionPO.POS_TYPE.SECURITY);
+      positionPO.setQuantity(quantity);
+      positionPO.setCMA(cma);
+      positionPO.setTMA(tma);
+      positionPO.setSecurityID(firstEntry.getSecurityID());
+      positionPO.setRealized(realized);
+      positionPO.setAccountPerformanceCurrency(currentAccountPO.getPerformanceCurrency());
+      positionPO.setPosValue(Float.valueOf(quoteService.getQuoteForDate(firstEntry.getExchange(), firstEntry.getSecurityID(), positionPO.getPosDate()).getAdjustedClose()) * quantity);
+      positionPO.setUnrealized(positionPO.getPosValue() - (positionPO.getCMA() * quantity));
+      positionPO.setCurrency(firstEntry.getCurrency());
+      positionPO.setPosValueReportingCurrency(positionPO.getPosValue() * Float.valueOf(fxQuoteService.getFXQuoteForDate(positionPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), positionPO.getPosDate()).getAdjustedClose()));
 
 
-      positions.add(position);
+      positionPOS.add(positionPO);
       if (loop == 0)
         uuidHolder.getNewRandomUUID();
     }
 
-    return repository.saveAll(positions);
+    return repository.saveAll(positionPOS);
 
 
   }

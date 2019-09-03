@@ -1,15 +1,10 @@
 package ch.nblotti.leonidas.quote.fx;
 
 
-import ch.nblotti.leonidas.quote.Quote;
+import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.asset.AbstractQuoteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.CacheManager;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -34,7 +29,7 @@ public class FXQuoteService extends AbstractQuoteService {
   }
 
 
-  public List<Quote> getFXQuotes(String currencyPair) {
+  public List<QuoteDTO> getFXQuotes(String currencyPair) {
 
     return getQuotes(FOREX, currencyPair);
 
@@ -42,22 +37,22 @@ public class FXQuoteService extends AbstractQuoteService {
 
   //TODO NBL : test me
   /*Gestion des jours fériés et week-end : on prend le dernier disponible*/
-  public Quote getFXQuoteForDate(String firstCurrency, String secondCurrency, LocalDate date) {
+  public QuoteDTO getFXQuoteForDate(String firstCurrency, String secondCurrency, LocalDate date) {
 
     String currencyPair;
-    Quote lastElement = null;
+    QuoteDTO lastElement = null;
     LocalDate localDate = date;
 
     if (firstCurrency.equals(secondCurrency)) {
-      Quote quote = new Quote();
-      quote.setAdjustedClose("1");
-      quote.setClose("1");
-      quote.setHigh("1");
-      quote.setLow("1");
-      quote.setOpen("1");
-      quote.setVolume("0");
-      quote.setDate(date.format(getQuoteDateTimeFormatter()));
-      return quote;
+      QuoteDTO quoteDTO = new QuoteDTO();
+      quoteDTO.setAdjustedClose("1");
+      quoteDTO.setClose("1");
+      quoteDTO.setHigh("1");
+      quoteDTO.setLow("1");
+      quoteDTO.setOpen("1");
+      quoteDTO.setVolume("0");
+      quoteDTO.setDate(date.format(getQuoteDateTimeFormatter()));
+      return quoteDTO;
 
     } else {
       currencyPair = String.format("%s%s", firstCurrency, secondCurrency);
@@ -66,11 +61,11 @@ public class FXQuoteService extends AbstractQuoteService {
 
     while (lastElement == null) {
 
-      for (Iterator<Quote> collectionItr = getFXQuotes(currencyPair).iterator(); collectionItr.hasNext(); ) {
+      for (Iterator<QuoteDTO> collectionItr = getFXQuotes(currencyPair).iterator(); collectionItr.hasNext(); ) {
 
-        Quote currentQuote = collectionItr.next();
-        if (currentQuote.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
-          lastElement = currentQuote;
+        QuoteDTO currentQuoteDTO = collectionItr.next();
+        if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
+          lastElement = currentQuoteDTO;
           break;
         }
       }

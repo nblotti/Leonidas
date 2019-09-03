@@ -4,6 +4,6 @@ group by CURRENCY;
 select J,CURRENCY,1+PERFORMANCE_TWR as performance_totale_percent from POSITION_CASH_TWR_PERFORMANCE WHERE J_1 >= to_date( '2019.07.01','YYYY:MM.DD')  and J_1 <= to_date( '2019.08.01','YYYY:MM.DD');
 
 
-select * from POSITION_CASH_TWR_PERFORMANCE WHERE J = to_date( '2019.07.01','YYYY:MM.DD')  or J_1 = to_date( '2019.08.01','YYYY:MM.DD') order by CURRENCY, J;
+select * from POSITION_CASH_TWR_PERFORMANCE WHERE J = to_date( '2019.07.01','YYYY:MM.DD')  or J_1 = to_date( '2019.08.01','YYYY:MM.DD') orderPO by CURRENCY, J;
 
 select * from POSITION_CASH_TWR_PERFORMANCE WHERE J_1 > to_date( '2019.07.01','YYYY:MM.DD')  and J_1 <= to_date( '2019.08.01','YYYY:MM.DD');

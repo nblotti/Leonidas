@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 @RestController
@@ -30,41 +29,41 @@ public class AccountController {
    * Look up all accounts, and transform them into a REST collection resource.
    */
   @GetMapping("/accounts")
-  public Iterable<Account> findAll() {
+  public Iterable<AccountPO> findAll() {
 
     return this.accountService.findAll();
 
   }
 
   @PostMapping(value = "/account")
-  public Account save(@Valid @RequestBody Account account) {//NOSONAR
+  public AccountPO save(@Valid @RequestBody AccountPO accountPO) {//NOSONAR
 
 
-    return  this.accountService.save(account);
+    return  this.accountService.save(accountPO);
 
   }
 
   @PostMapping(value = "/account/duplicateAccount/{id}/")
-  public Account duplicateAccount(@PathVariable int id, @Valid @RequestBody Account account, HttpServletResponse response) {
+  public AccountPO duplicateAccount(@PathVariable int id, @Valid @RequestBody AccountPO accountPO, HttpServletResponse response) {
 
     if (marketProcessService.isProcessForAccountRunning(id)) {
       response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       return null;
     }
 
-    return accountService.duplicateAccount(id, account);
+    return accountService.duplicateAccount(id, accountPO);
   }
 
   @PostMapping(value = "/account/{id}/")
-  public Account findAccountByID(@PathVariable String id) throws NotFoundException {
+  public AccountPO findAccountByID(@PathVariable String id) throws NotFoundException {
 
 
-    Account createdAccount = this.accountService.findAccountById(Integer.valueOf(id));
-    if (createdAccount == null)
+    AccountPO createdAccountPO = this.accountService.findAccountById(Integer.valueOf(id));
+    if (createdAccountPO == null)
       throw new NotFoundException(id);
 
 
-    return createdAccount;
+    return createdAccountPO;
   }
 
 }

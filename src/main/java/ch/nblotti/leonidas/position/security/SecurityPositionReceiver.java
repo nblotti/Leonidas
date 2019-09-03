@@ -1,15 +1,13 @@
 package ch.nblotti.leonidas.position.security;
 
-import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.entry.security.SecurityEntry;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.technical.Message;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,44 +30,44 @@ public class SecurityPositionReceiver {
   MarketProcessService marketProcessService;
 
   @JmsListener(destination = "securityentrybox", containerFactory = "factory")
-  public void receiveNewEntry(Message message) {
+  public void receiveNewEntry(MessageVO messageVO) {
 
 
-    SecurityEntry securityEntry = securityEntryService.findByAccountAndOrderID(message.getAccountID(), message.getOrderID());
+    SecurityEntryPO securityEntry = securityEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
 
-    marketProcessService.setSecurityPositionRunningForProcess(message.getOrderID(), message.getAccountID());
+    marketProcessService.setSecurityPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
     if (securityEntry == null) {
       if (LOGGER.isLoggable(Level.FINE)) {
-        LOGGER.fine(String.format("No securityEntry for id %s, returning", message.getAccountID()));
+        LOGGER.fine(String.format("No securityEntry for id %s, returning", messageVO.getAccountID()));
       }
       return;
     }
 
-    switch (message.getEntityAction()) {
+    switch (messageVO.getEntityAction()) {
 
       case CREATE:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Start creation of security positions for entry with id %s", message.getAccountID()));
+          LOGGER.fine(String.format("Start creation of security positions for entry with id %s", messageVO.getAccountID()));
         }
         long startTime = System.nanoTime();
         securityPositionService.updatePosition(securityEntry);
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", message.getAccountID(), elapsedTime));
+          LOGGER.fine(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", messageVO.getAccountID(), elapsedTime));
         }
         break;
       case DELETE:
 
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Delete  security positions for entry from order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Delete  security positions for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 
       default:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Unknown action type for entry from order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Unknown action type for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 

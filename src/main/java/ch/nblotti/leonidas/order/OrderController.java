@@ -1,7 +1,6 @@
 package ch.nblotti.leonidas.order;
 
 
-import ch.nblotti.leonidas.account.Account;
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +31,14 @@ public class OrderController {
 
 
   @GetMapping("/orders")
-  public Iterable<Order> findAll() {
+  public Iterable<OrderPO> findAll() {
 
     return this.orderService.findAll();
 
   }
 
   @RequestMapping(value = "/orders", method = RequestMethod.POST)
-  public Order save(@Valid @RequestBody Order orders, HttpServletResponse response) {//NOSONAR
+  public OrderPO save(@Valid @RequestBody OrderPO orders, HttpServletResponse response) {//NOSONAR
 
     if (marketProcessService.isProcessForAccountRunning(orders.getAccountId())) {
       response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
@@ -56,14 +55,14 @@ public class OrderController {
   }
 
   @RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
-  public Optional<Order> findById(@PathVariable String id) {
+  public Optional<OrderPO> findById(@PathVariable String id) {
 
     return orderService.findById(id);
 
   }
 
 
-  public Iterable<Order> findByAccountIdAndTransactTimeAfter(Integer accountId, LocalDate transactTime) {
+  public Iterable<OrderPO> findByAccountIdAndTransactTimeAfter(Integer accountId, LocalDate transactTime) {
     return orderService.findByAccountIdAndTransactTimeAfter(accountId, transactTime);
   }
 }

@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CashPositionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">leonidas</a> &gt; <a href="index.source.html" class="el_package">ch.nblotti.leonidas.position.cash</a> &gt; <span class="el_source">CashPositionService.java</span></div><h1>CashPositionService.java</h1><pre class="source lang-java linenums">package ch.nblotti.leonidas.position.cash;
+
+import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.cash.CashEntryPO;
+import ch.nblotti.leonidas.entry.cash.CashEntryService;
+import ch.nblotti.leonidas.position.PositionPO;
+import ch.nblotti.leonidas.position.PositionRepository;
+import ch.nblotti.leonidas.quote.asset.QuoteService;
+import ch.nblotti.leonidas.quote.fx.FXQuoteService;
+import ch.nblotti.leonidas.technical.MessageVO;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+@Component
+@Transactional
+<span class="nc" id="L30">public class CashPositionService {</span>
+
+<span class="nc" id="L32">  private static Logger LOGGER = Logger.getLogger(&quot;CashPositionService&quot;);</span>
+
+  @Autowired
+  private PositionRepository repository;
+
+  @Autowired
+  CashEntryService cashEntryService;
+
+
+  @Autowired
+  DateTimeFormatter dateTimeFormatter;
+
+  @Autowired
+  AccountService accountService;
+
+  @Autowired
+  JmsTemplate jmsOrderTemplate;
+
+  @Autowired
+  QuoteService quoteService;
+
+  @Autowired
+  FXQuoteService fxQuoteService;
+
+
+  public Iterable&lt;PositionPO&gt; saveAll(List&lt;PositionPO&gt; positionPOS) {
+<span class="nc" id="L58">    return repository.saveAll(positionPOS);</span>
+  }
+
+
+  //TODO NBL : test me
+  public PositionPO updatePosition(CashEntryPO entry) {
+
+<span class="nc" id="L65">    LOGGER.log(Level.FINE, &quot;Started update process&quot;);</span>
+
+
+<span class="nc" id="L68">    repository.deleteByPosTypeAndAccountIdAndCurrency(PositionPO.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());</span>
+
+<span class="nc bnc" id="L70" title="All 2 branches missed.">    if (LocalDate.now().compareTo(entry.getValueDate()) &gt;= 0) {</span>
+
+<span class="nc" id="L72">      LOGGER.log(Level.FINE, &quot;Suppression des positions&quot;);</span>
+    }
+
+    //3. On obtient la liste des mouvements
+<span class="nc" id="L76">    Iterable&lt;CashEntryPO&gt; cashEntries = cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(entry.getAccount(), entry.getCurrency());</span>
+
+    //4. On les aggrège par jour
+<span class="nc" id="L79">    Iterable&lt;AggregatedCashEntryVO&gt; aggegatedCashEntries = aggregateCashEntries(cashEntries);</span>
+
+
+<span class="nc" id="L82">    AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());</span>
+
+
+    //5. On duplique les quantités entre les deux dates
+<span class="nc" id="L86">    updatePositions(currentAccountPO, aggegatedCashEntries);</span>
+
+
+<span class="nc" id="L89">    jmsOrderTemplate.convertAndSend(&quot;cashpositionbox&quot;, new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.CASH_POSITION, MessageVO.ENTITY_ACTION.CREATE));</span>
+
+
+<span class="nc" id="L92">    return null;</span>
+
+  }
+
+  private void updatePositions(AccountPO currentAccountPO, Iterable&lt;AggregatedCashEntryVO&gt; cashEntries) {
+
+<span class="nc" id="L98">    Iterable&lt;PositionPO&gt; positions = null;</span>
+
+
+<span class="nc" id="L101">    List&lt;AggregatedCashEntryVO&gt; entries = Lists.newArrayList(cashEntries);</span>
+
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">    for (int i = 0; i &lt; entries.size(); i++) {</span>
+
+<span class="nc" id="L106">      int nextEntryIndex = i + 1;</span>
+
+<span class="nc" id="L108">      AggregatedCashEntryVO currentEntry = entries.get(i);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">      AggregatedCashEntryVO nextEntry = entries.size() &gt; i + 1 ? entries.get(nextEntryIndex) : null;</span>
+<span class="nc" id="L110">      positions = positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry);</span>
+    }
+
+<span class="nc" id="L113">  }</span>
+
+
+  private Iterable&lt;AggregatedCashEntryVO&gt; aggregateCashEntries(Iterable&lt;CashEntryPO&gt; cashEntries) {
+
+
+<span class="nc" id="L119">    Map&lt;LocalDate, AggregatedCashEntryVO&gt; cashEntryByDAte = Maps.newHashMap();</span>
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">    for (CashEntryPO currentCashEntryTO : cashEntries) {</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">      if (cashEntryByDAte.containsKey(currentCashEntryTO.getValueDate())) {</span>
+
+<span class="nc" id="L124">        AggregatedCashEntryVO existingEntry = cashEntryByDAte.get(currentCashEntryTO.getValueDate());</span>
+
+        //dans les cas ou les deux mouvments sont dans le même sens on les cumule
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (existingEntry.getDebitCreditCode().equals(currentCashEntryTO.getDebitCreditCode())) {</span>
+<span class="nc" id="L128">          existingEntry.setNetAmount(existingEntry.getNetAmount() + currentCashEntryTO.getNetAmount());</span>
+<span class="nc" id="L129">          existingEntry.setGrossAmount(existingEntry.getGrossAmount() + currentCashEntryTO.getGrossAmount());</span>
+        } else {
+          //dans les cas ou les deux mouvments sont dans un sens différent
+
+          //si le mouvement fait changer de sens le total on inversse
+<span class="nc bnc" id="L134" title="All 4 branches missed.">          if (existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount() &lt; 0 &amp;&amp; existingEntry.getDebitCreditCode().equals(DEBIT_CREDIT.CRDT)) {</span>
+<span class="nc" id="L135">            existingEntry.setDebitCreditCode(DEBIT_CREDIT.DBIT);</span>
+          } else {
+<span class="nc" id="L137">            existingEntry.setDebitCreditCode(DEBIT_CREDIT.CRDT);</span>
+          }
+          //on soustraitss les deux montants
+<span class="nc" id="L140">          existingEntry.setNetAmount(existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount());</span>
+<span class="nc" id="L141">          existingEntry.setGrossAmount(existingEntry.getGrossAmount() - currentCashEntryTO.getGrossAmount());</span>
+        }
+
+
+<span class="nc" id="L145">      } else {</span>
+<span class="nc" id="L146">        cashEntryByDAte.put(currentCashEntryTO.getValueDate(), new AggregatedCashEntryVO(currentCashEntryTO));</span>
+      }
+<span class="nc" id="L148">    }</span>
+
+    //on ordonne par date valeur
+
+<span class="nc" id="L152">    List&lt;AggregatedCashEntryVO&gt; sortedCashEntry = Lists.newArrayList(cashEntryByDAte.values());</span>
+
+
+<span class="nc" id="L155">    sortedCashEntry.sort((AggregatedCashEntryVO cashEntry1, AggregatedCashEntryVO cashEntry2) -&gt; cashEntry1.getValueDate().compareTo(cashEntry2.getValueDate()));</span>
+
+<span class="nc" id="L157">    return sortedCashEntry;</span>
+
+
+  }
+
+
+  private Iterable&lt;PositionPO&gt; positionFromEntry(AccountPO currentAccountPO, Iterable&lt;PositionPO&gt; positions, AggregatedCashEntryVO currentEntry, AggregatedCashEntryVO nextEntry) {
+
+
+    Float amount;
+<span class="nc" id="L167">    Float tma = 0F;</span>
+
+    //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
+<span class="nc bnc" id="L170" title="All 2 branches missed.">    if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.ZERO) {</span>
+<span class="nc" id="L171">      return Lists.newArrayList();</span>
+    }
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">    LocalDate endDate = currentEntry.getValueDate().isAfter(LocalDate.now()) ? currentEntry.getValueDate().minusDays(1) : LocalDate.now();</span>
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">    if (nextEntry != null) {</span>
+<span class="nc" id="L177">      endDate = nextEntry.getValueDate().minusDays(1);</span>
+    }
+
+
+<span class="nc bnc" id="L181" title="All 4 branches missed.">    if (positions != null &amp;&amp; !Lists.newArrayList(positions).isEmpty()) {</span>
+
+
+      //la position de la veille
+<span class="nc" id="L185">      PositionPO lastDayPositionPO = Lists.newArrayList(positions).get(Lists.newArrayList(positions).size() - 1);</span>
+
+      //on additionne la quantité à la quantité de la valeur existante.
+<span class="nc bnc" id="L188" title="All 2 branches missed.">      if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT) {</span>
+        //il s'agit d'un achat, il faut adapter le CMA
+
+<span class="nc" id="L191">        amount = lastDayPositionPO.getPosValue() + currentEntry.getNetAmount();</span>
+<span class="nc" id="L192">        tma = (lastDayPositionPO.getTMA() * lastDayPositionPO.getPosValue() + (currentEntry.getFxchangeRate() * currentEntry.getNetAmount())) / lastDayPositionPO.getPosValue() + currentEntry.getNetAmount();</span>
+
+      } else {
+        //il s'agit d'une vente, il faut adapter le réalisé
+<span class="nc" id="L196">        amount = lastDayPositionPO.getPosValue() - currentEntry.getNetAmount();</span>
+      }
+
+<span class="nc" id="L199">    } else {</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">      if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT) {</span>
+<span class="nc" id="L201">        amount = -currentEntry.getNetAmount();</span>
+<span class="nc" id="L202">        tma = currentEntry.getFxchangeRate();</span>
+
+      } else {
+<span class="nc" id="L205">        amount = currentEntry.getNetAmount();</span>
+<span class="nc" id="L206">        tma = currentEntry.getFxchangeRate();</span>
+      }
+
+    }
+
+<span class="nc" id="L211">    return createPositions(currentAccountPO, amount, tma, currentEntry, endDate);</span>
+
+  }
+
+  private Iterable&lt;PositionPO&gt; createPositions(AccountPO currentAccountPO, Float netAmount, Float tma, AggregatedCashEntryVO currentEntry, LocalDate endDate) {
+
+<span class="nc bnc" id="L217" title="All 2 branches missed.">    if(LOGGER.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L218">      LOGGER.fine(String.format(&quot;Création de position de %s à %s pour un montant de %s&quot;, currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));</span>
+    }
+<span class="nc" id="L220">    long loop = ChronoUnit.DAYS.between(currentEntry.getValueDate(), endDate);</span>
+
+<span class="nc" id="L222">    List&lt;PositionPO&gt; positionPOS = Lists.newArrayList();</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">    for (int i = 0; i &lt;= loop; i++) {</span>
+
+<span class="nc" id="L225">      PositionPO currentPositionPO = new PositionPO();</span>
+<span class="nc" id="L226">      currentPositionPO.setQuantity(1f);</span>
+<span class="nc" id="L227">      currentPositionPO.setPosDate(currentEntry.getValueDate().plusDays(i));</span>
+<span class="nc" id="L228">      currentPositionPO.setAccountId(currentEntry.getAccount());</span>
+<span class="nc" id="L229">      currentPositionPO.setPosType(PositionPO.POS_TYPE.CASH);</span>
+<span class="nc" id="L230">      currentPositionPO.setPosValue(netAmount);</span>
+<span class="nc" id="L231">      currentPositionPO.setCMA(netAmount);</span>
+<span class="nc" id="L232">      currentPositionPO.setCurrency(currentEntry.getCurrency());</span>
+<span class="nc" id="L233">      currentPositionPO.setAccountPerformanceCurrency(currentAccountPO.getPerformanceCurrency());</span>
+<span class="nc" id="L234">      currentPositionPO.setTMA(tma);</span>
+
+<span class="nc" id="L236">      currentPositionPO.setPosValueReportingCurrency(currentEntry.getNetAmount() * Float.valueOf(fxQuoteService.getFXQuoteForDate(currentPositionPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), currentPositionPO.getPosDate()).getAdjustedClose()));</span>
+
+<span class="nc" id="L238">      positionPOS.add(currentPositionPO);</span>
+    }
+
+<span class="nc" id="L241">    return repository.saveAll(positionPOS);</span>
+
+
+  }
+
+
+}
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

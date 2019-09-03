@@ -2,10 +2,10 @@ package ch.nblotti.leonidas.entry.security;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface SecurityEntryRepository extends CrudRepository<SecurityEntry, Long> {
+public interface SecurityEntryRepository extends CrudRepository<SecurityEntryPO, Long> {
 
 
-  Iterable<SecurityEntry> findAllByAccountAndSecurityIDOrderByValueDateAsc(int account,String securityID);
+  Iterable<SecurityEntryPO> findAllByAccountAndSecurityIDOrderByValueDateAsc(int account, String securityID);
 
-  SecurityEntry findByAccountAndOrderID(int account,long orderID);
+  SecurityEntryPO findByAccountAndOrderID(int account, long orderID);
 }

@@ -1,14 +1,13 @@
 package ch.nblotti.leonidas.position.cash;
 
-import ch.nblotti.leonidas.entry.cash.CashEntry;
+import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.technical.Message;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -30,44 +29,44 @@ public class CashPositionReceiver {
   MarketProcessService marketProcessService;
 
   @JmsListener(destination = "cashentrybox", containerFactory = "factory")
-  public void receiveNewEntry(Message message) {
+  public void receiveNewEntry(MessageVO messageVO) {
 
 
-    CashEntry cashEntry = cashEntryService.findByAccountAndOrderID(message.getAccountID(), message.getOrderID());
+    CashEntryPO cashEntryTO = cashEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
 
-    marketProcessService.setCashPositionRunningForProcess(message.getOrderID(), message.getAccountID());
+    marketProcessService.setCashPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
-    if (cashEntry == null) {
+    if (cashEntryTO == null) {
       if (LOGGER.isLoggable(Level.FINE)) {
-        LOGGER.fine(String.format("No cashEntry for id %s, returning", message.getOrderID()));
+        LOGGER.fine(String.format("No cashEntry for id %s, returning", messageVO.getOrderID()));
       }
       return;
     }
 
 
-    switch (message.getEntityAction()) {
+    switch (messageVO.getEntityAction()) {
 
       case CREATE:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Start creation of cash positions for entry with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
         }
         long startTime = System.nanoTime();
-        cashPositionService.updatePosition(cashEntry);
+        cashPositionService.updatePosition(cashEntryTO);
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", message.getOrderID(), elapsedTime));
+          LOGGER.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
         }
         break;
       case DELETE:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Delete  cash positions for entry from order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Delete  cash positions for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 
       default:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Unknown action type for entry from order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Unknown action type for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 

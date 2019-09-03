@@ -1,17 +1,17 @@
 package ch.nblotti.leonidas.entry.cash;
 
-import ch.nblotti.leonidas.account.Account;
+import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.asset.Asset;
+import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
+import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.quote.Quote;
+import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.asset.QuoteService;
 import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
 import ch.nblotti.leonidas.entry.EntryReceiver;
-import ch.nblotti.leonidas.order.Order;
 import ch.nblotti.leonidas.quote.fx.FXQuoteService;
-import ch.nblotti.leonidas.technical.Message;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
@@ -20,7 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
-public class CashEntryReceiver extends EntryReceiver<CashEntry> {
+public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
 
   private  static final Logger LOGGER = Logger.getLogger("CashEntryReceiver");
 
@@ -45,25 +45,25 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
 
 
   @JmsListener(destination = "orderbox", containerFactory = "factory")
-  public void orderListener(Message message) {
+  public void orderListener(MessageVO messageVO) {
 
-    switch (message.getMessageType()) {
+    switch (messageVO.getMessageType()) {
       case MARKET_ORDER:
 
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Create cash entry from market order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Create cash entry from market order with id %s", messageVO.getOrderID()));
         }
-        this.receiveNewOrder(message);
+        this.receiveNewOrder(messageVO);
         break;
       case CASH_ENTRY:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Create cash entry from cash order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Create cash entry from cash order with id %s", messageVO.getOrderID()));
         }
-        this.receiveNewOrder(message);
+        this.receiveNewOrder(messageVO);
         break;
       default:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Action unknown for order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Action unknown for order with id %s", messageVO.getOrderID()));
         }
 
         break;
@@ -73,63 +73,63 @@ public class CashEntryReceiver extends EntryReceiver<CashEntry> {
   }
 
   //TODO NBL : test me
-  protected CashEntry fromOrder(Order order) {
+  protected CashEntryPO fromOrder(OrderPO orderPO) {
 
-    CashEntry cashEntry = new CashEntry();
-    Quote fxQquote;
+    CashEntryPO cashEntryTO = new CashEntryPO();
+    QuoteDTO fxQquote;
 
-    Account currentAccount = acountService.findAccountById(order.getAccountId());
+    AccountPO currentAccountPO = acountService.findAccountById(orderPO.getAccountId());
 
-    cashEntry.setAccount(currentAccount.getId());
-    cashEntry.setOrderID(order.getId());
-    cashEntry.setEntryDate(order.getTransactTime());
+    cashEntryTO.setAccount(currentAccountPO.getId());
+    cashEntryTO.setOrderID(orderPO.getId());
+    cashEntryTO.setEntryDate(orderPO.getTransactTime());
 
-    cashEntry.setStatus(order.getStatus());
+    cashEntryTO.setStatus(orderPO.getStatus());
 
-    switch (order.getType()) {
+    switch (orderPO.getType()) {
       case MARKET_ORDER:
 
-        Asset asset = assetService.getSymbol(order.getExchange(), order.getSymbol());
-        fxQquote = fxQuoteService.getFXQuoteForDate(asset.getCurrency(), currentAccount.getPerformanceCurrency(), order.getTransactTime().plusDays(assetService.getValueDateForExchange(asset.getExchange())));
-        Quote quote = quoteService.getQuoteForDate(order.getExchange(), order.getSymbol(), order.getTransactTime().plusDays(assetService.getValueDateForExchange(asset.getExchange())));
-        cashEntry.setValueDate(order.getTransactTime().plusDays(assetService.getValueDateForExchange(asset.getExchange())));
-        cashEntry.setGrossAmount(order.getOrderQtyData() * Float.valueOf(quote.getAdjustedClose()));
-        cashEntry.setDebitCreditCode(order.getSide().equals(DEBIT_CREDIT.CRDT) ? DEBIT_CREDIT.DBIT : DEBIT_CREDIT.CRDT);
-        cashEntry.setNetAmount(cashEntry.getGrossAmount());
-        cashEntry.setCurrency(asset.getCurrency());
-        cashEntry.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
+        AssetPO assetPO = assetService.getSymbol(orderPO.getExchange(), orderPO.getSymbol());
+        fxQquote = fxQuoteService.getFXQuoteForDate(assetPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
+        QuoteDTO quoteDTO = quoteService.getQuoteForDate(orderPO.getExchange(), orderPO.getSymbol(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
+        cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
+        cashEntryTO.setGrossAmount(orderPO.getOrderQtyData() * Float.valueOf(quoteDTO.getAdjustedClose()));
+        cashEntryTO.setDebitCreditCode(orderPO.getSide().equals(DEBIT_CREDIT.CRDT) ? DEBIT_CREDIT.DBIT : DEBIT_CREDIT.CRDT);
+        cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
+        cashEntryTO.setCurrency(assetPO.getCurrency());
+        cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
         break;
       case CASH_ENTRY:
 
-        fxQquote = fxQuoteService.getFXQuoteForDate(order.getCashCurrency(), currentAccount.getPerformanceCurrency(), order.getTransactTime().plusDays(3));
+        fxQquote = fxQuoteService.getFXQuoteForDate(orderPO.getCashCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(3));
 
-        cashEntry.setDebitCreditCode(order.getSide());
-        cashEntry.setValueDate(order.getTransactTime().plusDays(3));
-        cashEntry.setGrossAmount(order.getAmount());
-        cashEntry.setNetAmount(cashEntry.getGrossAmount());
-        cashEntry.setCurrency(order.getCashCurrency());
-        cashEntry.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
+        cashEntryTO.setDebitCreditCode(orderPO.getSide());
+        cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(3));
+        cashEntryTO.setGrossAmount(orderPO.getAmount());
+        cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
+        cashEntryTO.setCurrency(orderPO.getCashCurrency());
+        cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
         break;
       default:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Type unknown for order with id %s", order.getId()));
+          LOGGER.fine(String.format("Type unknown for order with id %s", orderPO.getId()));
         }
         break;
     }
-    cashEntry.setAccountReportingCurrency(currentAccount.getPerformanceCurrency());
-    cashEntry.setEntryValueReportingCurrency(cashEntry.getFxExchangeRate() * cashEntry.getNetAmount());
+    cashEntryTO.setAccountReportingCurrency(currentAccountPO.getPerformanceCurrency());
+    cashEntryTO.setEntryValueReportingCurrency(cashEntryTO.getFxExchangeRate() * cashEntryTO.getNetAmount());
 
 
-    return cashEntry;
+    return cashEntryTO;
   }
 
   @Override
-  protected CashEntry save(CashEntry entry) {
+  protected CashEntryPO save(CashEntryPO entry) {
 
     if (LOGGER.isLoggable(Level.FINE)) {
       LOGGER.fine(String.format("Created new entry with id %s", entry.getId()));
     }
-    CashEntry saved = cashEntryService.save(entry);
+    CashEntryPO saved = cashEntryService.save(entry);
 
     marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
 

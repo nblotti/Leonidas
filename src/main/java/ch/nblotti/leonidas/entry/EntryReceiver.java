@@ -1,9 +1,9 @@
 package ch.nblotti.leonidas.entry;
 
+import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.quote.asset.QuoteController;
-import ch.nblotti.leonidas.order.Order;
 import ch.nblotti.leonidas.order.OrderController;
-import ch.nblotti.leonidas.technical.Message;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
@@ -23,38 +23,38 @@ public abstract class EntryReceiver<T> {
   OrderController orderController;
 
 
-  private Order getOrder(Message message) {
-    Optional<Order> order = orderController.findById(String.valueOf(message.getOrderID()));
+  private OrderPO getOrder(MessageVO messageVO) {
+    Optional<OrderPO> order = orderController.findById(String.valueOf(messageVO.getOrderID()));
 
     if (!order.isPresent()) {
-      throw new IllegalStateException(String.format("No order for id %s, returning", message.getOrderID()));
+      throw new IllegalStateException(String.format("No order for id %s, returning", messageVO.getOrderID()));
     }
     return order.get();
 
   }
 
 
-  protected void receiveNewOrder(Message message) {
+  protected void receiveNewOrder(MessageVO messageVO) {
 
 
-    Order order = getOrder(message);
+    OrderPO orderPO = getOrder(messageVO);
 
-    switch (message.getEntityAction()) {
+    switch (messageVO.getEntityAction()) {
 
       case CREATE:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Create entry from order with id %s", message.getOrderID()));
+          LOGGER.fine(String.format("Create entry from order with id %s", messageVO.getOrderID()));
         }
-        save(fromOrder(order));
+        save(fromOrder(orderPO));
         break;
       case DELETE:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.log(Level.FINE, String.format("Delete entry from order with id %s", message.getOrderID()));
+          LOGGER.log(Level.FINE, String.format("Delete entry from order with id %s", messageVO.getOrderID()));
         }
         break;
       default:
         if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.log(Level.FINE, String.format("Unsupported action type for order with id %s", message.getOrderID()));
+          LOGGER.log(Level.FINE, String.format("Unsupported action type for order with id %s", messageVO.getOrderID()));
         }
         break;
 
@@ -63,7 +63,7 @@ public abstract class EntryReceiver<T> {
   }
 
 
-  protected abstract T fromOrder(Order order);
+  protected abstract T fromOrder(OrderPO orderPO);
 
   protected abstract T save(T entry);
 

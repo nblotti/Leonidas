@@ -1,6 +1,6 @@
 package ch.nblotti.leonidas.quote.asset;
 
-import ch.nblotti.leonidas.quote.Quote;
+import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -33,26 +33,26 @@ public abstract class AbstractQuoteService {
   private String eodApiToken;
 
 
-  protected List<Quote> getQuotes(String exchange, String symbol) {
+  protected List<QuoteDTO> getQuotes(String exchange, String symbol) {
 
-    Map<String, List<Quote>> cachedQuotes;
+    Map<String, List<QuoteDTO>> cachedQuotes;
 
 
     if (cacheManager.getCache(getCashName()).get(exchange) == null)
       cachedQuotes = new HashMap<>();
     else
-      cachedQuotes = (Map<String, List<Quote>>) cacheManager.getCache(getCashName()).get(exchange).get();
+      cachedQuotes = (Map<String, List<QuoteDTO>>) cacheManager.getCache(getCashName()).get(exchange).get();
 
     if (!cachedQuotes.containsKey(symbol)) {
-      ResponseEntity<Quote[]> responseEntity = rt.getForEntity(String.format(quoteUrl, symbol + "." + exchange, eodApiToken), Quote[].class);
+      ResponseEntity<QuoteDTO[]> responseEntity = rt.getForEntity(String.format(quoteUrl, symbol + "." + exchange, eodApiToken), QuoteDTO[].class);
 
-      Map<String, List<Quote>> quotesMap = new HashMap<>();
+      Map<String, List<QuoteDTO>> quotesMap = new HashMap<>();
       quotesMap.put(symbol, Arrays.asList(responseEntity.getBody()));
       cacheManager.getCache(getCashName()).put(exchange, quotesMap);
 
     }
 
-    return ((Map<String, List<Quote>>) cacheManager.getCache(getCashName()).get(exchange).get()).get(symbol);
+    return ((Map<String, List<QuoteDTO>>) cacheManager.getCache(getCashName()).get(exchange).get()).get(symbol);
 
   }
 

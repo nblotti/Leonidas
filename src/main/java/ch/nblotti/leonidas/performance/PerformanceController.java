@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.logging.Logger;
 
 @RestController
 public class PerformanceController {
@@ -22,7 +21,7 @@ public class PerformanceController {
 
 
   @GetMapping(value = "/performance/{accountID}/")
-  public List<Performance> getTwrPerfByAccount(@PathVariable int accountID) throws NotFoundException {
+  public List<PerformancePO> getTwrPerfByAccount(@PathVariable int accountID) throws NotFoundException {
 
 
     return this.performanceRepository.getTwrPerfByAccount( accountID);

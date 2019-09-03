@@ -1,11 +1,11 @@
 package ch.nblotti.leonidas;
 
-import ch.nblotti.leonidas.account.Account;
-import ch.nblotti.leonidas.asset.Asset;
-import ch.nblotti.leonidas.quote.Quote;
+import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.asset.AssetPO;
+import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
-import ch.nblotti.leonidas.order.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -53,18 +53,18 @@ public class ShellCommand {
     @ShellOption(defaultValue = "CHF") String pcu
 
   ) {
-    Account returns;
-    Account a = new Account();
+    AccountPO returns;
+    AccountPO a = new AccountPO();
 
     a.setPerformanceCurrency(pcu);
     if (!date.isEmpty()) {
 
       a.setEntryDate(LocalDate.parse(date, dateTimeFormatter));
-      returns = rt.postForObject(accountUrl, a, Account.class);
+      returns = rt.postForObject(accountUrl, a, AccountPO.class);
       return String.format("Created Account with id %s at date %s", returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));
     } else {
       a.setEntryDate(LocalDate.now());
-      returns = rt.postForObject(accountUrl, a, Account.class);
+      returns = rt.postForObject(accountUrl, a, AccountPO.class);
       return String.format("Created Account with id %s ", returns.getId());
     }
   }
@@ -76,11 +76,11 @@ public class ShellCommand {
     @ShellOption(defaultValue = "") String pcu
 
   ) {
-    Account returns;
-    Account a = new Account();
+    AccountPO returns;
+    AccountPO a = new AccountPO();
     a.setPerformanceCurrency(pcu);
     a.setEntryDate(LocalDate.parse(date, dateTimeFormatter));
-    returns = rt.postForObject(String.format("%sduplicateAccount/%s/", accountUrl, copy), a, Account.class);
+    returns = rt.postForObject(String.format("%s/duplicateAccount/%s/", accountUrl, copy), a, AccountPO.class);
     return String.format("Duplicated Account with id %s at date %s", returns.getId(), dateTimeFormatter.format(returns.getEntryDate()));
   }
 
@@ -96,7 +96,7 @@ public class ShellCommand {
 
     LocalDate ld = dtv.equalsIgnoreCase("-1") ? LocalDate.now() : LocalDate.parse(dtv, dateTimeFormatter);
 
-    Order u = new Order();
+    OrderPO u = new OrderPO();
     u.setcIOrdID(id);
     u.setAccountId(acc);
     u.setAmount(amo);
@@ -104,7 +104,7 @@ public class ShellCommand {
     u.setSide(DEBIT_CREDIT.fromType(side));
     u.setType(ORDER_TYPE.CASH_ENTRY);
     u.setTransactTime(ld);
-    Order returns = rt.postForObject(orderUrl, u, Order.class);
+    OrderPO returns = rt.postForObject(orderUrl, u, OrderPO.class);
 
     return String.format("Created Order with id %s", returns.getId());
 
@@ -134,7 +134,7 @@ public class ShellCommand {
 
     LocalDate ld = dtv.equalsIgnoreCase("-1") ? LocalDate.now() : LocalDate.parse(dtv, dateTimeFormatter);
 
-    Order u = new Order();
+    OrderPO u = new OrderPO();
     u.setcIOrdID(id);
     u.setAccountId(acc);
     u.setExchange(exch);
@@ -143,7 +143,7 @@ public class ShellCommand {
     u.setOrderQtyData(qty);
     u.setType(ORDER_TYPE.MARKET_ORDER);
     u.setTransactTime(ld);
-    Order returns = rt.postForObject(orderUrl, u, Order.class);
+    OrderPO returns = rt.postForObject(orderUrl, u, OrderPO.class);
 
 
     return String.format("Created Order with id %s", returns.getId());
@@ -160,8 +160,8 @@ public class ShellCommand {
 
   @ShellMethod("read all Order")
   public void rea() {
-    ResponseEntity<Order[]> responseEntity = rt.getForEntity(orderUrl, Order[].class);
-    List<Order> objects = Arrays.asList(responseEntity.getBody());
+    ResponseEntity<OrderPO[]> responseEntity = rt.getForEntity(orderUrl, OrderPO[].class);
+    List<OrderPO> objects = Arrays.asList(responseEntity.getBody());
 
     objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("id: %s, symbol: %s, status %s", i.getAccountId(), i.getSymbol(), i.getStatus())));
 
@@ -170,8 +170,8 @@ public class ShellCommand {
   //ex qot --symbol GSPC.INDX
   @ShellMethod("Get quote for a symbol")
   public void qot(@ShellOption String symbol) {
-    ResponseEntity<Quote[]> responseEntity = rt.getForEntity(String.format("%s/%s", quoteUrl, symbol), Quote[].class);
-    List<Quote> objects = Arrays.asList(responseEntity.getBody());
+    ResponseEntity<QuoteDTO[]> responseEntity = rt.getForEntity(String.format("%s/%s", quoteUrl, symbol), QuoteDTO[].class);
+    List<QuoteDTO> objects = Arrays.asList(responseEntity.getBody());
 
     objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("id: %s, symbol: %s, adjustedClose %s", symbol, i.getDate(), i.getAdjustedClose())));
 
@@ -181,8 +181,8 @@ public class ShellCommand {
   //ex ass --symbol GO
   @ShellMethod("Get quote for a symbol")
   public void ass(@ShellOption String symbol) {
-    ResponseEntity<Asset[]> responseEntity = rt.getForEntity(String.format("%s/%s", assetUrl, symbol), Asset[].class);
-    List<Asset> objects = Arrays.asList(responseEntity.getBody());
+    ResponseEntity<AssetPO[]> responseEntity = rt.getForEntity(String.format("%s/%s", assetUrl, symbol), AssetPO[].class);
+    List<AssetPO> objects = Arrays.asList(responseEntity.getBody());
 
     objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("code: %s, exchange %s, name %s", i.getCode(), i.getExchange(), i.getName())));
 

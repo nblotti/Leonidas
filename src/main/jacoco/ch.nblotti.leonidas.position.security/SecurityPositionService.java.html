@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityPositionService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">leonidas</a> &gt; <a href="index.source.html" class="el_package">ch.nblotti.leonidas.position.security</a> &gt; <span class="el_source">SecurityPositionService.java</span></div><h1>SecurityPositionService.java</h1><pre class="source lang-java linenums">package ch.nblotti.leonidas.position.security;
+
+import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.position.PositionPO;
+import ch.nblotti.leonidas.quote.asset.QuoteService;
+import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
+import ch.nblotti.leonidas.entry.security.SecurityEntryService;
+import ch.nblotti.leonidas.position.PositionRepository;
+import ch.nblotti.leonidas.quote.fx.FXQuoteService;
+import ch.nblotti.leonidas.technical.MessageVO;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+@Component
+@Transactional
+<span class="nc" id="L29">public class SecurityPositionService {</span>
+
+<span class="nc" id="L31">  private static Logger LOGGER = Logger.getLogger(&quot;SecurityPositionService&quot;);</span>
+
+  @Autowired
+  private PositionRepository repository;
+
+  @Autowired
+  SecurityEntryService securityEntryService;
+  @Autowired
+  DateTimeFormatter dateTimeFormatter;
+
+
+  @Autowired
+  AccountService accountService;
+
+
+  @Autowired
+  FXQuoteService fxQuoteService;
+
+  @Autowired
+  QuoteService quoteService;
+
+
+  @Autowired
+  JmsTemplate jmsOrderTemplate;
+
+  public Iterable&lt;PositionPO&gt; saveAll(List&lt;PositionPO&gt; positionPOS) {
+<span class="nc" id="L57">    return repository.saveAll(positionPOS);</span>
+  }
+
+  //TODO NBL : test me
+  public PositionPO updatePosition(SecurityEntryPO entry) {
+
+<span class="nc" id="L63">    LOGGER.log(Level.FINE, &quot;Started update process&quot;);</span>
+<span class="nc" id="L64">    AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());</span>
+
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">    if (LocalDate.now().compareTo(entry.getValueDate()) &gt;= 0) {</span>
+      //2. oui -Suppression position futures
+<span class="nc" id="L69">      repository.deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());</span>
+
+
+<span class="nc" id="L72">      LOGGER.log(Level.FINE, &quot;Suppression des positions&quot;);</span>
+    }
+
+    //3. On obtient la liste des mouvements
+<span class="nc" id="L76">    Iterable&lt;SecurityEntryPO&gt; securityEntries = securityEntryService.findAllByAccountAndSecurityIDOrderByValueDateAsc(entry.getAccount(), entry.getSecurityID());</span>
+
+    //4. On les aggrège par jour
+<span class="nc" id="L79">    Iterable&lt;AggregatedSecurityEntryVO&gt; aggregatedSecurityEntries = aggregateSecuritiesEntriesByDay(securityEntries);</span>
+
+    //5. On duplique les quantités entre les deux dates
+<span class="nc" id="L82">    updatePositions(currentAccountPO, aggregatedSecurityEntries);</span>
+
+<span class="nc" id="L84">    jmsOrderTemplate.convertAndSend(&quot;securitypositionbox&quot;, new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.SECURITY_POSITION, MessageVO.ENTITY_ACTION.CREATE));</span>
+
+
+<span class="nc" id="L87">    return null;</span>
+
+  }
+
+
+  private Iterable&lt;AggregatedSecurityEntryVO&gt; aggregateSecuritiesEntriesByDay(Iterable&lt;SecurityEntryPO&gt; securityEntries) {
+
+
+<span class="nc" id="L95">    Map&lt;LocalDate, AggregatedSecurityEntryVO&gt; entryByDate = Maps.newHashMap();</span>
+
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">    for (Iterator&lt;SecurityEntryPO&gt; securityEntriesIterator = securityEntries.iterator(); securityEntriesIterator.hasNext(); ) {</span>
+
+<span class="nc" id="L100">      SecurityEntryPO currentEntry = securityEntriesIterator.next();</span>
+
+<span class="nc bnc" id="L102" title="All 2 branches missed.">      if (entryByDate.containsKey(currentEntry.getValueDate())) {</span>
+
+<span class="nc" id="L104">        AggregatedSecurityEntryVO existingAggregatedEntry = entryByDate.get(currentEntry.getValueDate());</span>
+
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (existingAggregatedEntry.getDebitCreditCode().equals(DEBIT_CREDIT.ZERO)) {</span>
+          //dans les cas ou le cumul actuel est null
+<span class="nc" id="L109">          updateEntryAtZero(currentEntry, existingAggregatedEntry);</span>
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        } else if (existingAggregatedEntry.getDebitCreditCode().equals(currentEntry.getDebitCreditCode())) {</span>
+          //dans les cas ou les deux mouvments sont dans le même sens on les cumule
+<span class="nc" id="L113">          updateEntryWithSameSign(currentEntry, existingAggregatedEntry);</span>
+        } else {
+          //dans les cas ou les deux mouvments sont dans un sens différent
+<span class="nc bnc" id="L116" title="All 2 branches missed.">          if (existingAggregatedEntry.getQuantity() - currentEntry.getQuantity() == 0) {</span>
+<span class="nc" id="L117">            securityEntriesIterator.remove();</span>
+<span class="nc" id="L118">            entryByDate.remove(currentEntry.getValueDate());</span>
+          } else {
+<span class="nc" id="L120">            updateEntryWithDifferentSign(currentEntry, existingAggregatedEntry);</span>
+          }
+
+        }
+
+
+<span class="nc" id="L126">      } else {</span>
+<span class="nc" id="L127">        entryByDate.put(currentEntry.getValueDate(), new AggregatedSecurityEntryVO(currentEntry));</span>
+      }
+<span class="nc" id="L129">    }</span>
+
+    //on ordonne par date valeur
+
+<span class="nc" id="L133">    List&lt;AggregatedSecurityEntryVO&gt; aggregatedSecurityEntries = Lists.newArrayList(entryByDate.values());</span>
+
+
+<span class="nc" id="L136">    aggregatedSecurityEntries.sort((AggregatedSecurityEntryVO entry1, AggregatedSecurityEntryVO entry2) -&gt; entry1.getValueDate().compareTo(entry2.getValueDate()));</span>
+
+
+<span class="nc" id="L139">    return aggregatedSecurityEntries;</span>
+
+
+  }
+
+  private boolean updateEntryWithDifferentSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
+
+    //On adapte le signe de l'entrée en fonction des cas
+<span class="nc bnc" id="L147" title="All 2 branches missed.">    if (existingEntry.getQuantity() - currentEntry.getQuantity() &lt; 0) {</span>
+<span class="nc" id="L148">      existingEntry.setDebitCreditCode(DEBIT_CREDIT.CRDT);</span>
+    } else {
+<span class="nc" id="L150">      existingEntry.setDebitCreditCode(DEBIT_CREDIT.DBIT);</span>
+    }
+    //les signes sont opposés, on soustrait donc les quantités
+<span class="nc" id="L153">    existingEntry.setQuantity(existingEntry.getQuantity() - currentEntry.getQuantity());</span>
+<span class="nc" id="L154">    existingEntry.setNetPosValue(existingEntry.getNetPosValue() - currentEntry.getNetAmount());</span>
+<span class="nc" id="L155">    existingEntry.setGrossPosValue(existingEntry.getGrossPosValue() - currentEntry.getGrossAmount());</span>
+
+    //la somme est non null on retourne false
+<span class="nc" id="L158">    return false;</span>
+  }
+
+  private void updateEntryWithSameSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
+    //les signes sont opposés, on cumule donc les quantités
+<span class="nc" id="L163">    existingEntry.setQuantity(existingEntry.getQuantity() + currentEntry.getQuantity());</span>
+<span class="nc" id="L164">    existingEntry.setNetPosValue(existingEntry.getNetPosValue() + currentEntry.getNetAmount());</span>
+<span class="nc" id="L165">    existingEntry.setGrossPosValue(existingEntry.getGrossPosValue() + currentEntry.getGrossAmount());</span>
+<span class="nc" id="L166">  }</span>
+
+  private void updateEntryAtZero(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO aggregatedSecurityEntryVO) {
+
+<span class="nc bnc" id="L170" title="All 2 branches missed.">    if (currentEntry.getDebitCreditCode().equals(DEBIT_CREDIT.DBIT)) {</span>
+<span class="nc" id="L171">      aggregatedSecurityEntryVO.setQuantity(currentEntry.getQuantity());</span>
+<span class="nc" id="L172">      aggregatedSecurityEntryVO.setNetPosValue(currentEntry.getNetAmount());</span>
+<span class="nc" id="L173">      aggregatedSecurityEntryVO.setGrossPosValue(currentEntry.getGrossAmount());</span>
+    } else {
+<span class="nc" id="L175">      aggregatedSecurityEntryVO.setQuantity(-currentEntry.getQuantity());</span>
+<span class="nc" id="L176">      aggregatedSecurityEntryVO.setNetPosValue(-currentEntry.getNetAmount());</span>
+<span class="nc" id="L177">      aggregatedSecurityEntryVO.setGrossPosValue(-currentEntry.getGrossAmount());</span>
+    }
+<span class="nc" id="L179">  }</span>
+
+  public interface UUIDHolder {
+    String getNewRandomUUID();
+
+    String getCurrentRandomUUID();
+
+  }
+
+  private void updatePositions(AccountPO currentAccountPO, Iterable&lt;AggregatedSecurityEntryVO&gt; securityEntries) {
+
+<span class="nc" id="L190">    Iterable&lt;PositionPO&gt; positions = null;</span>
+
+<span class="nc" id="L192">    UUIDHolder uUIDHolder = new UUIDHolder() {</span>
+      private String uniqueID;
+
+
+      @Override
+      public String getNewRandomUUID() {
+        this.uniqueID = UUID.randomUUID().toString();
+        return this.uniqueID;
+      }
+
+      @Override
+      public String getCurrentRandomUUID() {
+        return this.uniqueID == null ? getNewRandomUUID() : this.uniqueID;
+      }
+    };
+
+
+<span class="nc" id="L209">    List&lt;AggregatedSecurityEntryVO&gt; entries = Lists.newArrayList(securityEntries);</span>
+
+
+<span class="nc bnc" id="L212" title="All 2 branches missed.">    for (int i = 0; i &lt; entries.size(); i++) {</span>
+
+<span class="nc" id="L214">      int nextEntryIndex = i + 1;</span>
+
+<span class="nc" id="L216">      AggregatedSecurityEntryVO currentEntry = entries.get(i);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">      AggregatedSecurityEntryVO nextEntry = entries.size() &gt; i + 1 ? entries.get(nextEntryIndex) : null;</span>
+<span class="nc" id="L218">      positions = positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry, uUIDHolder);</span>
+    }
+
+<span class="nc" id="L221">  }</span>
+
+
+  private Iterable&lt;PositionPO&gt; positionFromEntry(AccountPO currentAccountPO, Iterable&lt;PositionPO&gt; positions, AggregatedSecurityEntryVO currentEntry, AggregatedSecurityEntryVO nextEntry, UUIDHolder uuidHolder) {
+
+
+<span class="nc" id="L227">    Float realized = 0F;</span>
+    Float quantity;
+    Float cma;
+    Float tma;
+
+
+    //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
+<span class="nc bnc" id="L234" title="All 2 branches missed.">    if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.ZERO) {</span>
+<span class="nc" id="L235">      return Lists.newArrayList();</span>
+    }
+
+
+<span class="nc bnc" id="L239" title="All 2 branches missed.">    LocalDate endDate = currentEntry.getValueDate().isAfter(LocalDate.now()) ? currentEntry.getValueDate().minusDays(1) : LocalDate.now();</span>
+
+
+<span class="nc bnc" id="L242" title="All 2 branches missed.">    if (nextEntry != null) {</span>
+<span class="nc" id="L243">      endDate = nextEntry.getValueDate().minusDays(1);</span>
+    }
+
+
+    //Il existe des entrées dans la journée et il existe des positions le jour précédent
+<span class="nc bnc" id="L248" title="All 4 branches missed.">    if (positions != null &amp;&amp; !Lists.newArrayList(positions).isEmpty()) {</span>
+      //la position de la veille
+<span class="nc" id="L250">      PositionPO lastDayPositionPO = Lists.newArrayList(positions).get(Lists.newArrayList(positions).size() - 1);</span>
+<span class="nc" id="L251">      realized = lastDayPositionPO.getRealized();</span>
+      //on additionne la quantité à la quantité de la valeur existante.
+<span class="nc bnc" id="L253" title="All 2 branches missed.">      if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.CRDT) {</span>
+        //il s'agit d'un achat, il faut adapter le CMA
+<span class="nc" id="L255">        quantity = currentEntry.getQuantity() + lastDayPositionPO.getQuantity();</span>
+<span class="nc" id="L256">        cma = ((lastDayPositionPO.getCMA() * lastDayPositionPO.getQuantity()) + (currentEntry.getNetPosValue())) / (lastDayPositionPO.getQuantity() + currentEntry.getQuantity());</span>
+<span class="nc" id="L257">        tma = (lastDayPositionPO.getTMA() * lastDayPositionPO.getQuantity() + (currentEntry.getFxchangeRate() * currentEntry.getQuantity())) / lastDayPositionPO.getQuantity() + currentEntry.getQuantity();</span>
+
+
+      } else {
+        //il s'agit d'une vente, il faut adapter le réalisé
+<span class="nc" id="L262">        quantity = -currentEntry.getQuantity() + lastDayPositionPO.getQuantity();</span>
+<span class="nc" id="L263">        realized += currentEntry.getNetPosValue() - (lastDayPositionPO.getCMA() * currentEntry.getQuantity());</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">        cma = quantity == 0 ? 0 : lastDayPositionPO.getCMA();</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        tma = quantity == 0 ? 0 : lastDayPositionPO.getTMA();</span>
+
+
+      }
+
+<span class="nc" id="L270">    } else {</span>
+<span class="nc" id="L271">      quantity = currentEntry.getQuantity();</span>
+<span class="nc" id="L272">      cma = currentEntry.getNetPosValue() / currentEntry.getQuantity();</span>
+<span class="nc" id="L273">      tma = currentEntry.getFxchangeRate();</span>
+
+    }
+
+
+<span class="nc" id="L278">    return createSecurityPositions(currentAccountPO, quantity, cma, tma, realized, currentEntry, endDate, uuidHolder);</span>
+
+  }
+
+  private Iterable&lt;PositionPO&gt; createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
+
+<span class="nc bnc" id="L284" title="All 2 branches missed.">    if (LOGGER.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L285">      LOGGER.fine(String.format(&quot;Création de position de %s à %s avec une quantité de %s&quot;, firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));</span>
+    }
+
+    //on valorise
+
+    //dans le cas ou la quantité est à zéro, on ne crée qu'une position pour visualiser la plus value réalisée lors de la vente
+<span class="nc" id="L291">    long loop = ChronoUnit.DAYS.between(firstEntry.getValueDate(), endDate);</span>
+
+<span class="nc bnc" id="L293" title="All 2 branches missed.">    if (quantity == 0) {</span>
+<span class="nc" id="L294">      loop = 0;</span>
+    }
+
+
+<span class="nc" id="L298">    List&lt;PositionPO&gt; positionPOS = Lists.newArrayList();</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">    for (int i = 0; i &lt;= loop; i++) {</span>
+
+
+<span class="nc" id="L302">      PositionPO positionPO = new PositionPO();</span>
+<span class="nc" id="L303">      positionPO.setUniqueID(uuidHolder.getCurrentRandomUUID());</span>
+<span class="nc" id="L304">      positionPO.setPosDate(firstEntry.getValueDate().plusDays(i));</span>
+<span class="nc" id="L305">      positionPO.setAccountId(firstEntry.getAccount());</span>
+<span class="nc" id="L306">      positionPO.setPosType(PositionPO.POS_TYPE.SECURITY);</span>
+<span class="nc" id="L307">      positionPO.setQuantity(quantity);</span>
+<span class="nc" id="L308">      positionPO.setCMA(cma);</span>
+<span class="nc" id="L309">      positionPO.setTMA(tma);</span>
+<span class="nc" id="L310">      positionPO.setSecurityID(firstEntry.getSecurityID());</span>
+<span class="nc" id="L311">      positionPO.setRealized(realized);</span>
+<span class="nc" id="L312">      positionPO.setAccountPerformanceCurrency(currentAccountPO.getPerformanceCurrency());</span>
+<span class="nc" id="L313">      positionPO.setPosValue(Float.valueOf(quoteService.getQuoteForDate(firstEntry.getExchange(), firstEntry.getSecurityID(), positionPO.getPosDate()).getAdjustedClose()) * quantity);</span>
+<span class="nc" id="L314">      positionPO.setUnrealized(positionPO.getPosValue() - (positionPO.getCMA() * quantity));</span>
+<span class="nc" id="L315">      positionPO.setCurrency(firstEntry.getCurrency());</span>
+<span class="nc" id="L316">      positionPO.setPosValueReportingCurrency(positionPO.getPosValue() * Float.valueOf(fxQuoteService.getFXQuoteForDate(positionPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), positionPO.getPosDate()).getAdjustedClose()));</span>
+
+
+<span class="nc" id="L319">      positionPOS.add(positionPO);</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">      if (loop == 0)</span>
+<span class="nc" id="L321">        uuidHolder.getNewRandomUUID();</span>
+    }
+
+<span class="nc" id="L324">    return repository.saveAll(positionPOS);</span>
+
+
+  }
+
+
+}
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>

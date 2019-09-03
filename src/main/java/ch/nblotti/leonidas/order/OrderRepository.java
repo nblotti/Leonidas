@@ -4,11 +4,11 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.time.LocalDate;
 
-public interface OrderRepository extends CrudRepository<Order, Long> {
+public interface OrderRepository extends CrudRepository<OrderPO, Long> {
 
 
-  public Iterable<Order> findByAccountId(String accountId);
+  public Iterable<OrderPO> findByAccountId(String accountId);
 
 
-  Iterable<Order> findByAccountIdAndTransactTimeAfter(Integer accountId, LocalDate transactTime);
+  Iterable<OrderPO> findByAccountIdAndTransactTimeAfter(Integer accountId, LocalDate transactTime);
 }

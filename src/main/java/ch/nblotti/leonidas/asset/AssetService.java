@@ -39,28 +39,28 @@ public class AssetService {
   private RestTemplate rt;
 
 
-  private List<Asset> getAssets(String exchange) {
+  private List<AssetPO> getAssets(String exchange) {
 
-    List<Asset> assetList;
+    List<AssetPO> assetPOList;
 
-    Map<String, List<Asset>> cachedAsset;
+    Map<String, List<AssetPO>> cachedAsset;
 
     if (cacheManager.getCache(ASSETS).get(ASSET_MAP) == null)
       cacheManager.getCache(ASSETS).put(ASSET_MAP, new HashMap<>());
 
-    cachedAsset = (Map<String, List<Asset>>) cacheManager.getCache(ASSETS).get(ASSET_MAP).get();
+    cachedAsset = (Map<String, List<AssetPO>>) cacheManager.getCache(ASSETS).get(ASSET_MAP).get();
 
 
     if (cachedAsset.containsKey(exchange))
-      assetList = cachedAsset.get(exchange);
+      assetPOList = cachedAsset.get(exchange);
     else {
 
-      assetList = Arrays.asList(rt.getForEntity(String.format(assetUrl, exchange, eodApiToken), Asset[].class).getBody());
+      assetPOList = Arrays.asList(rt.getForEntity(String.format(assetUrl, exchange, eodApiToken), AssetPO[].class).getBody());
       cachedAsset = new HashMap<>();
-      cachedAsset.put(exchange, assetList);
+      cachedAsset.put(exchange, assetPOList);
       cacheManager.getCache(ASSETS).put(ASSET_MAP, cachedAsset);
     }
-    return assetList;
+    return assetPOList;
   }
 
 
@@ -71,17 +71,17 @@ public class AssetService {
   }
 
 
-  public Iterable<Asset> findSymbol(String exchange, String symbol) {
+  public Iterable<AssetPO> findSymbol(String exchange, String symbol) {
 
     return getAssets(exchange).stream().filter(c -> c.getCode().toLowerCase().contains(symbol.toLowerCase())).collect(Collectors.toList());
 
 
   }
 
-  public Asset getSymbol(String exchange, String symbol) {
+  public AssetPO getSymbol(String exchange, String symbol) {
 
 
-    Optional<Asset> asset = getAssets(exchange).stream().filter(c -> c.getCode().equalsIgnoreCase(symbol)).reduce((a, b) -> {
+    Optional<AssetPO> asset = getAssets(exchange).stream().filter(c -> c.getCode().equalsIgnoreCase(symbol)).reduce((a, b) -> {
       throw new IllegalStateException("Multiple elements: " + a + ", " + b);
     });
 

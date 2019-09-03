@@ -1,17 +1,14 @@
 package ch.nblotti.leonidas.process;
 
 
-import ch.nblotti.leonidas.account.Account;
-import ch.nblotti.leonidas.account.AccountRepository;
-import ch.nblotti.leonidas.order.Order;
+import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class MarketProcessService {
@@ -38,72 +35,72 @@ public class MarketProcessService {
     return false;
   }
 
-  public void startMarketProcessService(Order order, int accountID) {
+  public void startMarketProcessService(OrderPO orderPO, int accountID) {
 
-    MarketProcess marketProcess = new MarketProcess();
-    marketProcess.setAccountID(accountID);
-    marketProcess.setOrderID(order.getId());
-    marketProcess.setOrderType(order.getType());
-    marketProcessRepository.save(marketProcess);
+    MarketProcessPO marketProcessPO = new MarketProcessPO();
+    marketProcessPO.setAccountID(accountID);
+    marketProcessPO.setOrderID(orderPO.getId());
+    marketProcessPO.setOrderType(orderPO.getType());
+    marketProcessRepository.save(marketProcessPO);
   }
 
-  public void startMarketProcessService(Order order, Account account) {
+  public void startMarketProcessService(OrderPO orderPO, AccountPO accountPO) {
 
-    startMarketProcessService(order, account.getId());
+    startMarketProcessService(orderPO, accountPO.getId());
 
   }
 
-  public void startMarketProcessService(Order order) {
+  public void startMarketProcessService(OrderPO orderPO) {
 
-    startMarketProcessService(order, order.getAccountId());
+    startMarketProcessService(orderPO, orderPO.getAccountId());
 
   }
 
   public void setCashEntryRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
+    MarketProcessPO marketProcessPO = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
-    marketProcess.setCashEntry(LocalDate.now());
+    marketProcessPO.setCashEntry(LocalDate.now());
 
-    marketProcessRepository.save(marketProcess);
+    marketProcessRepository.save(marketProcessPO);
 
   }
 
   public void setSecurityhEntryRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
+    MarketProcessPO marketProcessPO = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
-    marketProcess.setSecurityEntry(LocalDate.now());
-    marketProcessRepository.save(marketProcess);
+    marketProcessPO.setSecurityEntry(LocalDate.now());
+    marketProcessRepository.save(marketProcessPO);
   }
 
 
   public void setCashPositionRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
+    MarketProcessPO marketProcessPO = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
-    marketProcess.setCashPosition(LocalDate.now());
-    marketProcessRepository.save(marketProcess);
+    marketProcessPO.setCashPosition(LocalDate.now());
+    marketProcessRepository.save(marketProcessPO);
   }
 
 
   public void setSecurityPositionRunningForProcess(long orderID, int accountID) {
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
+    MarketProcessPO marketProcessPO = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
-    marketProcess.setSecurityPosition(LocalDate.now());
-    marketProcessRepository.save(marketProcess);
+    marketProcessPO.setSecurityPosition(LocalDate.now());
+    marketProcessRepository.save(marketProcessPO);
   }
 
   public void setSecurityFinishedForProcess(long orderID, int accountID) {
 
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
+    MarketProcessPO marketProcessPO = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
-    marketProcess.setSecurityPerformance(LocalDate.now());
-    marketProcessRepository.save(marketProcess);
+    marketProcessPO.setSecurityPerformance(LocalDate.now());
+    marketProcessRepository.save(marketProcessPO);
   }
 
   public void setCashFinishedForProcess(long orderID, int accountID) {
 
-    MarketProcess marketProcess = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
+    MarketProcessPO marketProcessPO = marketProcessRepository.readByOrderIDAndAccountID(orderID, accountID);
 
-    marketProcess.setCashPerformance(LocalDate.now());
-    marketProcessRepository.save(marketProcess);
+    marketProcessPO.setCashPerformance(LocalDate.now());
+    marketProcessRepository.save(marketProcessPO);
   }
 }

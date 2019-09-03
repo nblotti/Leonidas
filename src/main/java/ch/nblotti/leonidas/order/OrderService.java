@@ -1,9 +1,9 @@
 package ch.nblotti.leonidas.order;
 
-import ch.nblotti.leonidas.account.Account;
+import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.technical.Message;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
@@ -32,32 +32,32 @@ public class OrderService {
 
 
   @GetMapping("/orders")
-  public Iterable<Order> findAll() {
+  public Iterable<OrderPO> findAll() {
 
     return this.repository.findAll();
 
   }
 
 
-  public Order save(Order orders) {
+  public OrderPO save(OrderPO orders) {
 
-    Account account = accountService.findAccountById(orders.getAccountId());
+    AccountPO accountPO = accountService.findAccountById(orders.getAccountId());
 
-    if (account == null)
+    if (accountPO == null)
       throw new IllegalStateException("account does not exists");
 
     //verifier que la valeur existe
 
-    Order createdOrder = this.repository.save(orders);
+    OrderPO createdOrderPO = this.repository.save(orders);
 
-    marketProcessService.startMarketProcessService(createdOrder, account);
+    marketProcessService.startMarketProcessService(createdOrderPO, accountPO);
     //poster un message sur le bus
-    postMessage(createdOrder);
-    return createdOrder;
+    postMessage(createdOrderPO);
+    return createdOrderPO;
   }
 
 
-  public Optional<Order> findById(@PathVariable String id) {
+  public Optional<OrderPO> findById(@PathVariable String id) {
 
 
     return this.repository.findById(Long.valueOf(id));
@@ -65,33 +65,33 @@ public class OrderService {
   }
 
 
-  public Iterable<Order> findByAccountIdAndTransactTimeAfter(Integer accountId, LocalDate transactTime) {
+  public Iterable<OrderPO> findByAccountIdAndTransactTimeAfter(Integer accountId, LocalDate transactTime) {
     return this.repository.findByAccountIdAndTransactTimeAfter(accountId, transactTime);
   }
 
-  public Iterable<Order> saveAll(Iterable<Order> orders) {
-    Iterable<Order> newOrders = this.repository.saveAll(orders);
+  public Iterable<OrderPO> saveAll(Iterable<OrderPO> orders) {
+    Iterable<OrderPO> newOrders = this.repository.saveAll(orders);
 
-    for (Order createdOrder : newOrders) {
-      marketProcessService.startMarketProcessService(createdOrder);
-      postMessage(createdOrder);
+    for (OrderPO createdOrderPO : newOrders) {
+      marketProcessService.startMarketProcessService(createdOrderPO);
+      postMessage(createdOrderPO);
     }
 
     return newOrders;
   }
 
-  private void postMessage(Order createdOrder) {
-    switch (createdOrder.getType()) {
+  private void postMessage(OrderPO createdOrderPO) {
+    switch (createdOrderPO.getType()) {
       case MARKET_ORDER:
-        jmsTemplate.convertAndSend(ORDERBOX, new Message(createdOrder.getId(), createdOrder.getAccountId(), Message.MESSAGE_TYPE.MARKET_ORDER, Message.ENTITY_ACTION.CREATE));
+        jmsTemplate.convertAndSend(ORDERBOX, new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.MARKET_ORDER, MessageVO.ENTITY_ACTION.CREATE));
         break;
 
       case CASH_ENTRY:
-        jmsTemplate.convertAndSend(ORDERBOX, new Message(createdOrder.getId(),createdOrder.getAccountId(), Message.MESSAGE_TYPE.CASH_ENTRY, Message.ENTITY_ACTION.CREATE));
+        jmsTemplate.convertAndSend(ORDERBOX, new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
         break;
 
       case SECURITY_ENTRY:
-        jmsTemplate.convertAndSend(ORDERBOX, new Message(createdOrder.getId(),createdOrder.getAccountId(), Message.MESSAGE_TYPE.SECURITY_ENTRY, Message.ENTITY_ACTION.CREATE));
+        jmsTemplate.convertAndSend(ORDERBOX, new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.SECURITY_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
         break;
     }
   }

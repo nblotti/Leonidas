@@ -1,7 +1,7 @@
 package ch.nblotti.leonidas.account;
 
 
-import ch.nblotti.leonidas.order.Order;
+import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.order.OrderService;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,67 +30,67 @@ public class AccountService {
   DateTimeFormatter dateTimeFormatter;
 
 
-  public Iterable<Account> findAll() {
+  public Iterable<AccountPO> findAll() {
 
     return accountRepository.findAll();
   }
 
-  public Account save(Account account) {
+  public AccountPO save(AccountPO accountPO) {
 
-    return accountRepository.save(account);
+    return accountRepository.save(accountPO);
   }
 
-  public Account findAccountById(Integer id) {
+  public AccountPO findAccountById(Integer id) {
 
     return accountRepository.findAccountById(id);
   }
 
-  public Account duplicateAccount(Integer oldAccountId, Account account) {
+  public AccountPO duplicateAccount(Integer oldAccountId, AccountPO accountPO) {
 
 
-    Account newAccount = duplicate(oldAccountId, account.getEntryDate(), account.getPerformanceCurrency());
-    duplicateOrder(newAccount, oldAccountId);
+    AccountPO newAccountPO = duplicate(oldAccountId, accountPO.getEntryDate(), accountPO.getPerformanceCurrency());
+    duplicateOrder(newAccountPO, oldAccountId);
 
-    return newAccount;
+    return newAccountPO;
   }
 
-  private Account duplicate(Integer oldAccountId, LocalDate date, String perfcurrency) {
+  private AccountPO duplicate(Integer oldAccountId, LocalDate date, String perfcurrency) {
 
-    Account acc = accountRepository.findAccountById(oldAccountId);
+    AccountPO acc = accountRepository.findAccountById(oldAccountId);
     if (acc == null)
       throw new IllegalStateException("Reference Account not found");
-    Account newAccount = new Account();
-    newAccount.setEntryDate(date);
-    newAccount.setPerformanceCurrency(perfcurrency == null ? acc.getPerformanceCurrency() : perfcurrency);
-    return this.accountRepository.save(newAccount);
+    AccountPO newAccountPO = new AccountPO();
+    newAccountPO.setEntryDate(date);
+    newAccountPO.setPerformanceCurrency(perfcurrency == null ? acc.getPerformanceCurrency() : perfcurrency);
+    return this.accountRepository.save(newAccountPO);
 
 
   }
 
 
-  private void duplicateOrder(Account newAccount, Integer oldAccountId) {
+  private void duplicateOrder(AccountPO newAccountPO, Integer oldAccountId) {
 
-    List<Order> newOrders = new ArrayList<>();
+    List<OrderPO> newOrderPOS = new ArrayList<>();
 
-    Iterable<Order> orders = orderService.findByAccountIdAndTransactTimeAfter(oldAccountId, newAccount.getEntryDate());
-    for (Order currentOrder : orders) {
-      Order newOrder = new Order();
-      newOrder.setAccountId(newAccount.getId());
-      newOrder.setcIOrdID(currentOrder.getcIOrdID());
-      newOrder.setOrderQtyData(currentOrder.getOrderQtyData());
-      newOrder.setSide(currentOrder.getSide());
-      newOrder.setStatus(currentOrder.getStatus());
-      newOrder.setSymbol(currentOrder.getSymbol());
-      newOrder.setTransactTime(currentOrder.getTransactTime());
-      newOrder.setType(currentOrder.getType());
-      newOrder.setCashCurrency(currentOrder.getCashCurrency());
-      newOrder.setExchange(currentOrder.getExchange());
-      newOrder.setSide(currentOrder.getSide());
-      newOrder.setAmount(currentOrder.getAmount());
+    Iterable<OrderPO> orders = orderService.findByAccountIdAndTransactTimeAfter(oldAccountId, newAccountPO.getEntryDate());
+    for (OrderPO currentOrderPO : orders) {
+      OrderPO newOrderPO = new OrderPO();
+      newOrderPO.setAccountId(newAccountPO.getId());
+      newOrderPO.setcIOrdID(currentOrderPO.getcIOrdID());
+      newOrderPO.setOrderQtyData(currentOrderPO.getOrderQtyData());
+      newOrderPO.setSide(currentOrderPO.getSide());
+      newOrderPO.setStatus(currentOrderPO.getStatus());
+      newOrderPO.setSymbol(currentOrderPO.getSymbol());
+      newOrderPO.setTransactTime(currentOrderPO.getTransactTime());
+      newOrderPO.setType(currentOrderPO.getType());
+      newOrderPO.setCashCurrency(currentOrderPO.getCashCurrency());
+      newOrderPO.setExchange(currentOrderPO.getExchange());
+      newOrderPO.setSide(currentOrderPO.getSide());
+      newOrderPO.setAmount(currentOrderPO.getAmount());
 
-      newOrders.add(newOrder);
+      newOrderPOS.add(newOrderPO);
     }
-    orderService.saveAll(newOrders);
+    orderService.saveAll(newOrderPOS);
   }
 
 

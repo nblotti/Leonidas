@@ -7,7 +7,7 @@
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{"entryDate":"2019-06-28","performanceCurrency":"CHF"}' \
-  http://localhost:8080/account
+  http://localhost:8080/accountPO
 
  //cash entry
 
@@ -42,7 +42,7 @@ curl --header "Content-Type: application/json" \
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{"entryDate":"2000-05-15","performanceCurrency":"CHF"}' \
-  http://localhost:8080/account
+  http://localhost:8080/accountPO
 
  //cash entry
 

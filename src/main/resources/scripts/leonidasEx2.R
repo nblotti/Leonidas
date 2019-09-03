@@ -39,6 +39,7 @@ doCallJsonRestApi <- function(verb, url, data) {
       Sys.sleep(0.1)
     }
   }
+  data <-content(order.result, as = "text")
   return(fromJSON(content(order.result, as = "text")))
 
 }

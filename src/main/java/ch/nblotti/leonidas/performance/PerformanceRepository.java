@@ -24,15 +24,15 @@ public class PerformanceRepository {
   private final String sql = "SELECT * from  ACCOUNT_TWR_PERF WHERE ACCOUNT_ID = %s;";
 
 
-  public List<Performance> getTwrPerfByAccount(int accountID) {
+  public List<PerformancePO> getTwrPerfByAccount(int accountID) {
 
-    List<Performance> performance = Lists.newArrayList();
+    List<PerformancePO> performancePO = Lists.newArrayList();
 
 
-    performance.addAll(jdbcTemplate.query(
+    performancePO.addAll(jdbcTemplate.query(
       String.format(sql, accountID),
       (rs, rowNum) ->
-        new Performance(
+        new PerformancePO(
           rs.getInt(1),
           rs.getDate(2).toLocalDate(),
           rs.getInt(3),
@@ -40,7 +40,7 @@ public class PerformanceRepository {
         )
     ));
 
-    return performance;
+    return performancePO;
 
   }
 

@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//account creation
+//accountPO creation
  acc --date 15.05.2019 --pcu USD
 
  //cash entry
@@ -16,12 +16,12 @@
  ordm --acc 1 --id test1 --exch US --symb FB --side 2 --qty 250 --dtv 28.06.2019
  ordm --acc 1 --id test1 --exch PA --symb AI --side 2 --qty 250 --dtv 28.06.2019
 
-//account 1 duplication
+//accountPO 1 duplication
 dup --date 15.05.2019  --copy 1 --pcu CHF
 
 
 perf  (replace localhost:port by your url):
-http://localhost:8080/performance/ytd/1/
+http://localhost:8080/performancePO/ytd/1/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///                                                                                                   ///
@@ -29,7 +29,7 @@ http://localhost:8080/performance/ytd/1/
 ///                                                                                                   ///
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//account creation
+//accountPO creation
 acc --date 15.05.2000
 
  //cash entry
@@ -41,4 +41,4 @@ ordm --acc 1 --id test1 --exch US --symb SPY --side 2 --qty 1300 --dtv 30.12.200
 
 perf (replace localhost:port by your url):
 
-http://localhost:8080/performance/ytd/1/
+http://localhost:8080/performancePO/ytd/1/

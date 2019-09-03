@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CashEntryReceiver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">leonidas</a> &gt; <a href="index.source.html" class="el_package">ch.nblotti.leonidas.entry.cash</a> &gt; <span class="el_source">CashEntryReceiver.java</span></div><h1>CashEntryReceiver.java</h1><pre class="source lang-java linenums">package ch.nblotti.leonidas.entry.cash;
+
+import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.asset.AssetPO;
+import ch.nblotti.leonidas.asset.AssetService;
+import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.process.MarketProcessService;
+import ch.nblotti.leonidas.quote.QuoteDTO;
+import ch.nblotti.leonidas.quote.asset.QuoteService;
+import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.EntryReceiver;
+import ch.nblotti.leonidas.quote.fx.FXQuoteService;
+import ch.nblotti.leonidas.technical.MessageVO;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.stereotype.Component;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+@Component
+<span class="nc" id="L23">public class CashEntryReceiver extends EntryReceiver&lt;CashEntryPO&gt; {</span>
+
+<span class="nc" id="L25">  private  static final Logger LOGGER = Logger.getLogger(&quot;CashEntryReceiver&quot;);</span>
+
+  @Autowired
+  CashEntryService cashEntryService;
+
+  @Autowired
+  QuoteService quoteService;
+
+  @Autowired
+  FXQuoteService fxQuoteService;
+
+
+  @Autowired
+  AssetService assetService;
+
+  @Autowired
+  AccountService acountService;
+
+  @Autowired
+  MarketProcessService marketProcessService;
+
+
+  @JmsListener(destination = &quot;orderbox&quot;, containerFactory = &quot;factory&quot;)
+  public void orderListener(MessageVO messageVO) {
+
+<span class="nc bnc" id="L50" title="All 3 branches missed.">    switch (messageVO.getMessageType()) {</span>
+      case MARKET_ORDER:
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (LOGGER.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L54">          LOGGER.fine(String.format(&quot;Create cash entry from market order with id %s&quot;, messageVO.getOrderID()));</span>
+        }
+<span class="nc" id="L56">        this.receiveNewOrder(messageVO);</span>
+<span class="nc" id="L57">        break;</span>
+      case CASH_ENTRY:
+<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (LOGGER.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L60">          LOGGER.fine(String.format(&quot;Create cash entry from cash order with id %s&quot;, messageVO.getOrderID()));</span>
+        }
+<span class="nc" id="L62">        this.receiveNewOrder(messageVO);</span>
+<span class="nc" id="L63">        break;</span>
+      default:
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (LOGGER.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L66">          LOGGER.fine(String.format(&quot;Action unknown for order with id %s&quot;, messageVO.getOrderID()));</span>
+        }
+
+        break;
+    }
+
+
+<span class="nc" id="L73">  }</span>
+
+  //TODO NBL : test me
+  protected CashEntryPO fromOrder(OrderPO orderPO) {
+
+<span class="nc" id="L78">    CashEntryPO cashEntryTO = new CashEntryPO();</span>
+    QuoteDTO fxQquote;
+
+<span class="nc" id="L81">    AccountPO currentAccountPO = acountService.findAccountById(orderPO.getAccountId());</span>
+
+<span class="nc" id="L83">    cashEntryTO.setAccount(currentAccountPO.getId());</span>
+<span class="nc" id="L84">    cashEntryTO.setOrderID(orderPO.getId());</span>
+<span class="nc" id="L85">    cashEntryTO.setEntryDate(orderPO.getTransactTime());</span>
+
+<span class="nc" id="L87">    cashEntryTO.setStatus(orderPO.getStatus());</span>
+
+<span class="nc bnc" id="L89" title="All 3 branches missed.">    switch (orderPO.getType()) {</span>
+      case MARKET_ORDER:
+
+<span class="nc" id="L92">        AssetPO assetPO = assetService.getSymbol(orderPO.getExchange(), orderPO.getSymbol());</span>
+<span class="nc" id="L93">        fxQquote = fxQuoteService.getFXQuoteForDate(assetPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));</span>
+<span class="nc" id="L94">        QuoteDTO quoteDTO = quoteService.getQuoteForDate(orderPO.getExchange(), orderPO.getSymbol(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));</span>
+<span class="nc" id="L95">        cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));</span>
+<span class="nc" id="L96">        cashEntryTO.setGrossAmount(orderPO.getOrderQtyData() * Float.valueOf(quoteDTO.getAdjustedClose()));</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        cashEntryTO.setDebitCreditCode(orderPO.getSide().equals(DEBIT_CREDIT.CRDT) ? DEBIT_CREDIT.DBIT : DEBIT_CREDIT.CRDT);</span>
+<span class="nc" id="L98">        cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());</span>
+<span class="nc" id="L99">        cashEntryTO.setCurrency(assetPO.getCurrency());</span>
+<span class="nc" id="L100">        cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));</span>
+<span class="nc" id="L101">        break;</span>
+      case CASH_ENTRY:
+
+<span class="nc" id="L104">        fxQquote = fxQuoteService.getFXQuoteForDate(orderPO.getCashCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(3));</span>
+
+<span class="nc" id="L106">        cashEntryTO.setDebitCreditCode(orderPO.getSide());</span>
+<span class="nc" id="L107">        cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(3));</span>
+<span class="nc" id="L108">        cashEntryTO.setGrossAmount(orderPO.getAmount());</span>
+<span class="nc" id="L109">        cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());</span>
+<span class="nc" id="L110">        cashEntryTO.setCurrency(orderPO.getCashCurrency());</span>
+<span class="nc" id="L111">        cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));</span>
+<span class="nc" id="L112">        break;</span>
+      default:
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (LOGGER.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L115">          LOGGER.fine(String.format(&quot;Type unknown for order with id %s&quot;, orderPO.getId()));</span>
+        }
+        break;
+    }
+<span class="nc" id="L119">    cashEntryTO.setAccountReportingCurrency(currentAccountPO.getPerformanceCurrency());</span>
+<span class="nc" id="L120">    cashEntryTO.setEntryValueReportingCurrency(cashEntryTO.getFxExchangeRate() * cashEntryTO.getNetAmount());</span>
+
+
+<span class="nc" id="L123">    return cashEntryTO;</span>
+  }
+
+  @Override
+  protected CashEntryPO save(CashEntryPO entry) {
+
+<span class="nc bnc" id="L129" title="All 2 branches missed.">    if (LOGGER.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L130">      LOGGER.fine(String.format(&quot;Created new entry with id %s&quot;, entry.getId()));</span>
+    }
+<span class="nc" id="L132">    CashEntryPO saved = cashEntryService.save(entry);</span>
+
+<span class="nc" id="L134">    marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());</span>
+
+
+<span class="nc" id="L137">    return saved;</span>
+  }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.4.201905082037</span></div></body></html>
