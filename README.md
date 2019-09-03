@@ -10,7 +10,6 @@
 
 <div id="badges" align="center">
 
-
 </div>
 
 <div style='margin:0 auto;width:80%;'>
