@@ -10,7 +10,6 @@
 
 <div id="badges" align="center">
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=nblotti_leonidas&metric=alert_status)](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
 
 </div>
 
@@ -102,7 +101,7 @@ I will not provide support until the V1 is published.
  - __Cash available management__
  - __Benchmark__
  - __Order sequencing__ - done
- - __Fix for__ [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas) - done
+ - __Fix for__ [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
  
  <h4>Beta - Q4 2019</h4>
  
