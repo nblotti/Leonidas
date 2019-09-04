@@ -10,6 +10,7 @@
 
 <div id="badges" align="center">
         <img src="https://travis-ci.org/nblotti/leonidas.svg?branch=master" alt="Leonidas Logo"/>
+    <img src="https://sonarcloud.io/api/project_badges/measure?project=nblotti_leonidas&metric=alert_status" alt="Leonidas Logo"/>
 </div>
 
 <div style='margin:0 auto;width:80%;'>
