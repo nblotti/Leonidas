@@ -15,8 +15,6 @@ public class LeonidasApplicationTests {
   public void testNameMkyong() {
 
 
-    assertEquals(1, 1);
-
   }
 }
 
