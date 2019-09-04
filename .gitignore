@@ -3,8 +3,7 @@
 HELP.md
 mvnw
 mvnw.cmd
-target/*
-!target/jacoco.exec
+target
 security.iml
 src/main/resources/override.properties
 
