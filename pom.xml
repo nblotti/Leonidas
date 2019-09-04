@@ -145,20 +145,6 @@
                 <goals>
                   <goal>report</goal>
                 </goals>
-                <configuration>
-                  <excludes>
-                    <exclude>ch/nblotti/leonidas/**/*Repository.class</exclude>
-                    <exclude>ch/nblotti/leonidas/**/*Controller.class</exclude>
-                    <exclude>ch/nblotti/leonidas/**/*PO.class</exclude>
-                    <exclude>ch/nblotti/leonidas/**/*VO.class</exclude>
-                    <exclude>ch/nblotti/leonidas/**/*DTO.class</exclude>
-                    <exclude>ch/nblotti/leonidas/**/SecurityPositionService$*</exclude>
-                    <exclude>ch/nblotti/leonidas/**/PositionPO$*</exclude>
-                    <exclude>ch/nblotti/leonidas/**/ORDER_TYPE.class</exclude>
-                    <exclude>ch/nblotti/leonidas/**/DEBIT_CREDIT.class</exclude>
-                    <exclude>ch/nblotti/leonidas/**/MessageVO$*</exclude>
-                  </excludes>
-                </configuration>
               </execution>
             </executions>
           </plugin>
