@@ -51,7 +51,7 @@ public class AccountController {
       return null;
     }
 
-    return accountService.duplicateAccount(id, accountPO);
+    return accountService.duplicateAccountById(id, accountPO);
   }
 
   @PostMapping(value = "/account/{id}/")

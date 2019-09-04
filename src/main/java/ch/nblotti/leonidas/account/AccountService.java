@@ -45,16 +45,17 @@ public class AccountService {
     return accountRepository.findAccountById(id);
   }
 
-  public AccountPO duplicateAccount(Integer oldAccountId, AccountPO accountPO) {
+  public AccountPO duplicateAccountById(Integer oldAccountId, AccountPO accountPO) {
 
 
-    AccountPO newAccountPO = duplicate(oldAccountId, accountPO.getEntryDate(), accountPO.getPerformanceCurrency());
-    duplicateOrder(newAccountPO, oldAccountId);
+    AccountPO newAccountPO = duplicateAccount(oldAccountId, accountPO.getEntryDate(), accountPO.getPerformanceCurrency());
+    List<OrderPO> orders = duplicateOrders(newAccountPO, oldAccountId);
+    orderService.saveAll(orders);
 
     return newAccountPO;
   }
 
-  private AccountPO duplicate(Integer oldAccountId, LocalDate date, String perfcurrency) {
+  AccountPO duplicateAccount(Integer oldAccountId, LocalDate date, String perfcurrency) {
 
     AccountPO acc = accountRepository.findAccountById(oldAccountId);
     if (acc == null)
@@ -68,7 +69,7 @@ public class AccountService {
   }
 
 
-  private void duplicateOrder(AccountPO newAccountPO, Integer oldAccountId) {
+  List<OrderPO> duplicateOrders(AccountPO newAccountPO, Integer oldAccountId) {
 
     List<OrderPO> newOrderPOS = new ArrayList<>();
 
@@ -90,7 +91,7 @@ public class AccountService {
 
       newOrderPOS.add(newOrderPO);
     }
-    orderService.saveAll(newOrderPOS);
+    return newOrderPOS;
   }
 
 
