@@ -9,7 +9,7 @@
 </div>
 
 <div id="badges" align="center">
-[![Build Status](https://travis-ci.org/nblotti/leonidas.svg?branch=master)](https://travis-ci.org/nblotti/leonidas)
+        <img src="https://travis-ci.org/nblotti/leonidas.svg?branch=master" alt="Leonidas Logo"/>
 </div>
 
 <div style='margin:0 auto;width:80%;'>
