@@ -3,11 +3,10 @@ addons:
   sonarcloud:
     organization: "nblotti" # the key of the org you chose at step #3
     token:
-      secure: "c56PMu8/pcc/ORbbwrnnlZjylFlAGQx0AEhz0ljyhLx9Mu5sygWhIUZZ+XrmtPlMwGR34EoJj3DN0a2DchQWGHfQv89DkuoWaXKGpDKsTdiJYJC1+3DG36NYdVpQOYL0WV34LxKN05hpdFqgWB4onV+ri97HmJbL2F74KN+ZdwS8ynDn8pp9pvheY2PO+wgqbpfQb5EQkiHt4OKTGFJtKSYWodUpPttqWZ6T86dXQhS+ytEyo5nCB1V+LzHVVPuvIHL8p452RRWwZE4NUXbq04MITjZ7bBNKmIZd5yoIqLpl468PDr9Dg6IcVzWoyHgnGHGIznfDce7+WiptZE/0lPsn/Cw8KUfY1+MvSTnmJYS87d/uG6+vgN6pgImodevwZ1i+5fGjLNnoWDozXDummpmj1Tc05B/hSokovC/8zWFoifi14ZECzP8zrX7DYf14VqLnciCBRLIkVzrVxkzB/rii34npXKdXs7/Ctc/ikmnZqeqS2yQsrtTMsR1ZtsOFZoS+7eBFK/yFUCgejYbnRgdh5sq7eYzX2rY+OGSz7D+lbKmNthfjQ1z5vhTHwqRHOL6KqA2G0DnMEjbrsf2lyYLfJgtOSF8vP64dK8sgzn4PoI6gyOQcI3kzXR/rzwUaxwHDG6yNkC4d8xjDDHlATO0oIBUMiH28fvmrG3oycho="
- 
+      secure: "fIvHs3oPBaJUPj9px3Lucw+vD6Hopv4zYfMLQF4iNCkm5ugjTeiBaSkg0YMVZCg/tGKN37Njv0mmJrLj36uUzGJZ0GMAEBIaXzZqkSe5rJAF9+jGNbzMQ2cLfFMFuqbD6aoxXEVoVxnLtnNRECfbq+xj7pfTQWlgmerWzGb7T3TwClvjlvv/CoRVjznuB03qnPohsbBH8Na1+gMMDAfibIK34Zj/weJpXC/Ao3mgF0HPqhnEt+DoDnTOd+QcbfW2AKlfxszPMg+dVqmWaha5+l/RNctV7HwSu3tYC9P5Qog3w5kJe5xGdS5IkeA0cONcHWGw8KBkGZ5Cy/Q6DW09r4JZYErMGDYJBYoY1CIARfarpra+p9aEqoxE1do2TocaFA70r/i7Fj0s5NW8qzYAyS+5/blM6kl7Z0dvT5hpaIvfy7qpPkIDxUTr44c8SdA+DtGluP+CQKwFbTJxD8jAUf9ynIF8KPyXn7mbXcTwVma+0E4qxJRe02RIWVXS4xYjBbqLj2SigOX7M9/BfTcrpHDVzexC6TzEb27H52LhKmqlA8lKV22exRJ0OZeG0EuGodvA86q3NLXpJ8XYzxPCU6AYp/wdsVSFd4xrgBHezQQKNepgvIVj9Dsh+loCmvfrGqZnpibWKmNzDKFWgYO4aj2o81OKBIB9OwztZ54lRSs="
 script:
   # the following command line builds the project, runs the tests with coverage and then execute the SonarCloud analysis
-  - mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=nblotti_leonidas -Dsonar.login=848611055d09e195e4dd741f0bf84cded680f3dd
- 
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.projectKey=nblotti_leonidas
+
 
 
