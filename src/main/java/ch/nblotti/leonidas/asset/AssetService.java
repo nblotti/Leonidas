@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Component
 public class AssetService {
 
-  private static  final Logger LOGGER = Logger.getLogger("AssetService");
+  private static final Logger LOGGER = Logger.getLogger("AssetService");
 
   public static final String ASSETS = "assets";
   public static final String ASSET_MAP = "assetMap";
@@ -39,17 +39,18 @@ public class AssetService {
   private RestTemplate rt;
 
 
-  private List<AssetPO> getAssets(String exchange) {
+  List<AssetPO> getAssets(String exchange) {
 
     List<AssetPO> assetPOList;
 
     Map<String, List<AssetPO>> cachedAsset;
 
-    if (cacheManager.getCache(ASSETS).get(ASSET_MAP) == null)
-      cacheManager.getCache(ASSETS).put(ASSET_MAP, new HashMap<>());
-
-    cachedAsset = (Map<String, List<AssetPO>>) cacheManager.getCache(ASSETS).get(ASSET_MAP).get();
-
+    if (cacheManager.getCache(ASSETS).get(ASSET_MAP) == null) {
+      cachedAsset = new HashMap<>();
+      cacheManager.getCache(ASSETS).put(ASSET_MAP, cachedAsset);
+    } else {
+      cachedAsset = (Map<String, List<AssetPO>>) cacheManager.getCache(ASSETS).get(ASSET_MAP).get();
+    }
 
     if (cachedAsset.containsKey(exchange))
       assetPOList = cachedAsset.get(exchange);
