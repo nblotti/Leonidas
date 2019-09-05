@@ -1,15 +1,31 @@
 package ch.nblotti.leonidas.entry.cash;
 
+import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.asset.AssetPO;
+import ch.nblotti.leonidas.asset.AssetService;
+import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.process.MarketProcessService;
+import ch.nblotti.leonidas.quote.QuoteDTO;
+import ch.nblotti.leonidas.quote.asset.QuoteService;
+import ch.nblotti.leonidas.quote.fx.FXQuoteService;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class CashEntryService {
 
+  private static final Logger LOGGER = Logger.getLogger("CashEntryService");
+
+  @Autowired
+  private MarketProcessService marketProcessService;
 
   @Autowired
   private CashEntryRepository repository;
@@ -17,22 +33,23 @@ public class CashEntryService {
   @Autowired
   private JmsTemplate jmsOrderTemplate;
 
+  @Autowired
+  private QuoteService quoteService;
+
+  @Autowired
+  private FXQuoteService fxQuoteService;
+
+
+  @Autowired
+  private AssetService assetService;
+
+  @Autowired
+  private AccountService acountService;
+
 
   public Iterable<CashEntryPO> findAll() {
 
     return this.repository.findAll();
-
-  }
-
-  //TODO NBL : test me
-  public CashEntryPO save(CashEntryPO cashEntryTO) {
-
-    CashEntryPO createdCashEntryTO = this.repository.save(cashEntryTO);
-
-    jmsOrderTemplate.convertAndSend("cashentrybox", new MessageVO(cashEntryTO.getOrderID(), cashEntryTO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
-
-
-    return createdCashEntryTO;
 
   }
 
@@ -51,6 +68,79 @@ public class CashEntryService {
 
   public Optional<CashEntryPO> findById(String toString) {
     return this.repository.findById(Long.valueOf(toString));
+  }
+
+  protected CashEntryPO fromMarketOrder(OrderPO orderPO) {
+
+    CashEntryPO cashEntryTO = new CashEntryPO();
+    QuoteDTO fxQquote;
+
+    AccountPO currentAccountPO = acountService.findAccountById(orderPO.getAccountId());
+
+    cashEntryTO.setAccount(currentAccountPO.getId());
+    cashEntryTO.setOrderID(orderPO.getId());
+    cashEntryTO.setEntryDate(orderPO.getTransactTime());
+
+    cashEntryTO.setStatus(orderPO.getStatus());
+
+
+    AssetPO assetPO = assetService.getSymbol(orderPO.getExchange(), orderPO.getSymbol());
+    fxQquote = fxQuoteService.getFXQuoteForDate(assetPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
+    QuoteDTO quoteDTO = quoteService.getQuoteForDate(orderPO.getExchange(), orderPO.getSymbol(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
+    cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
+    cashEntryTO.setGrossAmount(orderPO.getOrderQtyData() * Float.valueOf(quoteDTO.getAdjustedClose()));
+    cashEntryTO.setDebitCreditCode(orderPO.getSide().equals(DEBIT_CREDIT.CRDT) ? DEBIT_CREDIT.DBIT : DEBIT_CREDIT.CRDT);
+    cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
+    cashEntryTO.setCurrency(assetPO.getCurrency());
+    cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
+
+    cashEntryTO.setAccountReportingCurrency(currentAccountPO.getPerformanceCurrency());
+    cashEntryTO.setEntryValueReportingCurrency(cashEntryTO.getFxExchangeRate() * cashEntryTO.getNetAmount());
+
+
+    return cashEntryTO;
+  }
+
+  protected CashEntryPO fromCashEntryOrder(OrderPO orderPO) {
+    CashEntryPO cashEntryTO = new CashEntryPO();
+    QuoteDTO fxQquote;
+
+    AccountPO currentAccountPO = acountService.findAccountById(orderPO.getAccountId());
+
+    cashEntryTO.setAccount(currentAccountPO.getId());
+    cashEntryTO.setOrderID(orderPO.getId());
+    cashEntryTO.setEntryDate(orderPO.getTransactTime());
+
+    cashEntryTO.setStatus(orderPO.getStatus());
+    fxQquote = fxQuoteService.getFXQuoteForDate(orderPO.getCashCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(3));
+
+    cashEntryTO.setDebitCreditCode(orderPO.getSide());
+    cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(3));
+    cashEntryTO.setGrossAmount(orderPO.getAmount());
+    cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
+    cashEntryTO.setCurrency(orderPO.getCashCurrency());
+    cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
+    cashEntryTO.setAccountReportingCurrency(currentAccountPO.getPerformanceCurrency());
+    cashEntryTO.setEntryValueReportingCurrency(cashEntryTO.getFxExchangeRate() * cashEntryTO.getNetAmount());
+
+
+    return cashEntryTO;
+
+  }
+
+
+  protected CashEntryPO save(CashEntryPO entry) {
+
+    if (LOGGER.isLoggable(Level.FINE)) {
+      LOGGER.fine(String.format("Created new entry with id %s", entry.getId()));
+    }
+    CashEntryPO cashEntryTO = this.repository.save(entry);
+
+    marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
+
+    jmsOrderTemplate.convertAndSend("cashentrybox", new MessageVO(cashEntryTO.getOrderID(), cashEntryTO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
+
+    return cashEntryTO;
   }
 
 

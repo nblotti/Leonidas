@@ -22,26 +22,10 @@ import java.util.logging.Logger;
 @Component
 public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
 
-  private  static final Logger LOGGER = Logger.getLogger("CashEntryReceiver");
+  private static final Logger LOGGER = Logger.getLogger("CashEntryReceiver");
 
   @Autowired
   CashEntryService cashEntryService;
-
-  @Autowired
-  QuoteService quoteService;
-
-  @Autowired
-  FXQuoteService fxQuoteService;
-
-
-  @Autowired
-  AssetService assetService;
-
-  @Autowired
-  AccountService acountService;
-
-  @Autowired
-  MarketProcessService marketProcessService;
 
 
   @JmsListener(destination = "orderbox", containerFactory = "factory")
@@ -72,43 +56,18 @@ public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
 
   }
 
-  //TODO NBL : test me
   protected CashEntryPO fromOrder(OrderPO orderPO) {
 
-    CashEntryPO cashEntryTO = new CashEntryPO();
-    QuoteDTO fxQquote;
+    CashEntryPO cashEntryTO = null;
 
-    AccountPO currentAccountPO = acountService.findAccountById(orderPO.getAccountId());
-
-    cashEntryTO.setAccount(currentAccountPO.getId());
-    cashEntryTO.setOrderID(orderPO.getId());
-    cashEntryTO.setEntryDate(orderPO.getTransactTime());
-
-    cashEntryTO.setStatus(orderPO.getStatus());
 
     switch (orderPO.getType()) {
       case MARKET_ORDER:
-
-        AssetPO assetPO = assetService.getSymbol(orderPO.getExchange(), orderPO.getSymbol());
-        fxQquote = fxQuoteService.getFXQuoteForDate(assetPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
-        QuoteDTO quoteDTO = quoteService.getQuoteForDate(orderPO.getExchange(), orderPO.getSymbol(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
-        cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
-        cashEntryTO.setGrossAmount(orderPO.getOrderQtyData() * Float.valueOf(quoteDTO.getAdjustedClose()));
-        cashEntryTO.setDebitCreditCode(orderPO.getSide().equals(DEBIT_CREDIT.CRDT) ? DEBIT_CREDIT.DBIT : DEBIT_CREDIT.CRDT);
-        cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
-        cashEntryTO.setCurrency(assetPO.getCurrency());
-        cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
+        cashEntryTO = cashEntryService.fromMarketOrder(orderPO);
         break;
       case CASH_ENTRY:
 
-        fxQquote = fxQuoteService.getFXQuoteForDate(orderPO.getCashCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(3));
-
-        cashEntryTO.setDebitCreditCode(orderPO.getSide());
-        cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(3));
-        cashEntryTO.setGrossAmount(orderPO.getAmount());
-        cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
-        cashEntryTO.setCurrency(orderPO.getCashCurrency());
-        cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
+        cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
         break;
       default:
         if (LOGGER.isLoggable(Level.FINE)) {
@@ -116,8 +75,6 @@ public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
         }
         break;
     }
-    cashEntryTO.setAccountReportingCurrency(currentAccountPO.getPerformanceCurrency());
-    cashEntryTO.setEntryValueReportingCurrency(cashEntryTO.getFxExchangeRate() * cashEntryTO.getNetAmount());
 
 
     return cashEntryTO;
@@ -126,15 +83,7 @@ public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
   @Override
   protected CashEntryPO save(CashEntryPO entry) {
 
-    if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine(String.format("Created new entry with id %s", entry.getId()));
-    }
-    CashEntryPO saved = cashEntryService.save(entry);
-
-    marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
-
-
-    return saved;
+    return cashEntryService.save(entry);
   }
 
 
