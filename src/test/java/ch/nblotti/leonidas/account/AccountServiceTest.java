@@ -178,7 +178,7 @@ public class AccountServiceTest {
   public void duplicateOrders() {
     List<OrderPO> orders = acountService.duplicateOrders(account1, 1);
     assertEquals(1, orders.size());
-    OrderPO returnd = orders.get(0);
+    OrderPO returned = orders.get(0);
 
     assertEquals(order.getOrderQtyData(), 1F, 0);
     assertEquals(order.getSide(), DEBIT_CREDIT.CRDT);
