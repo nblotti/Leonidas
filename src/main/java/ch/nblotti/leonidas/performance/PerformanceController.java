@@ -1,10 +1,12 @@
 package ch.nblotti.leonidas.performance;
 
 
+import ch.nblotti.leonidas.process.MarketProcessService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -12,6 +14,8 @@ import java.util.List;
 public class PerformanceController {
 
 
+  @Autowired
+  MarketProcessService marketProcessService;
 
   @Autowired
   private PerformanceRepository performanceRepository;
@@ -21,10 +25,13 @@ public class PerformanceController {
 
 
   @GetMapping(value = "/performance/{accountID}/")
-  public List<PerformancePO> getTwrPerfByAccount(@PathVariable int accountID) throws NotFoundException {
+  public List<PerformancePO> getTwrPerfByAccount(@PathVariable int accountID, HttpServletResponse response) throws NotFoundException {
 
-
-    return this.performanceRepository.getTwrPerfByAccount( accountID);
+    if (marketProcessService.isProcessForAccountRunning(accountID)) {
+      response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+      return null;
+    }
+    return this.performanceRepository.getTwrPerfByAccount(accountID);
 
   }
 
