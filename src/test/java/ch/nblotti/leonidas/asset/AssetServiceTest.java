@@ -1,8 +1,11 @@
 package ch.nblotti.leonidas.asset;
 
+import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.Equals;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -184,14 +187,102 @@ public class AssetServiceTest {
 
 
   @Test
+  public void clearCache() {
+    Cache cache = mock(ConcurrentMapCache.class);
+    Cache.ValueWrapper vW = mock(Cache.ValueWrapper.class);
+
+    when(cacheManager.getCache(AssetService.ASSETS)).thenReturn(cache);
+    assetService.clearCache();
+
+    verify(cacheManager, times(1)).getCache(any());
+    verify(cache, times(1)).clear();
+
+  }
+
+  @Test
   public void findSymbol() {
+
+    String exchange = "US";
+    AssetPO assetPO1 = mock(AssetPO.class);
+    AssetPO assetPO2 = mock(AssetPO.class);
+    AssetPO[] assets = new AssetPO[]{assetPO1, assetPO2};
+    AssetService newAssetService = new AssetService();
+    AssetService spyAssetService = spy(newAssetService);
+
+    when(assetPO1.getCode()).thenReturn("FB");
+    when(assetPO2.getCode()).thenReturn("IBM");
+
+    doReturn(Arrays.asList(assets)).when(spyAssetService).getAssets(exchange);
+
+    Iterable<AssetPO> returnedAssets = spyAssetService.findSymbol(exchange, "FB");
+    List<AssetPO> assetPOs = Lists.newArrayList(returnedAssets);
+    Assert.assertEquals(assetPOs.size(), 1);
+    Assert.assertEquals(assetPOs.get(0).getCode(), "FB");
+
   }
 
   @Test
   public void getSymbol() {
+
+    String exchange = "US";
+    AssetPO assetPO1 = mock(AssetPO.class);
+    AssetPO assetPO2 = mock(AssetPO.class);
+    AssetPO[] assets = new AssetPO[]{assetPO1, assetPO2};
+    AssetService newAssetService = new AssetService();
+    AssetService spyAssetService = spy(newAssetService);
+
+    when(assetPO1.getCode()).thenReturn("FB");
+    when(assetPO2.getCode()).thenReturn("IBM");
+
+    doReturn(Arrays.asList(assets)).when(spyAssetService).getAssets(exchange);
+
+    AssetPO returnedAsset = spyAssetService.getSymbol(exchange, "FB");
+    Assert.assertNotNull(returnedAsset);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void getSymbolNotPresent() {
+
+    String exchange = "US";
+    AssetPO assetPO1 = mock(AssetPO.class);
+    AssetPO assetPO2 = mock(AssetPO.class);
+    AssetPO[] assets = new AssetPO[]{assetPO1, assetPO2};
+    AssetService newAssetService = new AssetService();
+    AssetService spyAssetService = spy(newAssetService);
+
+    when(assetPO1.getCode()).thenReturn("FB");
+    when(assetPO2.getCode()).thenReturn("IBM");
+
+    doReturn(Arrays.asList(assets)).when(spyAssetService).getAssets(exchange);
+
+    AssetPO returnedAsset = spyAssetService.getSymbol(exchange, "GOOG");
+
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void getSymbolMultiplePresent() {
+
+    String exchange = "US";
+    AssetPO assetPO1 = mock(AssetPO.class);
+    AssetPO assetPO2 = mock(AssetPO.class);
+    AssetPO[] assets = new AssetPO[]{assetPO1, assetPO2};
+    AssetService newAssetService = new AssetService();
+    AssetService spyAssetService = spy(newAssetService);
+
+    when(assetPO1.getCode()).thenReturn("FBA");
+    when(assetPO2.getCode()).thenReturn("FBA");
+
+    doReturn(Arrays.asList(assets)).when(spyAssetService).getAssets(exchange);
+
+    AssetPO returnedAsset = spyAssetService.getSymbol(exchange, "FB");
+
   }
 
   @Test
   public void getValueDateForExchange() {
+    int dV = assetService.getValueDateForExchange("US");
+    Assert.assertEquals(dV, 3);
   }
+
+
 }
