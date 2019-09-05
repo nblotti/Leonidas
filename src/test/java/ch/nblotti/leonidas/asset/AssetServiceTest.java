@@ -274,7 +274,7 @@ public class AssetServiceTest {
 
     doReturn(Arrays.asList(assets)).when(spyAssetService).getAssets(exchange);
 
-    AssetPO returnedAsset = spyAssetService.getSymbol(exchange, "FB");
+    AssetPO returnedAsset = spyAssetService.getSymbol(exchange, "FBA");
 
   }
 
