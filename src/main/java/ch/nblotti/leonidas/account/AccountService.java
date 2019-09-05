@@ -45,6 +45,16 @@ public class AccountService {
     return accountRepository.findAccountById(id);
   }
 
+  public AccountService() {
+  }
+
+  /*for tests*/
+  protected AccountService(OrderService orderService) {
+    this();
+    this.orderService = orderService;
+  }
+
+
   public AccountPO duplicateAccountById(Integer oldAccountId, AccountPO accountPO) {
 
 
