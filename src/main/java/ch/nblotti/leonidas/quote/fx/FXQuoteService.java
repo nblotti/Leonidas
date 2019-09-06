@@ -22,7 +22,6 @@ public class FXQuoteService extends AbstractQuoteService {
   private DateTimeFormatter dateTimeFormatter;
 
 
-
   @Override
   protected String getCashName() {
     return QUOTES;
@@ -51,7 +50,7 @@ public class FXQuoteService extends AbstractQuoteService {
       quoteDTO.setLow("1");
       quoteDTO.setOpen("1");
       quoteDTO.setVolume("0");
-      quoteDTO.setDate(date.format(getQuoteDateTimeFormatter()));
+      quoteDTO.setDate(date.format(quoteDateTimeFormatter));
       return quoteDTO;
 
     } else {
@@ -64,7 +63,7 @@ public class FXQuoteService extends AbstractQuoteService {
       for (Iterator<QuoteDTO> collectionItr = getFXQuotes(currencyPair).iterator(); collectionItr.hasNext(); ) {
 
         QuoteDTO currentQuoteDTO = collectionItr.next();
-        if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
+        if (currentQuoteDTO.getDate().equals(localDate.format(quoteDateTimeFormatter))) {
           lastElement = currentQuoteDTO;
           break;
         }

@@ -34,8 +34,6 @@ import static org.mockito.Mockito.*;
 public class QuoteServiceTest {
 
 
-
-
   @MockBean
   private CacheManager cacheManager;
 
@@ -128,8 +126,22 @@ public class QuoteServiceTest {
 
 
     List<QuoteDTO> returnedQuotes = quoteService.getQuotes(exchange, symbol);
-    Assert.assertEquals(2,returnedQuotes.size());
-    verify(responseEntity,times(1)).getBody();
+    Assert.assertEquals(2, returnedQuotes.size());
+    verify(responseEntity, times(1)).getBody();
+
+  }
+
+
+  @Test
+  public void clearCache() {
+    Cache cache = mock(ConcurrentMapCache.class);
+    Cache.ValueWrapper vW = mock(Cache.ValueWrapper.class);
+
+    when(cacheManager.getCache(QuoteService.QUOTES)).thenReturn(cache);
+    quoteService.clearCache();
+
+    verify(cacheManager, times(1)).getCache(any());
+    verify(cache, times(1)).clear();
 
   }
 

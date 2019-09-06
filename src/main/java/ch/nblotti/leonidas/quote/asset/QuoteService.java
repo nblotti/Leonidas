@@ -16,7 +16,6 @@ public class QuoteService extends AbstractQuoteService {
   protected static final String QUOTES = "quotes";
 
 
-
   @Autowired
   private DateTimeFormatter dateTimeFormatter;
 
@@ -49,7 +48,7 @@ public class QuoteService extends AbstractQuoteService {
       for (Iterator<QuoteDTO> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
 
         QuoteDTO currentQuoteDTO = collectionItr.next();
-        if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
+        if (currentQuoteDTO.getDate().equals(localDate.format(quoteDateTimeFormatter))) {
           lastElement = currentQuoteDTO;
           break;
         }
