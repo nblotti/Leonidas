@@ -16,10 +16,6 @@ public class QuoteService extends AbstractQuoteService {
   protected static final String QUOTES = "quotes";
 
 
-  @Autowired
-  private DateTimeFormatter dateTimeFormatter;
-
-
   @Override
   protected String getCashName() {
     return QUOTES;
@@ -36,27 +32,24 @@ public class QuoteService extends AbstractQuoteService {
     return lastElement;
   }
 
-  //TODO NBL : test me
   /*Gestion des jours fériés et week-end : on prend le dernier disponible*/
   public QuoteDTO getQuoteForDate(String exchange, String symbol, LocalDate date) {
 
     QuoteDTO lastElement = null;
     LocalDate localDate = date;
 
-    while (lastElement == null) {
 
-      for (Iterator<QuoteDTO> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
+    for (Iterator<QuoteDTO> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
 
-        QuoteDTO currentQuoteDTO = collectionItr.next();
-        if (currentQuoteDTO.getDate().equals(localDate.format(quoteDateTimeFormatter))) {
-          lastElement = currentQuoteDTO;
-          break;
-        }
+      QuoteDTO currentQuoteDTO = collectionItr.next();
+      if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
+        lastElement = currentQuoteDTO;
+        break;
       }
-      localDate = localDate.minusDays(1);
-      if (localDate.equals(dateTimeFormatter.parse("01.01.1900")))
-        throw new IllegalStateException(String.format("No quotes found for symbol %s", symbol));
     }
+    localDate = localDate.minusDays(1);
+    if (lastElement == null)
+      throw new IllegalStateException(String.format("No quotes found for symbol %s", symbol));
     return lastElement;
   }
 

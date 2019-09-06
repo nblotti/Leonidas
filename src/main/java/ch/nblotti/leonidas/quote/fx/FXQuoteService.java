@@ -18,9 +18,6 @@ public class FXQuoteService extends AbstractQuoteService {
   private final static String FOREX = "FOREX";
 
 
-  @Autowired
-  private DateTimeFormatter dateTimeFormatter;
-
 
   @Override
   protected String getCashName() {
@@ -50,7 +47,7 @@ public class FXQuoteService extends AbstractQuoteService {
       quoteDTO.setLow("1");
       quoteDTO.setOpen("1");
       quoteDTO.setVolume("0");
-      quoteDTO.setDate(date.format(quoteDateTimeFormatter));
+      quoteDTO.setDate(date.format(getQuoteDateTimeFormatter()));
       return quoteDTO;
 
     } else {
@@ -63,13 +60,13 @@ public class FXQuoteService extends AbstractQuoteService {
       for (Iterator<QuoteDTO> collectionItr = getFXQuotes(currencyPair).iterator(); collectionItr.hasNext(); ) {
 
         QuoteDTO currentQuoteDTO = collectionItr.next();
-        if (currentQuoteDTO.getDate().equals(localDate.format(quoteDateTimeFormatter))) {
+        if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
           lastElement = currentQuoteDTO;
           break;
         }
       }
       localDate = localDate.minusDays(1);
-      if (localDate.equals(dateTimeFormatter.parse("01.01.1900")))
+      if (localDate.equals(getDateTimeFormatter().parse("01.01.1900")))
         throw new IllegalStateException(String.format("No quotes found for symbol %s", currencyPair));
     }
     return lastElement;

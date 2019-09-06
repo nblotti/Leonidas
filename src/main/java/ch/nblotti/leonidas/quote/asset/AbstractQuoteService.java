@@ -26,7 +26,11 @@ public abstract class AbstractQuoteService {
   private CacheManager cacheManager;
 
   @Autowired
-  protected DateTimeFormatter quoteDateTimeFormatter;
+  private DateTimeFormatter quoteDateTimeFormatter;
+
+  @Autowired
+  private DateTimeFormatter dateTimeFormatter;
+
 
 
   @Value("${spring.application.eod.api.key}")
@@ -60,6 +64,13 @@ public abstract class AbstractQuoteService {
   }
 
 
-
   protected abstract String getCashName();
+
+  protected DateTimeFormatter getQuoteDateTimeFormatter() {
+    return quoteDateTimeFormatter;
+  }
+
+  protected DateTimeFormatter getDateTimeFormatter() {
+    return dateTimeFormatter;
+  }
 }
