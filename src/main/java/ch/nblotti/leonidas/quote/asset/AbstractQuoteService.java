@@ -36,7 +36,6 @@ public abstract class AbstractQuoteService {
   protected List<QuoteDTO> getQuotes(String exchange, String symbol) {
 
     Map<String, List<QuoteDTO>> cachedQuotes;
-    Map<String, List<QuoteDTO>> quotesMap;
 
     if (cacheManager.getCache(getCashName()).get(exchange) == null)
       cachedQuotes = new HashMap<>();
@@ -46,15 +45,12 @@ public abstract class AbstractQuoteService {
     if (!cachedQuotes.containsKey(symbol)) {
       ResponseEntity<QuoteDTO[]> responseEntity = rt.getForEntity(String.format(quoteUrl, symbol + "." + exchange, eodApiToken), QuoteDTO[].class);
 
-      quotesMap = new HashMap<>();
-      quotesMap.put(symbol, Arrays.asList(responseEntity.getBody()));
-      cacheManager.getCache(getCashName()).put(exchange, quotesMap);
+      cachedQuotes.put(symbol, Arrays.asList(responseEntity.getBody()));
+      cacheManager.getCache(getCashName()).put(exchange, cachedQuotes);
 
-    } else {
-      quotesMap = (Map<String, List<QuoteDTO>>) cachedQuotes.get(symbol);
     }
 
-    return quotesMap.get(symbol);
+    return cachedQuotes.get(symbol);
 
   }
 
