@@ -2,12 +2,10 @@ package ch.nblotti.leonidas.quote.asset;
 
 
 import ch.nblotti.leonidas.quote.QuoteDTO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Iterator;
 
 @Component
 public class QuoteService extends AbstractQuoteService {
@@ -38,20 +36,22 @@ public class QuoteService extends AbstractQuoteService {
     QuoteDTO lastElement = null;
     LocalDate localDate = date;
 
+    while (lastElement == null) {
+      for (Iterator<QuoteDTO> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
 
-    for (Iterator<QuoteDTO> collectionItr = getQuotes(exchange, symbol).iterator(); collectionItr.hasNext(); ) {
-
-      QuoteDTO currentQuoteDTO = collectionItr.next();
-      if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
-        lastElement = currentQuoteDTO;
-        break;
+        QuoteDTO currentQuoteDTO = collectionItr.next();
+        if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
+          lastElement = currentQuoteDTO;
+          break;
+        }
       }
+      localDate = localDate.minusDays(1);
+
+      if (localDate.equals(LocalDate.parse("01.01.1900", getDateTimeFormatter())))
+        throw new IllegalStateException(String.format("No quotes found for symbol %s", symbol));
+
     }
-    localDate = localDate.minusDays(1);
-    if (lastElement == null)
-      throw new IllegalStateException(String.format("No quotes found for symbol %s", symbol));
     return lastElement;
   }
-
 
 }

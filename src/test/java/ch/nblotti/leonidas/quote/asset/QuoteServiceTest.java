@@ -2,12 +2,10 @@ package ch.nblotti.leonidas.quote.asset;
 
 
 import ch.nblotti.leonidas.asset.AssetPO;
-import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -28,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ch.nblotti.leonidas.asset.AssetService.ASSET_MAP;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
@@ -39,9 +36,11 @@ public class QuoteServiceTest {
   @MockBean
   private CacheManager cacheManager;
 
-  @MockBean
+  @MockBean(name = "quoteDateTimeFormatter")
   private DateTimeFormatter quoteDateTimeFormatter;
 
+  @MockBean(name = "dateTimeFormatter")
+  private DateTimeFormatter dateTimeFormatter;
 
   @TestConfiguration
   static class AccountServiceTestContextConfiguration {
@@ -147,6 +146,20 @@ public class QuoteServiceTest {
 
   }
 
+  @Test
+  public void getDateTimeFormatter() {
+    DateTimeFormatter df = quoteService.getDateTimeFormatter();
+    Assert.assertEquals(df, dateTimeFormatter);
+
+  }
+
+  @Test
+  public void getQuoteDateTimeFormatter() {
+    DateTimeFormatter df = quoteService.getQuoteDateTimeFormatter();
+    Assert.assertEquals(df, quoteDateTimeFormatter);
+  }
+
+
   @Test(expected = IllegalStateException.class)
   public void getQuoteForDateNoDateMatch() {
 
@@ -204,8 +217,6 @@ public class QuoteServiceTest {
 
     Assert.assertEquals("1000", returned.getAdjustedClose());
   }
-
-
 
 
 }
