@@ -13,7 +13,7 @@ import java.util.*;
 public class QuoteService extends AbstractQuoteService {
 
 
-  public static final String QUOTES = "quotes";
+  protected static final String QUOTES = "quotes";
 
 
 
