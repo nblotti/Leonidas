@@ -32,6 +32,7 @@ public class OrderService {
 
 
   @GetMapping("/orders")
+
   public Iterable<OrderPO> findAll() {
 
     return this.repository.findAll();
@@ -80,19 +81,29 @@ public class OrderService {
     return newOrders;
   }
 
-  private void postMessage(OrderPO createdOrderPO) {
+  MessageVO postMessage(OrderPO createdOrderPO) {
+
+
+    MessageVO messageVO;
     switch (createdOrderPO.getType()) {
       case MARKET_ORDER:
-        jmsTemplate.convertAndSend(ORDERBOX, new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.MARKET_ORDER, MessageVO.ENTITY_ACTION.CREATE));
+        messageVO = new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.MARKET_ORDER, MessageVO.ENTITY_ACTION.CREATE);
+        jmsTemplate.convertAndSend(ORDERBOX, messageVO);
         break;
 
       case CASH_ENTRY:
-        jmsTemplate.convertAndSend(ORDERBOX, new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
+        messageVO = new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE);
+        jmsTemplate.convertAndSend(ORDERBOX, messageVO);
         break;
 
       case SECURITY_ENTRY:
-        jmsTemplate.convertAndSend(ORDERBOX, new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.SECURITY_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
+        messageVO = new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.SECURITY_ENTRY, MessageVO.ENTITY_ACTION.CREATE);
+        jmsTemplate.convertAndSend(ORDERBOX, messageVO);
         break;
+      default:
+        throw new IllegalStateException("Order type should be one of the known value");
+
     }
+    return messageVO;
   }
 }
