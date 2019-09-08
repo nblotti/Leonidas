@@ -18,8 +18,6 @@
     <java.version>1.8</java.version>
     <jacoco.mavenplugin.version>0.8.4</jacoco.mavenplugin.version>
     <powermock.version>2.0.2</powermock.version>
-    <maven.compiler.target>1.11</maven.compiler.target>
-    <maven.compiler.source>1.11</maven.compiler.source>
   </properties>
 
   <dependencies>

@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -75,8 +76,10 @@ public class OrderServiceTest {
 
     PowerMockito.mockStatic(ORDER_TYPE.class);
 
-    Whitebox.setInternalState(order_type, "name", "ADDITIONAL_DAY");
-    Whitebox.setInternalState(order_type, "ordinal", values.length);
+   /* Whitebox.setInternalState(order_type, "name", "ADDITIONAL_DAY");
+    Whitebox.setInternalState(order_type, "ordinal", values.length);*/
+    ReflectionTestUtils.setField(order_type, "name", "ADDITIONAL_DAY");
+    ReflectionTestUtils.setField(order_type, "ordinal", values.length);
     valuesAndAdditional[values.length] = order_type;
 
 
