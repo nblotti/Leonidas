@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.awt.*;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -86,22 +87,25 @@ public class OrderService {
 
     MessageVO messageVO;
     switch (createdOrderPO.getType()) {
-      case MARKET_ORDER:
-        messageVO = new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.MARKET_ORDER, MessageVO.ENTITY_ACTION.CREATE);
-        jmsTemplate.convertAndSend(ORDERBOX, messageVO);
-        break;
 
       case CASH_ENTRY:
         messageVO = new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE);
         jmsTemplate.convertAndSend(ORDERBOX, messageVO);
         break;
 
+
+      case MARKET_ORDER:
+        messageVO = new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.MARKET_ORDER, MessageVO.ENTITY_ACTION.CREATE);
+        jmsTemplate.convertAndSend(ORDERBOX, messageVO);
+        break;
+
+
       case SECURITY_ENTRY:
         messageVO = new MessageVO(createdOrderPO.getId(), createdOrderPO.getAccountId(), MessageVO.MESSAGE_TYPE.SECURITY_ENTRY, MessageVO.ENTITY_ACTION.CREATE);
         jmsTemplate.convertAndSend(ORDERBOX, messageVO);
         break;
       default:
-        throw new IllegalStateException("Order type should be one of the known value");
+        throw new IllegalArgumentException("Order type should be one of the known value");
 
     }
     return messageVO;
