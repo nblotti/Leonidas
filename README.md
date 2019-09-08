@@ -10,7 +10,7 @@
 
 <div id="badges" align="center">
         <img src="https://travis-ci.org/nblotti/leonidas.svg?branch=master" alt="Leonidas Logo"/>
-
+ 
 </div>
 
 <div style='margin:0 auto;width:80%;'>
