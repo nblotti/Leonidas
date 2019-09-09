@@ -14,6 +14,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.Optional;
 
+/*Tested but no coverage calculated, as it is using reflection*/
 @Component
 public class OrderService {
 

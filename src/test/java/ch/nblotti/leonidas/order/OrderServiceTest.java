@@ -38,6 +38,7 @@ import static org.mockito.Mockito.*;
 @PowerMockRunnerDelegate(SpringRunner.class)
 @TestPropertySource(locations = "classpath:applicationtest.properties")
 @PrepareForTest({ORDER_TYPE.class, OrderService.class})
+/*Testing OrderService but no coverage calculated, as it is using reflection*/
 public class OrderServiceTest {
 
   @Mock
