@@ -202,4 +202,12 @@ public class SecurityEntryServiceTest {
     Assert.assertEquals(securityEntryPO, returned);
   }
 
+  @Test
+  public void getLogger() {
+    Logger returned = securityEntryService.getLogger();
+    Assert.assertEquals("SecurityEntryService",returned.getName());
+
+  }
+
+
 }
