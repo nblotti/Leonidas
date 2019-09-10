@@ -31,7 +31,6 @@ public class FXQuoteService extends AbstractQuoteService {
 
   }
 
-  //TODO NBL : test me
   /*Gestion des jours fériés et week-end : on prend le dernier disponible*/
   public QuoteDTO getFXQuoteForDate(String firstCurrency, String secondCurrency, LocalDate date) {
 
