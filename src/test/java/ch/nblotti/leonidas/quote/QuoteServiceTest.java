@@ -42,7 +42,7 @@ public class QuoteServiceTest {
   private DateTimeFormatter dateTimeFormatter;
 
   @TestConfiguration
-  static class AccountServiceTestContextConfiguration {
+  static class QuoteServiceTestContextConfiguration {
 
 
     @Bean

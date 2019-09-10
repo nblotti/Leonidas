@@ -58,7 +58,7 @@ public class OrderServiceTest {
   MarketProcessService marketProcessService;
 
   @TestConfiguration
-  static class AccountServiceTestContextConfiguration {
+  static class OrderServiceTestContextConfiguration {
 
 
     @Bean
@@ -118,7 +118,6 @@ public class OrderServiceTest {
     when(orderPO1.getType()).thenReturn(ORDER_TYPE.MARKET_ORDER);
     when(orderPO2.getType()).thenReturn(ORDER_TYPE.CASH_ENTRY);
     when(orderPO3.getType()).thenReturn(ORDER_TYPE.SECURITY_ENTRY);
-
 
     returned = orderService.postMessage(orderPO1);
     verify(jmsTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));

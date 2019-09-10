@@ -33,7 +33,7 @@ public class AssetServiceTest {
 
 
   @TestConfiguration
-  static class AccountServiceTestContextConfiguration {
+  static class AssetServiceTestContextConfiguration {
 
 
     @Bean

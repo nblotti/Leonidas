@@ -29,7 +29,7 @@ public class FXQuoteServiceTest {
 
 
   @TestConfiguration
-  static class AccountServiceTestContextConfiguration {
+  static class FXQuoterviceTestContextConfiguration {
 
 
     @Bean

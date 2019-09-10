@@ -22,8 +22,8 @@ import java.util.logging.Logger;
 public class SecurityEntryService {
 
 
-  private static final Logger LOGGER = Logger.getLogger("SecurityEntryService");
-  public static final String SECURITYENTRYBOX = "securityentrybox";
+  static final Logger LOGGER = Logger.getLogger("SecurityEntryService");
+  static final String SECURITYENTRYBOX = "securityentrybox";
 
   @Autowired
   private SecurityEntryRepository repository;
@@ -100,8 +100,8 @@ public class SecurityEntryService {
 
   public SecurityEntryPO save(SecurityEntryPO securityEntryPO) {
 
-    if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine(String.format("Created new entry with id %s", securityEntryPO.getId()));
+    if (getLogger().isLoggable(Level.FINE)) {
+      getLogger().fine(String.format("Created new entry with id %s", securityEntryPO.getId()));
     }
     SecurityEntryPO saved = this.repository.save(securityEntryPO);
     marketProcessService.setSecurityhEntryRunningForProcess(securityEntryPO.getOrderID(), securityEntryPO.getAccount());
@@ -109,6 +109,10 @@ public class SecurityEntryService {
 
     return saved;
 
+  }
+
+  protected Logger getLogger() {
+    return LOGGER;
   }
 
 
