@@ -19,11 +19,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-import static ch.nblotti.leonidas.quote.FXQuoteService.FOREX;
 import static ch.nblotti.leonidas.quote.FXQuoteService.QUOTES;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @TestPropertySource(locations = "classpath:applicationtest.properties")
@@ -73,6 +71,27 @@ public class FXQuoteServiceTest {
 
   }
 
+  @Test
+  public void getFXQuoteForDateSameCurrency() {
+
+    FXQuoteService spyFXQuoteService = spy(fXQuoteService);
+
+
+    doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyFXQuoteService).getDateTimeFormatter();
+    doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyFXQuoteService).getQuoteDateTimeFormatter();
+
+    QuoteDTO quote = spyFXQuoteService.getFXQuoteForDate("CHF", "CHF", LocalDate.now());
+
+
+    Assert.assertEquals("1", quote.getAdjustedClose());
+    Assert.assertEquals("1", quote.getClose());
+    Assert.assertEquals("1", quote.getHigh());
+    Assert.assertEquals("1", quote.getLow());
+    Assert.assertEquals("1", quote.getOpen());
+    Assert.assertEquals("0", quote.getVolume());
+    Assert.assertEquals(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), quote.getDate());
+
+  }
 
   @Test(expected = IllegalStateException.class)
   public void getFXQuoteForDateNoDateMatch() {
@@ -112,9 +131,7 @@ public class FXQuoteServiceTest {
     QuoteDTO[] quoteDTOS = new QuoteDTO[]{quoteDTO1, quoteDTO2};
 
 
-
     FXQuoteService spyFXQuoteService = spy(fXQuoteService);
-
 
 
     when(quoteDTO1.getDate()).thenReturn("01.01.1900");
@@ -126,12 +143,10 @@ public class FXQuoteServiceTest {
     doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyFXQuoteService).getDateTimeFormatter();
     doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyFXQuoteService).getQuoteDateTimeFormatter();
 
-    QuoteDTO returned = spyFXQuoteService.getFXQuoteForDate("CHF", "EUR",LocalDate.now());
+    QuoteDTO returned = spyFXQuoteService.getFXQuoteForDate("CHF", "EUR", LocalDate.now());
 
     Assert.assertEquals("1000", returned.getAdjustedClose());
   }
-
-
 
 
 }
