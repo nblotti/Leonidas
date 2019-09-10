@@ -1,8 +1,7 @@
-package ch.nblotti.leonidas.quote.asset;
+package ch.nblotti.leonidas.quote;
 
 
 import ch.nblotti.leonidas.asset.AssetPO;
-import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -183,7 +182,7 @@ public class QuoteServiceTest {
     doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyQuoteService).getDateTimeFormatter();
     doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyQuoteService).getQuoteDateTimeFormatter();
 
-    spyQuoteService.getQuoteForDate(exchange, symbol, now);
+    spyQuoteService.getQuoteForDate(exchange, symbol, LocalDate.parse("01.02.1900", DateTimeFormatter.ofPattern("dd.MM.yyyy")));
 
 
   }

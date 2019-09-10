@@ -1,7 +1,7 @@
 package ch.nblotti.leonidas.entry;
 
 import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.quote.asset.QuoteController;
+import ch.nblotti.leonidas.quote.QuoteController;
 import ch.nblotti.leonidas.order.OrderController;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;

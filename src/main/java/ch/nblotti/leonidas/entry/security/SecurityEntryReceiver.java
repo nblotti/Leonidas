@@ -1,15 +1,7 @@
 package ch.nblotti.leonidas.entry.security;
 
-import ch.nblotti.leonidas.account.AccountPO;
-import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.asset.AssetPO;
-import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.EntryReceiver;
 import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.quote.QuoteDTO;
-import ch.nblotti.leonidas.quote.asset.QuoteService;
-import ch.nblotti.leonidas.quote.fx.FXQuoteService;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;

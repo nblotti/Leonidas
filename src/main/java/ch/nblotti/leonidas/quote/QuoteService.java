@@ -1,6 +1,7 @@
-package ch.nblotti.leonidas.quote.asset;
+package ch.nblotti.leonidas.quote;
 
 
+import ch.nblotti.leonidas.quote.AbstractQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +12,7 @@ import java.util.Iterator;
 public class QuoteService extends AbstractQuoteService {
 
 
-  protected static final String QUOTES = "quotes";
+  static final String QUOTES = "quotes";
 
 
   @Override

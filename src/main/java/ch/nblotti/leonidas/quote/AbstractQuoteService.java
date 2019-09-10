@@ -1,4 +1,4 @@
-package ch.nblotti.leonidas.quote.asset;
+package ch.nblotti.leonidas.quote;
 
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +32,11 @@ public abstract class AbstractQuoteService {
   private DateTimeFormatter dateTimeFormatter;
 
 
-
   @Value("${spring.application.eod.api.key}")
   private String eodApiToken;
 
 
-  protected List<QuoteDTO> getQuotes(String exchange, String symbol) {
+  List<QuoteDTO> getQuotes(String exchange, String symbol) {
 
     Map<String, List<QuoteDTO>> cachedQuotes;
 

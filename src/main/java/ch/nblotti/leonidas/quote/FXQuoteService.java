@@ -1,22 +1,19 @@
-package ch.nblotti.leonidas.quote.fx;
+package ch.nblotti.leonidas.quote;
 
 
 import ch.nblotti.leonidas.quote.QuoteDTO;
-import ch.nblotti.leonidas.quote.asset.AbstractQuoteService;
-import org.springframework.beans.factory.annotation.Autowired;
+import ch.nblotti.leonidas.quote.AbstractQuoteService;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
 public class FXQuoteService extends AbstractQuoteService {
 
 
-  public static final String QUOTES = "quotes";
-  private final static String FOREX = "FOREX";
-
+  final static String QUOTES = "quotes";
+  final static String FOREX = "FOREX";
 
 
   @Override
@@ -65,7 +62,7 @@ public class FXQuoteService extends AbstractQuoteService {
         }
       }
       localDate = localDate.minusDays(1);
-      if (localDate.equals(getDateTimeFormatter().parse("01.01.1900")))
+      if (localDate.equals(LocalDate.parse("01.01.1900",getDateTimeFormatter())))
         throw new IllegalStateException(String.format("No quotes found for symbol %s", currencyPair));
     }
     return lastElement;
