@@ -198,14 +198,39 @@ public class SecurityEntryServiceTest {
 
     verify(marketProcessService, times(1)).setSecurityhEntryRunningForProcess(1, 1);
     verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
+    verify(logger, times(1)).fine(anyString());
 
     Assert.assertEquals(securityEntryPO, returned);
   }
 
   @Test
+  public void saveNoLogger() {
+
+    SecurityEntryPO securityEntryPO = mock(SecurityEntryPO.class);
+    Logger logger = mock(Logger.class);
+
+
+    SecurityEntryService spySecurityEntryService = spy(securityEntryService);
+    doReturn(logger).when(spySecurityEntryService).getLogger();
+    when(logger.isLoggable(any())).thenReturn(Boolean.FALSE);
+    when(repository.save(any())).thenReturn(securityEntryPO);
+    when(securityEntryPO.getOrderID()).thenReturn(1l);
+    when(securityEntryPO.getAccount()).thenReturn(1);
+
+    SecurityEntryPO returned = spySecurityEntryService.save(securityEntryPO);
+
+    verify(marketProcessService, times(1)).setSecurityhEntryRunningForProcess(1, 1);
+    verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
+    verify(logger, times(0)).fine(anyString());
+
+    Assert.assertEquals(securityEntryPO, returned);
+  }
+
+
+  @Test
   public void getLogger() {
     Logger returned = securityEntryService.getLogger();
-    Assert.assertEquals("SecurityEntryService",returned.getName());
+    Assert.assertEquals("SecurityEntryService", returned.getName());
 
   }
 
