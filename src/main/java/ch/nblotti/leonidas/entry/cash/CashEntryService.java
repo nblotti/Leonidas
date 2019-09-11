@@ -72,28 +72,30 @@ public class CashEntryService {
 
   protected CashEntryPO fromMarketOrder(OrderPO orderPO) {
 
-    CashEntryPO cashEntryTO = new CashEntryPO();
     QuoteDTO fxQquote;
+    QuoteDTO quoteDTO;
 
+    CashEntryPO cashEntryTO = new CashEntryPO();
     AccountPO currentAccountPO = acountService.findAccountById(orderPO.getAccountId());
 
     cashEntryTO.setAccount(currentAccountPO.getId());
     cashEntryTO.setOrderID(orderPO.getId());
     cashEntryTO.setEntryDate(orderPO.getTransactTime());
-
     cashEntryTO.setStatus(orderPO.getStatus());
-
+    cashEntryTO.setAccount(currentAccountPO.getId());
 
     AssetPO assetPO = assetService.getSymbol(orderPO.getExchange(), orderPO.getSymbol());
-    fxQquote = fxQuoteService.getFXQuoteForDate(assetPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
-    QuoteDTO quoteDTO = quoteService.getQuoteForDate(orderPO.getExchange(), orderPO.getSymbol(), orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
-    cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
+    int valueDateForExchange = assetService.getValueDateForExchange(assetPO.getExchange());
+    cashEntryTO.setAccount(currentAccountPO.getId());
+    fxQquote = fxQuoteService.getFXQuoteForDate(assetPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), orderPO.getTransactTime().plusDays(valueDateForExchange));
+    quoteDTO = quoteService.getQuoteForDate(orderPO.getExchange(), orderPO.getSymbol(), orderPO.getTransactTime().plusDays(valueDateForExchange));
+
+    cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(valueDateForExchange));
     cashEntryTO.setGrossAmount(orderPO.getOrderQtyData() * Float.valueOf(quoteDTO.getAdjustedClose()));
     cashEntryTO.setDebitCreditCode(orderPO.getSide().equals(DEBIT_CREDIT.CRDT) ? DEBIT_CREDIT.DBIT : DEBIT_CREDIT.CRDT);
     cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
     cashEntryTO.setCurrency(assetPO.getCurrency());
     cashEntryTO.setFxExchangeRate(Float.valueOf(fxQquote.getAdjustedClose()));
-
     cashEntryTO.setAccountReportingCurrency(currentAccountPO.getPerformanceCurrency());
     cashEntryTO.setEntryValueReportingCurrency(cashEntryTO.getFxExchangeRate() * cashEntryTO.getNetAmount());
 
