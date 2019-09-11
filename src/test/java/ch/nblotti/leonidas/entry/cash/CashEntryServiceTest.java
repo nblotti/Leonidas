@@ -25,8 +25,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 public class CashEntryServiceTest {
@@ -178,17 +177,61 @@ public class CashEntryServiceTest {
 
     CashEntryPO cashEntryPO = cashEntryService.fromMarketOrder(orderPO);
 
-    Assert.assertEquals(1,cashEntryPO.getAccount());
+    Assert.assertEquals(1, cashEntryPO.getAccount());
     Assert.assertEquals(1, cashEntryPO.getOrderID());
-    Assert.assertEquals(DEBIT_CREDIT.DBIT,cashEntryPO.getDebitCreditCode());
-    Assert.assertEquals(LocalDate.now(),cashEntryPO.getEntryDate());
+    Assert.assertEquals(DEBIT_CREDIT.DBIT, cashEntryPO.getDebitCreditCode());
+    Assert.assertEquals(LocalDate.now(), cashEntryPO.getEntryDate());
     Assert.assertEquals(LocalDate.now().plusDays(3), cashEntryPO.getValueDate());
     Assert.assertEquals(currency, cashEntryPO.getCurrency());
     Assert.assertEquals(Float.valueOf(4), cashEntryPO.getEntryValueReportingCurrency());
     Assert.assertEquals(Float.valueOf(2), cashEntryPO.getNetAmount());
-    Assert.assertEquals(Float.valueOf(2),cashEntryPO.getGrossAmount());
+    Assert.assertEquals(Float.valueOf(2), cashEntryPO.getGrossAmount());
     Assert.assertEquals("CHF", cashEntryPO.getAccountReportingCurrency());
     Assert.assertEquals(Float.valueOf(2), cashEntryPO.getFxExchangeRate());
     Assert.assertEquals(1, cashEntryPO.getStatus());
   }
+
+  @Test
+  public void fromCashEntryOrder() {
+
+    OrderPO orderPO = mock(OrderPO.class);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    QuoteDTO quoteDTO = mock(QuoteDTO.class);
+
+    when(orderPO.getAccountId()).thenReturn(1);
+    when(acountService.findAccountById(orderPO.getAccountId())).thenReturn(currentAccountPO);
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+
+
+    when(currentAccountPO.getId()).thenReturn((1));
+    when(orderPO.getId()).thenReturn(1l);
+    when(orderPO.getTransactTime()).thenReturn(LocalDate.now());
+
+    when(orderPO.getStatus()).thenReturn(1);
+
+    when(orderPO.getSide()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(orderPO.getTransactTime()).thenReturn(LocalDate.now());
+    when(orderPO.getAmount()).thenReturn(2f);
+    when(orderPO.getCashCurrency()).thenReturn("CHF");
+    when(quoteDTO.getAdjustedClose()).thenReturn("2");
+    when(currentAccountPO.getPerformanceCurrency()).thenReturn("CHF");
+
+
+    CashEntryPO cashEntryPO = cashEntryService.fromCashEntryOrder(orderPO);
+
+    Assert.assertEquals(1, cashEntryPO.getAccount());
+    Assert.assertEquals(1, cashEntryPO.getOrderID());
+    Assert.assertEquals(DEBIT_CREDIT.CRDT, cashEntryPO.getDebitCreditCode());
+    Assert.assertEquals(LocalDate.now(), cashEntryPO.getEntryDate());
+    Assert.assertEquals(LocalDate.now().plusDays(3), cashEntryPO.getValueDate());
+    Assert.assertEquals("CHF", cashEntryPO.getCurrency());
+    Assert.assertEquals(Float.valueOf(4), cashEntryPO.getEntryValueReportingCurrency());
+    Assert.assertEquals(Float.valueOf(2), cashEntryPO.getNetAmount());
+    Assert.assertEquals(Float.valueOf(2), cashEntryPO.getGrossAmount());
+    Assert.assertEquals("CHF", cashEntryPO.getAccountReportingCurrency());
+    Assert.assertEquals(Float.valueOf(2), cashEntryPO.getFxExchangeRate());
+    Assert.assertEquals(1, cashEntryPO.getStatus());
+
+  }
+
 }
