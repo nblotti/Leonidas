@@ -120,7 +120,7 @@ public class CashEntryServiceTest {
   }
 
   @Test
-  public void fromMarketOrder() {
+  public void fromMarketOrderSideDbt() {
     OrderPO orderPO = mock(OrderPO.class);
     AccountPO currentAccountPO = mock(AccountPO.class);
     AssetPO assetPO = mock(AssetPO.class);
@@ -182,6 +182,81 @@ public class CashEntryServiceTest {
     Assert.assertEquals(1, cashEntryPO.getAccount());
     Assert.assertEquals(1, cashEntryPO.getOrderID());
     Assert.assertEquals(DEBIT_CREDIT.DBIT, cashEntryPO.getDebitCreditCode());
+    Assert.assertEquals(LocalDate.now(), cashEntryPO.getEntryDate());
+    Assert.assertEquals(LocalDate.now().plusDays(3), cashEntryPO.getValueDate());
+    Assert.assertEquals(currency, cashEntryPO.getCurrency());
+    Assert.assertEquals(Float.valueOf(4), cashEntryPO.getEntryValueReportingCurrency());
+    Assert.assertEquals(Float.valueOf(2), cashEntryPO.getNetAmount());
+    Assert.assertEquals(Float.valueOf(2), cashEntryPO.getGrossAmount());
+    Assert.assertEquals("CHF", cashEntryPO.getAccountReportingCurrency());
+    Assert.assertEquals(Float.valueOf(2), cashEntryPO.getFxExchangeRate());
+    Assert.assertEquals(1, cashEntryPO.getStatus());
+  }
+
+
+  @Test
+  public void fromMarketOrderSideCrdt() {
+    OrderPO orderPO = mock(OrderPO.class);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    AssetPO assetPO = mock(AssetPO.class);
+    QuoteDTO quoteDTO = mock(QuoteDTO.class);
+    ch.nblotti.leonidas.entry.cash.CashEntryPO cashEntryTO = mock(ch.nblotti.leonidas.entry.cash.CashEntryPO.class);
+    QuoteDTO fxQquote = mock(QuoteDTO.class);
+
+    long orderID = 1;
+    int accountID = 1;
+    float orderQty = 1;
+    int orderStatus = 1;
+    String exchange = "US";
+    String symbol = "FB";
+    String currency = "USD";
+    String performanceCurrency = "CHF";
+    String adjustedClose = "2";
+    float grossAmount = 5f;
+    float exchangeRate = 2f;
+    float netAmount = 2f;
+    String fxAdjustedClose = "2";
+
+    when(acountService.findAccountById(any())).thenReturn(currentAccountPO);
+    when(assetService.getSymbol(any(), anyString())).thenReturn(assetPO);
+    when(assetService.getValueDateForExchange(anyString())).thenReturn(3);
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(fxQquote);
+    when(quoteService.getQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+    int valueDateForExchange = assetService.getValueDateForExchange(assetPO.getExchange());
+
+
+    when(orderPO.getAccountId()).thenReturn(accountID);
+    when(orderPO.getId()).thenReturn(orderID);
+    when(orderPO.getTransactTime()).thenReturn(LocalDate.now());
+    when(orderPO.getOrderQtyData()).thenReturn(orderQty);
+    when(orderPO.getStatus()).thenReturn(orderStatus);
+    when(orderPO.getSide()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(orderPO.getExchange()).thenReturn(exchange);
+    when(orderPO.getSymbol()).thenReturn(symbol);
+
+
+    when(assetPO.getExchange()).thenReturn(exchange);
+    when(assetPO.getCurrency()).thenReturn(currency);
+
+    when(currentAccountPO.getId()).thenReturn(accountID);
+    when(currentAccountPO.getPerformanceCurrency()).thenReturn(performanceCurrency);
+    when(quoteDTO.getAdjustedClose()).thenReturn(adjustedClose);
+    ;
+    when(cashEntryTO.getGrossAmount()).thenReturn(grossAmount);
+    when(cashEntryTO.getFxExchangeRate()).thenReturn(exchangeRate);
+    when(cashEntryTO.getNetAmount()).thenReturn(netAmount);
+    ;
+    when(fxQquote.getAdjustedClose()).thenReturn(fxAdjustedClose);
+    ;
+
+    ;
+
+
+    ch.nblotti.leonidas.entry.cash.CashEntryPO cashEntryPO = cashEntryService.fromMarketOrder(orderPO);
+
+    Assert.assertEquals(1, cashEntryPO.getAccount());
+    Assert.assertEquals(1, cashEntryPO.getOrderID());
+    Assert.assertEquals(DEBIT_CREDIT.CRDT, cashEntryPO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), cashEntryPO.getEntryDate());
     Assert.assertEquals(LocalDate.now().plusDays(3), cashEntryPO.getValueDate());
     Assert.assertEquals(currency, cashEntryPO.getCurrency());
