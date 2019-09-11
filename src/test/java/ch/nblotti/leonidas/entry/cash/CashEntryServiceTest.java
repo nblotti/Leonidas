@@ -5,12 +5,13 @@ import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
-import org.hibernate.criterion.Order;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +24,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -72,11 +74,11 @@ public class CashEntryServiceTest {
   @Test
   public void findAll() {
 
-    Iterable<CashEntryPO> iterable = mock(Iterable.class);
+    Iterable<ch.nblotti.leonidas.entry.cash.CashEntryPO> iterable = mock(Iterable.class);
 
     when(repository.findAll()).thenReturn(iterable);
 
-    Iterable<CashEntryPO> returnedIterable = cashEntryService.findAll();
+    Iterable<ch.nblotti.leonidas.entry.cash.CashEntryPO> returnedIterable = cashEntryService.findAll();
 
     Assert.assertEquals(iterable, returnedIterable);
   }
@@ -84,36 +86,36 @@ public class CashEntryServiceTest {
   @Test
   public void findAllByAccountAndCurrencyOrderByValueDateAsc() {
 
-    Iterable<CashEntryPO> iterable = mock(Iterable.class);
+    Iterable<ch.nblotti.leonidas.entry.cash.CashEntryPO> iterable = mock(Iterable.class);
     int account = 1;
     String currency = "CHF";
 
     when(repository.findAllByAccountAndCurrencyOrderByValueDateAsc(account, currency)).thenReturn(iterable);
 
-    Iterable<CashEntryPO> returnedIterable = cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(account, currency);
+    Iterable<ch.nblotti.leonidas.entry.cash.CashEntryPO> returnedIterable = cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(account, currency);
     Assert.assertEquals(iterable, returnedIterable);
   }
 
   @Test
   public void findByAccountAndOrderID() {
 
-    CashEntryPO cashEntryPO = mock(CashEntryPO.class);
+    ch.nblotti.leonidas.entry.cash.CashEntryPO cashEntryPO = mock(ch.nblotti.leonidas.entry.cash.CashEntryPO.class);
     int account = 1;
     int orderID = 1;
 
     when(repository.findByAccountAndOrderID(account, orderID)).thenReturn(cashEntryPO);
 
-    CashEntryPO returnedCashEntryPO = cashEntryService.findByAccountAndOrderID(account, orderID);
+    ch.nblotti.leonidas.entry.cash.CashEntryPO returnedCashEntryPO = cashEntryService.findByAccountAndOrderID(account, orderID);
     Assert.assertEquals(cashEntryPO, returnedCashEntryPO);
   }
 
   @Test
   public void findById() {
 
-    Optional<CashEntryPO> cashEntryPO = mock(Optional.class);
+    Optional<ch.nblotti.leonidas.entry.cash.CashEntryPO> cashEntryPO = mock(Optional.class);
     String cashEntryID = "1";
     when(repository.findById(Long.valueOf(cashEntryID))).thenReturn(cashEntryPO);
-    Optional<CashEntryPO> returnedCashEntryPO = cashEntryService.findById(cashEntryID);
+    Optional<ch.nblotti.leonidas.entry.cash.CashEntryPO> returnedCashEntryPO = cashEntryService.findById(cashEntryID);
     Assert.assertEquals(cashEntryPO, returnedCashEntryPO);
   }
 
@@ -123,7 +125,7 @@ public class CashEntryServiceTest {
     AccountPO currentAccountPO = mock(AccountPO.class);
     AssetPO assetPO = mock(AssetPO.class);
     QuoteDTO quoteDTO = mock(QuoteDTO.class);
-    CashEntryPO cashEntryTO = mock(CashEntryPO.class);
+    ch.nblotti.leonidas.entry.cash.CashEntryPO cashEntryTO = mock(ch.nblotti.leonidas.entry.cash.CashEntryPO.class);
     QuoteDTO fxQquote = mock(QuoteDTO.class);
 
     long orderID = 1;
@@ -175,7 +177,7 @@ public class CashEntryServiceTest {
     ;
 
 
-    CashEntryPO cashEntryPO = cashEntryService.fromMarketOrder(orderPO);
+    ch.nblotti.leonidas.entry.cash.CashEntryPO cashEntryPO = cashEntryService.fromMarketOrder(orderPO);
 
     Assert.assertEquals(1, cashEntryPO.getAccount());
     Assert.assertEquals(1, cashEntryPO.getOrderID());
@@ -217,7 +219,7 @@ public class CashEntryServiceTest {
     when(currentAccountPO.getPerformanceCurrency()).thenReturn("CHF");
 
 
-    CashEntryPO cashEntryPO = cashEntryService.fromCashEntryOrder(orderPO);
+    ch.nblotti.leonidas.entry.cash.CashEntryPO cashEntryPO = cashEntryService.fromCashEntryOrder(orderPO);
 
     Assert.assertEquals(1, cashEntryPO.getAccount());
     Assert.assertEquals(1, cashEntryPO.getOrderID());
@@ -233,5 +235,61 @@ public class CashEntryServiceTest {
     Assert.assertEquals(1, cashEntryPO.getStatus());
 
   }
+
+
+  @Test
+  public void save() {
+
+    ch.nblotti.leonidas.entry.cash.CashEntryPO cashEntryPO = mock(ch.nblotti.leonidas.entry.cash.CashEntryPO.class);
+    Logger logger = mock(Logger.class);
+
+
+    CashEntryService spyCashEntryService = spy(cashEntryService);
+    doReturn(logger).when(spyCashEntryService).getLogger();
+    when(logger.isLoggable(any())).thenReturn(Boolean.TRUE);
+    when(repository.save(any())).thenReturn(cashEntryPO);
+    when(cashEntryPO.getOrderID()).thenReturn(1l);
+    when(cashEntryPO.getAccount()).thenReturn(1);
+
+    ch.nblotti.leonidas.entry.cash.CashEntryPO returned = spyCashEntryService.save(cashEntryPO);
+
+    verify(marketProcessService, times(1)).setCashEntryRunningForProcess(1, 1);
+    verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
+    verify(logger, times(1)).fine(anyString());
+
+    Assert.assertEquals(cashEntryPO, returned);
+  }
+
+  @Test
+  public void saveNoLogger() {
+
+    CashEntryPO cashEntryPO = mock(CashEntryPO.class);
+    Logger logger = mock(Logger.class);
+
+
+    CashEntryService spyCashEntryService = spy(cashEntryService);
+    doReturn(logger).when(spyCashEntryService).getLogger();
+    when(logger.isLoggable(any())).thenReturn(Boolean.FALSE);
+    when(repository.save(any())).thenReturn(cashEntryPO);
+    when(cashEntryPO.getOrderID()).thenReturn(1l);
+    when(cashEntryPO.getAccount()).thenReturn(1);
+
+    CashEntryPO returned = spyCashEntryService.save(cashEntryPO);
+
+    verify(marketProcessService, times(1)).setCashEntryRunningForProcess(1, 1);
+    verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
+    verify(logger, times(0)).fine(anyString());
+
+    Assert.assertEquals(cashEntryPO, returned);
+  }
+
+
+  @Test
+  public void getLogger() {
+    Logger returned = cashEntryService.getLogger();
+    Assert.assertEquals("CashEntryService", returned.getName());
+
+  }
+
 
 }

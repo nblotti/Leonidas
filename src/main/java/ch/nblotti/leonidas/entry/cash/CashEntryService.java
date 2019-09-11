@@ -133,8 +133,8 @@ public class CashEntryService {
 
   protected CashEntryPO save(CashEntryPO entry) {
 
-    if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine(String.format("Created new entry with id %s", entry.getId()));
+    if (getLogger().isLoggable(Level.FINE)) {
+      getLogger().fine(String.format("Created new entry with id %s", entry.getId()));
     }
     CashEntryPO cashEntryTO = this.repository.save(entry);
 
@@ -143,6 +143,10 @@ public class CashEntryService {
     jmsOrderTemplate.convertAndSend("cashentrybox", new MessageVO(cashEntryTO.getOrderID(), cashEntryTO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
 
     return cashEntryTO;
+  }
+
+  protected Logger getLogger() {
+    return LOGGER;
   }
 
 
