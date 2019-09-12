@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
 
-@Component
+@Component(value="fxQuoteService")
 public class FXQuoteService extends AbstractQuoteService {
 
 

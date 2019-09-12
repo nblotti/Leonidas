@@ -59,7 +59,6 @@ public class CashPositionService {
   }
 
 
-  //TODO NBL : test me
   public PositionPO updatePosition(CashEntryPO entry) {
 
     LOGGER.log(Level.FINE, "Started update process");
@@ -113,7 +112,7 @@ public class CashPositionService {
   }
 
 
-  private Iterable<AggregatedCashEntryVO> aggregateCashEntries(Iterable<CashEntryPO> cashEntries) {
+  Iterable<AggregatedCashEntryVO> aggregateCashEntries(Iterable<CashEntryPO> cashEntries) {
 
 
     Map<LocalDate, AggregatedCashEntryVO> cashEntryByDAte = Maps.newHashMap();
@@ -160,7 +159,7 @@ public class CashPositionService {
   }
 
 
-  private Iterable<PositionPO> positionFromEntry(AccountPO currentAccountPO, Iterable<PositionPO> positions, AggregatedCashEntryVO currentEntry, AggregatedCashEntryVO nextEntry) {
+  Iterable<PositionPO> positionFromEntry(AccountPO currentAccountPO, Iterable<PositionPO> positions, AggregatedCashEntryVO currentEntry, AggregatedCashEntryVO nextEntry) {
 
 
     Float amount;
@@ -214,7 +213,7 @@ public class CashPositionService {
 
   private Iterable<PositionPO> createPositions(AccountPO currentAccountPO, Float netAmount, Float tma, AggregatedCashEntryVO currentEntry, LocalDate endDate) {
 
-    if(LOGGER.isLoggable(Level.FINE)) {
+    if (LOGGER.isLoggable(Level.FINE)) {
       LOGGER.fine(String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));
     }
     long loop = ChronoUnit.DAYS.between(currentEntry.getValueDate(), endDate);
