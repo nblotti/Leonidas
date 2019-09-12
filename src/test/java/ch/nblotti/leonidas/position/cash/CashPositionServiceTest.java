@@ -89,7 +89,7 @@ public class CashPositionServiceTest {
   }
 
   @Test
-  public void aggregateCashEntriesSameDateSameDebitCredit() {
+  public void aggregateCashEntriesSameDateSameDebitCreditSignIsCredit() {
     Iterable<CashEntryPO> cashEntries = mock(Iterable.class);
     Iterator<CashEntryPO> iterator = mock(Iterator.class);
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
@@ -119,7 +119,38 @@ public class CashPositionServiceTest {
   }
 
   @Test
-  public void aggregateCashEntriesSameDateDifferenteDebitCreditChangeInSign() {
+  public void aggregateCashEntriesSameDateSameDebitCreditSignIsDebit() {
+    Iterable<CashEntryPO> cashEntries = mock(Iterable.class);
+    Iterator<CashEntryPO> iterator = mock(Iterator.class);
+    CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
+    CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
+
+    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now());
+    when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
+    when(cashEntryPO1.getNetAmount()).thenReturn(100f);
+    when(cashEntryPO2.getNetAmount()).thenReturn(100f);
+
+    when(cashEntries.iterator()).thenReturn(iterator);
+//this is to mock list with one element, adjust accordingly
+    when(iterator.hasNext()).thenReturn(true, true, false);
+    when(iterator.next()).thenReturn(cashEntryPO1, cashEntryPO2);
+
+
+    Iterable<AggregatedCashEntryVO> aggregatedCashEntryVOS = cashPositionService.aggregateCashEntries(cashEntries);
+    List<AggregatedCashEntryVO> entryVOList = Lists.newArrayList(aggregatedCashEntryVOS);
+    Assert.assertEquals(1, entryVOList.size());
+    AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
+    Assert.assertEquals(Float.valueOf(200), aggregatedCashEntryVO.getNetAmount());
+    Assert.assertEquals(DEBIT_CREDIT.DBIT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
+
+  }
+
+
+  @Test
+  public void aggregateCashEntriesSameDateDifferenteDebitCreditChangeInSignCredit() {
     Iterable<CashEntryPO> cashEntries = mock(Iterable.class);
     Iterator<CashEntryPO> iterator = mock(Iterator.class);
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
@@ -144,6 +175,36 @@ public class CashPositionServiceTest {
     AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
     Assert.assertEquals(Float.valueOf(-100), aggregatedCashEntryVO.getNetAmount());
     Assert.assertEquals(DEBIT_CREDIT.DBIT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
+
+  }
+
+  @Test
+  public void aggregateCashEntriesSameDateDifferenteDebitCreditChangeInSignDebit() {
+    Iterable<CashEntryPO> cashEntries = mock(Iterable.class);
+    Iterator<CashEntryPO> iterator = mock(Iterator.class);
+    CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
+    CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
+
+    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now());
+    when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
+    when(cashEntryPO1.getNetAmount()).thenReturn(100f);
+    when(cashEntryPO2.getNetAmount()).thenReturn(200f);
+
+    when(cashEntries.iterator()).thenReturn(iterator);
+//this is to mock list with one element, adjust accordingly
+    when(iterator.hasNext()).thenReturn(true, true, false);
+    when(iterator.next()).thenReturn(cashEntryPO1, cashEntryPO2);
+
+
+    Iterable<AggregatedCashEntryVO> aggregatedCashEntryVOS = cashPositionService.aggregateCashEntries(cashEntries);
+    List<AggregatedCashEntryVO> entryVOList = Lists.newArrayList(aggregatedCashEntryVOS);
+    Assert.assertEquals(1, entryVOList.size());
+    AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
+    Assert.assertEquals(Float.valueOf(-100), aggregatedCashEntryVO.getNetAmount());
+    Assert.assertEquals(DEBIT_CREDIT.CRDT, aggregatedCashEntryVO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
 
   }
