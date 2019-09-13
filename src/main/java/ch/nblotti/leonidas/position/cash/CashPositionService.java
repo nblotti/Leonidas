@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -175,11 +176,13 @@ public class CashPositionService {
     }
 
 
-    if (positions != null && !Lists.newArrayList(positions).isEmpty()) {
+    ArrayList<PositionPO> positionPOS = Lists.newArrayList(positions);
+
+    if (positions != null && !positionPOS.isEmpty()) {
 
 
       //la position de la veille
-      PositionPO lastDayPositionPO = Lists.newArrayList(positions).get(Lists.newArrayList(positions).size() - 1);
+      PositionPO lastDayPositionPO = positionPOS.get(positionPOS.size() - 1);
 
       //on additionne la quantité à la quantité de la valeur existante.
       if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT) {

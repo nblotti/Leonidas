@@ -316,8 +316,8 @@ public class CashPositionServiceTest {
     Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, null, currentEntry, nextEntry);
 
     verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
-    Assert.assertEquals(100f, amount.getValue().floatValue(),0);
-    Assert.assertEquals(2f, tma.getValue().floatValue(),0);
+    Assert.assertEquals(100f, amount.getValue().floatValue(), 0);
+    Assert.assertEquals(2f, tma.getValue().floatValue(), 0);
   }
 
   @Test
@@ -329,7 +329,6 @@ public class CashPositionServiceTest {
     AccountPO currentAccountPO = mock(AccountPO.class);
     Iterable<PositionPO> positions = mock(Iterable.class);
     AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
-    //AggregatedCashEntryVO nextEntry = mock(AggregatedCashEntryVO.class);
     Iterator<PositionPO> iterator = mock(Iterator.class);
 
 
@@ -339,14 +338,87 @@ public class CashPositionServiceTest {
     when(currentEntry.getNetAmount()).thenReturn(100f);
     when(currentEntry.getFxchangeRate()).thenReturn(2f);
 
-    //when(nextEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(3));
 
     doReturn(positions).when(spyCashPositionService).createPositions(anyObject(), amount.capture(), tma.capture(), anyObject(), anyObject());
     Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, null);
 
     verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
-    Assert.assertEquals(-100f, amount.getValue().floatValue(),0);
-    Assert.assertEquals(2f, tma.getValue().floatValue(),0);
+    Assert.assertEquals(-100f, amount.getValue().floatValue(), 0);
+    Assert.assertEquals(2f, tma.getValue().floatValue(), 0);
+  }
+
+  @Test
+  public void positionFromEntryPositionsNotNullDebit() {
+
+    ArgumentCaptor<Float> amount = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
+    CashPositionService spyCashPositionService = spy(cashPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
+    AggregatedCashEntryVO nextEntry = mock(AggregatedCashEntryVO.class);
+    Iterator<PositionPO> iterator = mock(Iterator.class);
+    PositionPO position1 = mock(PositionPO.class);
+    PositionPO position2 = mock(PositionPO.class);
+
+
+    when(positions.iterator()).thenReturn(iterator);
+    when(iterator.hasNext()).thenReturn(true,true,false);
+    when(iterator.next()).thenReturn(position1,position2);
+
+
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(1));
+    when(currentEntry.getNetAmount()).thenReturn(100f);
+    when(currentEntry.getFxchangeRate()).thenReturn(2f);
+
+    when(position2.getTMA()).thenReturn(3.5f);
+    when(position2.getPosValue()).thenReturn(2f);
+
+    when(nextEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(3));
+
+    doReturn(positions).when(spyCashPositionService).createPositions(anyObject(), amount.capture(), tma.capture(), anyObject(), anyObject());
+    Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, null);
+
+    verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
+    Assert.assertEquals(102f, amount.getValue().floatValue(), 0);
+    Assert.assertEquals(203.5f, tma.getValue().floatValue(), 0);
+  }
+
+  @Test
+  public void positionFromEntryPositionsNotNullCredit() {
+
+    ArgumentCaptor<Float> amount = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
+    CashPositionService spyCashPositionService = spy(cashPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
+    AggregatedCashEntryVO nextEntry = mock(AggregatedCashEntryVO.class);
+    Iterator<PositionPO> iterator = mock(Iterator.class);
+    PositionPO position1 = mock(PositionPO.class);
+    PositionPO position2 = mock(PositionPO.class);
+
+
+    when(positions.iterator()).thenReturn(iterator);
+    when(iterator.hasNext()).thenReturn(true,true,false);
+    when(iterator.next()).thenReturn(position1,position2);
+
+
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(1));
+    when(currentEntry.getNetAmount()).thenReturn(50f);
+
+    when(position2.getPosValue()).thenReturn(200f);
+
+    when(nextEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(3));
+
+    doReturn(positions).when(spyCashPositionService).createPositions(anyObject(), amount.capture(), tma.capture(), anyObject(), anyObject());
+    Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, null);
+
+    verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
+    Assert.assertEquals(150f, amount.getValue().floatValue(), 0);
+    Assert.assertEquals(0f, tma.getValue().floatValue(), 0);
   }
 
 
