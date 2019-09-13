@@ -175,10 +175,14 @@ public class CashPositionService {
       endDate = nextEntry.getValueDate().minusDays(1);
     }
 
+    ArrayList<PositionPO> positionPOS;
 
-    ArrayList<PositionPO> positionPOS = Lists.newArrayList(positions);
+    if (positions != null)
+      positionPOS = Lists.newArrayList(positions);
+    else
+      positionPOS = Lists.newArrayList();
 
-    if (positions != null && !positionPOS.isEmpty()) {
+    if (!positionPOS.isEmpty()) {
 
 
       //la position de la veille
