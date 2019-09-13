@@ -101,13 +101,14 @@ I will not provide support until the V1 is published.
 <h4>Alpha</h4>
 
  - __Cash available management__
- - __Benchmark__
+ - __Attribution__
  - __Order sequencing__ - done
- - __Fix for__ [Sonar Security and Maintainability measure](https://sonarcloud.io/dashboard?id=nblotti_leonidas)
+ - __Fix for__ [Sonar](https://sonarcloud.io/dashboard?id=nblotti_leonidas) - done
  
  <h4>Beta - Q4 2019</h4>
  
- - __Attribution__
+
+ - __Benchmark__
  - __Standard deviation, sharpe ratio__
  - __Inflation adjusted returns__
  - __VAR__
