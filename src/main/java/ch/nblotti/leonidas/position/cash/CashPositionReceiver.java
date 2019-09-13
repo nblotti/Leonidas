@@ -51,7 +51,7 @@ public class CashPositionReceiver {
           LOGGER.fine(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
         }
         long startTime = System.nanoTime();
-        cashPositionService.updatePosition(cashEntryTO);
+        cashPositionService.updatePositions(cashEntryTO);
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
         if (LOGGER.isLoggable(Level.FINE)) {

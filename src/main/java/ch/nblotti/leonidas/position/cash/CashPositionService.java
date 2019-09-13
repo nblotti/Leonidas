@@ -59,7 +59,7 @@ public class CashPositionService {
   }
 
 
-  public PositionPO updatePosition(CashEntryPO entry) {
+  public void updatePositions(CashEntryPO entry) {
 
     LOGGER.log(Level.FINE, "Started update process");
 
@@ -87,8 +87,6 @@ public class CashPositionService {
 
     jmsOrderTemplate.convertAndSend("cashpositionbox", new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.CASH_POSITION, MessageVO.ENTITY_ACTION.CREATE));
 
-
-    return null;
 
   }
 
@@ -211,7 +209,7 @@ public class CashPositionService {
 
   }
 
-  private Iterable<PositionPO> createPositions(AccountPO currentAccountPO, Float netAmount, Float tma, AggregatedCashEntryVO currentEntry, LocalDate endDate) {
+  Iterable<PositionPO> createPositions(AccountPO currentAccountPO, Float netAmount, Float tma, AggregatedCashEntryVO currentEntry, LocalDate endDate) {
 
     if (LOGGER.isLoggable(Level.FINE)) {
       LOGGER.fine(String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));

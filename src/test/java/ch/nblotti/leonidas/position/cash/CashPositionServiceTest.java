@@ -13,6 +13,8 @@ import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -290,4 +293,61 @@ public class CashPositionServiceTest {
 
     Assert.assertEquals(0, positionList.size());
   }
+
+  @Test
+  public void positionFromEntryPositionsNullCredit() {
+
+    ArgumentCaptor<Float> amount = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
+    CashPositionService spyCashPositionService = spy(cashPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
+    AggregatedCashEntryVO nextEntry = mock(AggregatedCashEntryVO.class);
+
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
+    when(currentEntry.getNetAmount()).thenReturn(100f);
+    when(currentEntry.getFxchangeRate()).thenReturn(2f);
+
+    when(nextEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(3));
+
+    doReturn(positions).when(spyCashPositionService).createPositions(anyObject(), amount.capture(), tma.capture(), anyObject(), anyObject());
+    Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, null, currentEntry, nextEntry);
+
+    verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
+    Assert.assertEquals(100f, amount.getValue().floatValue(),0);
+    Assert.assertEquals(2f, tma.getValue().floatValue(),0);
+  }
+
+  @Test
+  public void positionFromEntryPositionsEmptyArrayDebit() {
+
+    ArgumentCaptor<Float> amount = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
+    CashPositionService spyCashPositionService = spy(cashPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
+    AggregatedCashEntryVO nextEntry = mock(AggregatedCashEntryVO.class);
+    Iterator<PositionPO> iterator = mock(Iterator.class);
+
+
+    when(positions.iterator()).thenReturn(iterator);
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
+    when(currentEntry.getNetAmount()).thenReturn(100f);
+    when(currentEntry.getFxchangeRate()).thenReturn(2f);
+
+    when(nextEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(3));
+
+    doReturn(positions).when(spyCashPositionService).createPositions(anyObject(), amount.capture(), tma.capture(), anyObject(), anyObject());
+    Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry);
+
+    verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
+    Assert.assertEquals(-100f, amount.getValue().floatValue(),0);
+    Assert.assertEquals(2f, tma.getValue().floatValue(),0);
+  }
+
+
 }
