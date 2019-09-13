@@ -335,7 +335,7 @@ public class CashPositionServiceTest {
 
     when(positions.iterator()).thenReturn(iterator);
     when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
-    when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(1));
     when(currentEntry.getNetAmount()).thenReturn(100f);
     when(currentEntry.getFxchangeRate()).thenReturn(2f);
 
