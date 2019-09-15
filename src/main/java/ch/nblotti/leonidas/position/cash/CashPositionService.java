@@ -62,14 +62,14 @@ public class CashPositionService {
 
   public void updatePositions(CashEntryPO entry) {
 
-    LOGGER.log(Level.FINE, "Started update process");
+    getLogger().log(Level.FINE, "Started update process");
 
 
     repository.deleteByPosTypeAndAccountIdAndCurrency(PositionPO.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());
 
     if (LocalDate.now().compareTo(entry.getValueDate()) >= 0) {
 
-      LOGGER.log(Level.FINE, "Suppression des positions");
+      getLogger().log(Level.FINE, "Suppression des positions");
     }
 
     //3. On obtient la liste des mouvements
@@ -218,8 +218,8 @@ public class CashPositionService {
 
   Iterable<PositionPO> createPositions(AccountPO currentAccountPO, Float netAmount, Float tma, AggregatedCashEntryVO currentEntry, LocalDate endDate) {
 
-    if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine(String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));
+    if (getLogger().isLoggable(Level.FINE)) {
+      getLogger().fine(String.format("Création de position de %s à %s pour un montant de %s", currentEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), netAmount));
     }
     long loop = ChronoUnit.DAYS.between(currentEntry.getValueDate(), endDate);
 
@@ -237,13 +237,20 @@ public class CashPositionService {
       currentPositionPO.setAccountPerformanceCurrency(currentAccountPO.getPerformanceCurrency());
       currentPositionPO.setTMA(tma);
 
-      currentPositionPO.setPosValueReportingCurrency(currentEntry.getNetAmount() * Float.valueOf(fxQuoteService.getFXQuoteForDate(currentPositionPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), currentPositionPO.getPosDate()).getAdjustedClose()));
+      Float exchangeRate = Float.valueOf(fxQuoteService.getFXQuoteForDate(currentPositionPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), currentPositionPO.getPosDate()).getAdjustedClose());
+
+      currentPositionPO.setPosValueReportingCurrency(currentEntry.getNetAmount() * exchangeRate);
 
       positionPOS.add(currentPositionPO);
     }
 
     return repository.saveAll(positionPOS);
 
+
+  }
+
+  Logger getLogger() {
+    return this.LOGGER;
 
   }
 

@@ -8,6 +8,7 @@ import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.position.PositionRepository;
 import ch.nblotti.leonidas.quote.FXQuoteService;
+import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
@@ -363,8 +364,8 @@ public class CashPositionServiceTest {
 
 
     when(positions.iterator()).thenReturn(iterator);
-    when(iterator.hasNext()).thenReturn(true,true,false);
-    when(iterator.next()).thenReturn(position1,position2);
+    when(iterator.hasNext()).thenReturn(true, true, false);
+    when(iterator.next()).thenReturn(position1, position2);
 
 
     when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
@@ -401,8 +402,8 @@ public class CashPositionServiceTest {
 
 
     when(positions.iterator()).thenReturn(iterator);
-    when(iterator.hasNext()).thenReturn(true,true,false);
-    when(iterator.next()).thenReturn(position1,position2);
+    when(iterator.hasNext()).thenReturn(true, true, false);
+    when(iterator.next()).thenReturn(position1, position2);
 
 
     when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
@@ -419,6 +420,32 @@ public class CashPositionServiceTest {
     verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
     Assert.assertEquals(150f, amount.getValue().floatValue(), 0);
     Assert.assertEquals(0f, tma.getValue().floatValue(), 0);
+  }
+
+  @Test
+  public void createPosition() {
+
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Float netAmount = 0f;
+    Float tma = 0f;
+    AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
+    QuoteDTO quoteDTO = mock(QuoteDTO.class);
+
+    when(currentAccountPO.getPerformanceCurrency()).thenReturn("CHF");
+    when(currentEntry.getCurrency()).thenReturn("USD");
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(30));
+    when(quoteDTO.getAdjustedClose()).thenReturn("2");
+
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+
+    when(repository.saveAll(anyIterable())).thenAnswer(i -> i.getArguments()[0]);
+
+   Iterable<PositionPO> returnedpositions =  cashPositionService.createPositions(currentAccountPO, netAmount, tma, currentEntry, LocalDate.now());
+
+   verify(fxQuoteService,times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
+
+   Assert.assertEquals(Lists.newArrayList(returnedpositions).size(),31);
   }
 
 
