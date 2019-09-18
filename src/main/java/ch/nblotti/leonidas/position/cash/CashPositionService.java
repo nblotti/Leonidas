@@ -62,7 +62,6 @@ public class CashPositionService {
 
   public void updatePositions(CashEntryPO entry) {
 
-    getLogger().log(Level.FINE, "Started update process");
 
 
     repository.deleteByPosTypeAndAccountIdAndCurrency(PositionPO.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());

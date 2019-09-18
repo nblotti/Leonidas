@@ -29,6 +29,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyObject;
@@ -443,6 +444,36 @@ public class CashPositionServiceTest {
     when(repository.saveAll(anyIterable())).thenAnswer(i -> i.getArguments()[0]);
 
     Iterable<PositionPO> returnedpositions = cashPositionService.createPositions(currentAccountPO, netAmount, tma, currentEntry, LocalDate.now());
+
+    verify(fxQuoteService, times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
+
+    Assert.assertEquals(Lists.newArrayList(returnedpositions).size(), 31);
+  }
+
+  @Test
+  public void createPositionWithLogger() {
+
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Float netAmount = 0f;
+    Float tma = 0f;
+    AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
+    CashPositionService spyCashPositionService = spy(cashPositionService);
+    QuoteDTO quoteDTO = mock(QuoteDTO.class);
+    Logger logger = mock(Logger.class);
+    when(logger.isLoggable(Level.FINE)).thenReturn(true);
+
+    when(currentAccountPO.getPerformanceCurrency()).thenReturn("CHF");
+    when(currentEntry.getCurrency()).thenReturn("USD");
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(30));
+    when(quoteDTO.getAdjustedClose()).thenReturn("2");
+    doReturn(logger).when(spyCashPositionService).getLogger();
+
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+
+    when(repository.saveAll(anyIterable())).thenAnswer(i -> i.getArguments()[0]);
+
+    Iterable<PositionPO> returnedpositions = spyCashPositionService.createPositions(currentAccountPO, netAmount, tma, currentEntry, LocalDate.now());
 
     verify(fxQuoteService, times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
 
