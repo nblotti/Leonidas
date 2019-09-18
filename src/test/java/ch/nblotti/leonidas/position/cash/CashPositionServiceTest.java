@@ -15,8 +15,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,7 +25,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -36,7 +33,6 @@ import java.util.logging.Logger;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(SpringRunner.class)
@@ -530,12 +526,12 @@ public class CashPositionServiceTest {
     when(cashEntriesIterator.hasNext()).thenReturn(true, true, false);
     when(cashEntriesIterator.next()).thenReturn(aggregatedCashEntryVO1, aggregatedCashEntryVO2);
 
-     doReturn(positions).when(spyCashPositionService).positionFromEntry(anyObject(), anyCollection(), anyObject(), anyObject());
+    doReturn(positions).when(spyCashPositionService).positionFromEntry(anyObject(), anyCollection(), anyObject(), anyObject());
     doReturn(positions).when(spyCashPositionService).positionFromEntry(currentAccountPO, positions, aggregatedCashEntryVO2, null);
     spyCashPositionService.updatePositions(currentAccountPO, cashEntries);
 
-    verify(spyCashPositionService,times(1)).positionFromEntry(anyObject(), anyCollection(), anyObject(), anyObject());
-    verify(spyCashPositionService,times(1)).positionFromEntry(currentAccountPO, positions, aggregatedCashEntryVO2, null);
+    verify(spyCashPositionService, times(1)).positionFromEntry(anyObject(), anyCollection(), anyObject(), anyObject());
+    verify(spyCashPositionService, times(1)).positionFromEntry(currentAccountPO, positions, aggregatedCashEntryVO2, null);
 
   }
 }

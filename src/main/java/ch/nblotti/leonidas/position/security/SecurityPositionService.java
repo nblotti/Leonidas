@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 @Transactional
 public class SecurityPositionService {
 
-  private static Logger LOGGER = Logger.getLogger("SecurityPositionService");
+  private static Logger logger = Logger.getLogger("SecurityPositionService");
 
   @Autowired
   private PositionRepository repository;
@@ -60,7 +60,7 @@ public class SecurityPositionService {
   //TODO NBL : test me
   public PositionPO updatePosition(SecurityEntryPO entry) {
 
-    LOGGER.log(Level.FINE, "Started update process");
+    getLogger().log(Level.FINE, "Started update process");
     AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
 
 
@@ -69,7 +69,7 @@ public class SecurityPositionService {
       repository.deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
 
 
-      LOGGER.log(Level.FINE, "Suppression des positions");
+      getLogger().log(Level.FINE, "Suppression des positions");
     }
 
     //3. On obtient la liste des mouvements
@@ -281,8 +281,8 @@ public class SecurityPositionService {
 
   private Iterable<PositionPO> createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
 
-    if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine(String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
+    if (getLogger().isLoggable(Level.FINE)) {
+      getLogger().fine(String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
     }
 
     //on valorise
@@ -324,6 +324,10 @@ public class SecurityPositionService {
     return repository.saveAll(positionPOS);
 
 
+  }
+
+  public  Logger getLogger(){
+    return logger;
   }
 
 
