@@ -7,8 +7,8 @@ import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.position.PositionRepository;
-import ch.nblotti.leonidas.quote.QuoteService;
 import ch.nblotti.leonidas.quote.FXQuoteService;
+import ch.nblotti.leonidas.quote.QuoteService;
 import ch.nblotti.leonidas.technical.MessageVO;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 @Transactional
 public class CashPositionService {
 
-  private static Logger Logger = java.util.logging.Logger.getLogger("CashPositionService");
+  private static Logger logger = Logger.getLogger("CashPositionService");
 
   @Autowired
   private PositionRepository repository;
@@ -61,7 +61,6 @@ public class CashPositionService {
 
 
   public void updatePositions(CashEntryPO entry) {
-
 
 
     repository.deleteByPosTypeAndAccountIdAndCurrency(PositionPO.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());
@@ -245,7 +244,7 @@ public class CashPositionService {
   }
 
   Logger getLogger() {
-    return this.Logger;
+    return this.logger;
 
   }
 
