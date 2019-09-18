@@ -241,7 +241,7 @@ public class CashPositionService {
   }
 
   Logger getLogger() {
-    return this.logger;
+    return logger;
 
   }
 
