@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 @Transactional
 public class CashPositionService {
 
-  private static Logger LOGGER = Logger.getLogger("CashPositionService");
+  private static Logger Logger = java.util.logging.Logger.getLogger("CashPositionService");
 
   @Autowired
   private PositionRepository repository;
@@ -67,10 +67,6 @@ public class CashPositionService {
 
     repository.deleteByPosTypeAndAccountIdAndCurrency(PositionPO.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());
 
-    if (LocalDate.now().compareTo(entry.getValueDate()) >= 0) {
-
-      getLogger().log(Level.FINE, "Suppression des positions");
-    }
 
     //3. On obtient la liste des mouvements
     Iterable<CashEntryPO> cashEntries = cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(entry.getAccount(), entry.getCurrency());
@@ -91,7 +87,7 @@ public class CashPositionService {
 
   }
 
-  private void updatePositions(AccountPO currentAccountPO, Iterable<AggregatedCashEntryVO> cashEntries) {
+  void updatePositions(AccountPO currentAccountPO, Iterable<AggregatedCashEntryVO> cashEntries) {
 
     Iterable<PositionPO> positions = null;
 
@@ -250,7 +246,7 @@ public class CashPositionService {
   }
 
   Logger getLogger() {
-    return this.LOGGER;
+    return this.Logger;
 
   }
 

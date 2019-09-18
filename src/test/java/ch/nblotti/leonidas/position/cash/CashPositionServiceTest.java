@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyObject;
@@ -441,11 +442,42 @@ public class CashPositionServiceTest {
 
     when(repository.saveAll(anyIterable())).thenAnswer(i -> i.getArguments()[0]);
 
-   Iterable<PositionPO> returnedpositions =  cashPositionService.createPositions(currentAccountPO, netAmount, tma, currentEntry, LocalDate.now());
+    Iterable<PositionPO> returnedpositions = cashPositionService.createPositions(currentAccountPO, netAmount, tma, currentEntry, LocalDate.now());
 
-   verify(fxQuoteService,times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
+    verify(fxQuoteService, times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
 
-   Assert.assertEquals(Lists.newArrayList(returnedpositions).size(),31);
+    Assert.assertEquals(Lists.newArrayList(returnedpositions).size(), 31);
+  }
+
+  @Test
+  public void updatePosition() {
+    CashPositionService spyCashPositionService = spy(cashPositionService);
+
+    CashEntryPO cashEntryPO = mock(CashEntryPO.class);
+    when(cashEntryPO.getValueDate()).thenReturn(LocalDate.now());
+    when(cashEntryPO.getAccount()).thenReturn(1);
+    when(cashEntryPO.getCurrency()).thenReturn("CHF");
+
+    Iterable<CashEntryPO> cashEntries = mock(Iterable.class);
+
+    Iterable<AggregatedCashEntryVO> aggegatedCashEntries = mock(Iterable.class);
+
+    AccountPO currentAccountPO = mock(AccountPO.class);
+
+    when(cashEntryService.findAllByAccountAndCurrencyOrderByValueDateAsc(cashEntryPO.getAccount(), cashEntryPO.getCurrency())).thenReturn(cashEntries);
+    doReturn(aggegatedCashEntries).when(spyCashPositionService).aggregateCashEntries(cashEntries);
+    when(accountService.findAccountById(any())).thenReturn(currentAccountPO);
+
+    doNothing().when(spyCashPositionService).updatePositions(currentAccountPO, aggegatedCashEntries);
+
+
+    spyCashPositionService.updatePositions(cashEntryPO);
+    verify(repository, times(1)).deleteByPosTypeAndAccountIdAndCurrency(PositionPO.POS_TYPE.CASH, cashEntryPO.getAccount(), cashEntryPO.getCurrency());
+    verify(cashEntryService, times(1)).findAllByAccountAndCurrencyOrderByValueDateAsc(cashEntryPO.getAccount(), cashEntryPO.getCurrency());
+    verify(spyCashPositionService, times(1)).aggregateCashEntries(cashEntries);
+
+    verify(accountService, times(1)).findAccountById(cashEntryPO.getAccount());
+    verify(spyCashPositionService, times(1)).updatePositions(currentAccountPO,aggegatedCashEntries);
   }
 
 
