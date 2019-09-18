@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -26,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -298,7 +300,7 @@ public class CashPositionServiceTest {
   }
 
   @Test
-  public void positionFromEntryPositionsNullCredit() {
+  public void positionFromEntryPositionsEmptyArrayCredit() {
 
     ArgumentCaptor<Float> amount = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
@@ -307,7 +309,9 @@ public class CashPositionServiceTest {
     Iterable<PositionPO> positions = mock(Iterable.class);
     AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
     AggregatedCashEntryVO nextEntry = mock(AggregatedCashEntryVO.class);
+    Iterator<PositionPO> iterator = mock(Iterator.class);
 
+    when(positions.iterator()).thenReturn(iterator);
     when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
     when(currentEntry.getNetAmount()).thenReturn(100f);
@@ -316,7 +320,7 @@ public class CashPositionServiceTest {
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(3));
 
     doReturn(positions).when(spyCashPositionService).createPositions(anyObject(), amount.capture(), tma.capture(), anyObject(), anyObject());
-    Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, null, currentEntry, nextEntry);
+    Iterable<PositionPO> positionPOS = spyCashPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry);
 
     verify(spyCashPositionService, times(1)).createPositions(anyObject(), anyObject(), anyObject(), anyObject(), anyObject());
     Assert.assertEquals(100f, amount.getValue().floatValue(), 0);
@@ -508,8 +512,30 @@ public class CashPositionServiceTest {
     verify(spyCashPositionService, times(1)).aggregateCashEntries(cashEntries);
 
     verify(accountService, times(1)).findAccountById(cashEntryPO.getAccount());
-    verify(spyCashPositionService, times(1)).updatePositions(currentAccountPO,aggegatedCashEntries);
+    verify(spyCashPositionService, times(1)).updatePositions(currentAccountPO, aggegatedCashEntries);
   }
 
+  @Test
+  public void updatePositions() {
 
+    Iterable positions = mock(Iterable.class);
+    CashPositionService spyCashPositionService = spy(cashPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<AggregatedCashEntryVO> cashEntries = mock(Iterable.class);
+    Iterator<AggregatedCashEntryVO> cashEntriesIterator = mock(Iterator.class);
+    AggregatedCashEntryVO aggregatedCashEntryVO1 = mock(AggregatedCashEntryVO.class);
+    AggregatedCashEntryVO aggregatedCashEntryVO2 = mock(AggregatedCashEntryVO.class);
+
+    when(cashEntries.iterator()).thenReturn(cashEntriesIterator);
+    when(cashEntriesIterator.hasNext()).thenReturn(true, true, false);
+    when(cashEntriesIterator.next()).thenReturn(aggregatedCashEntryVO1, aggregatedCashEntryVO2);
+
+     doReturn(positions).when(spyCashPositionService).positionFromEntry(anyObject(), anyCollection(), anyObject(), anyObject());
+    doReturn(positions).when(spyCashPositionService).positionFromEntry(currentAccountPO, positions, aggregatedCashEntryVO2, null);
+    spyCashPositionService.updatePositions(currentAccountPO, cashEntries);
+
+    verify(spyCashPositionService,times(1)).positionFromEntry(anyObject(), anyCollection(), anyObject(), anyObject());
+    verify(spyCashPositionService,times(1)).positionFromEntry(currentAccountPO, positions, aggregatedCashEntryVO2, null);
+
+  }
 }

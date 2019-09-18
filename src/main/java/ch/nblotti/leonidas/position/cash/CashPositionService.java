@@ -87,7 +87,7 @@ public class CashPositionService {
 
   void updatePositions(AccountPO currentAccountPO, Iterable<AggregatedCashEntryVO> cashEntries) {
 
-    Iterable<PositionPO> positions = null;
+    Iterable<PositionPO> positions = Lists.newArrayList();
 
 
     List<AggregatedCashEntryVO> entries = Lists.newArrayList(cashEntries);
@@ -171,10 +171,7 @@ public class CashPositionService {
 
     ArrayList<PositionPO> positionPOS;
 
-    if (positions != null)
-      positionPOS = Lists.newArrayList(positions);
-    else
-      positionPOS = Lists.newArrayList();
+    positionPOS = Lists.newArrayList(positions);
 
     if (!positionPOS.isEmpty()) {
 
