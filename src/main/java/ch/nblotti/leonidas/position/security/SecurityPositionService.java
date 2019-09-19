@@ -89,7 +89,7 @@ public class SecurityPositionService {
   }
 
 
-  private Iterable<AggregatedSecurityEntryVO> aggregateSecuritiesEntriesByDay(Iterable<SecurityEntryPO> securityEntries) {
+  Iterable<AggregatedSecurityEntryVO> aggregateSecuritiesEntriesByDay(Iterable<SecurityEntryPO> securityEntries) {
 
 
     Map<LocalDate, AggregatedSecurityEntryVO> entryByDate = Maps.newHashMap();
@@ -185,7 +185,7 @@ public class SecurityPositionService {
 
   }
 
-  private void updatePositions(AccountPO currentAccountPO, Iterable<AggregatedSecurityEntryVO> securityEntries) {
+  void updatePositions(AccountPO currentAccountPO, Iterable<AggregatedSecurityEntryVO> securityEntries) {
 
     Iterable<PositionPO> positions = null;
 
@@ -279,7 +279,7 @@ public class SecurityPositionService {
 
   }
 
-   Iterable<PositionPO> createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
+  Iterable<PositionPO> createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
 
     if (getLogger().isLoggable(Level.FINE)) {
       getLogger().fine(String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
@@ -288,8 +288,8 @@ public class SecurityPositionService {
 
     long loop = ChronoUnit.DAYS.between(firstEntry.getValueDate(), endDate);
 
-     //dans le cas ou la quantité est à zéro, on ne crée qu'une position pour visualiser la plus value réalisée lors de la vente
-     if (quantity == 0) {
+    //dans le cas ou la quantité est à zéro, on ne crée qu'une position pour visualiser la plus value réalisée lors de la vente
+    if (quantity == 0) {
       loop = 0;
     }
 

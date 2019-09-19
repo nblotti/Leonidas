@@ -3,6 +3,7 @@ package ch.nblotti.leonidas.position.security;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.position.PositionRepository;
@@ -77,6 +78,79 @@ public class SecurityPositionsServiceTest {
 
 
 
+
+  @Test
+  public void updatePositionNoPositionDeletion(){
+
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    SecurityEntryPO entry = mock(SecurityEntryPO.class);
+    Iterable<AggregatedSecurityEntryVO>  aggregatedSecurityEntryVOS = mock(Iterable.class);
+    Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
+    AccountPO accountPO = mock(AccountPO.class);
+    when(entry.getValueDate()).thenReturn(LocalDate.now().plusDays(10));
+    when(entry.getAccount()).thenReturn(1);
+    when(entry.getSecurityID()).thenReturn("FB");
+    when(entry.getSecurityID()).thenReturn("USD");
+
+    when(accountService.findAccountById(entry.getAccount())).thenReturn(accountPO);
+    when(securityEntryService.findAllByAccountAndSecurityIDOrderByValueDateAsc(entry.getAccount(), entry.getSecurityID())).thenReturn(securityEntries);
+    doReturn(aggregatedSecurityEntryVOS).when(spySecurityPositionService).aggregateSecuritiesEntriesByDay(anyIterable());
+
+
+
+
+    AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
+
+    doNothing().when(spySecurityPositionService).updatePositions(anyObject(),anyIterable());
+
+    PositionPO returnedPosition = spySecurityPositionService.updatePosition( entry);
+
+    verify( repository, times(0)).deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
+  }
+
+
+
+  @Test
+  public void updatePositionPositionDeletion(){
+
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    SecurityEntryPO entry = mock(SecurityEntryPO.class);
+    Iterable<AggregatedSecurityEntryVO>  aggregatedSecurityEntryVOS = mock(Iterable.class);
+    Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
+    AccountPO accountPO = mock(AccountPO.class);
+    when(entry.getValueDate()).thenReturn(LocalDate.now());
+    when(entry.getAccount()).thenReturn(1);
+    when(entry.getSecurityID()).thenReturn("FB");
+    when(entry.getSecurityID()).thenReturn("USD");
+
+    when(accountService.findAccountById(entry.getAccount())).thenReturn(accountPO);
+    when(securityEntryService.findAllByAccountAndSecurityIDOrderByValueDateAsc(entry.getAccount(), entry.getSecurityID())).thenReturn(securityEntries);
+    doReturn(aggregatedSecurityEntryVOS).when(spySecurityPositionService).aggregateSecuritiesEntriesByDay(anyIterable());
+
+
+
+
+    AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
+
+    doNothing().when(spySecurityPositionService).updatePositions(anyObject(),anyIterable());
+
+    PositionPO returnedPosition = spySecurityPositionService.updatePosition( entry);
+
+    verify( repository, times(1)).deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
+  }
+
+  @Test
+  public void saveAll() {
+
+  List<PositionPO> positions = mock(List.class);
+
+    when(repository.saveAll(anyIterable())).then(i -> i.getArgument(0));
+  Iterable<PositionPO> returnedPositions = securityPositionService.saveAll(positions);
+
+  Assert.assertEquals(positions,returnedPositions);
+
+  }
+
   @Test
   public void createSecurityPositions() {
 
@@ -136,7 +210,6 @@ public class SecurityPositionsServiceTest {
 
 
   }
-
 
 
   @Test
