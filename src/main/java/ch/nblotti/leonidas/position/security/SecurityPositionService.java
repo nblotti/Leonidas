@@ -216,7 +216,7 @@ public class SecurityPositionService {
   }
 
 
-   Iterable<PositionPO> positionFromEntry(AccountPO currentAccountPO, Iterable<PositionPO> positions, AggregatedSecurityEntryVO currentEntry, AggregatedSecurityEntryVO nextEntry, UUIDHolder uuidHolder) {
+  Iterable<PositionPO> positionFromEntry(AccountPO currentAccountPO, Iterable<PositionPO> positions, AggregatedSecurityEntryVO currentEntry, AggregatedSecurityEntryVO nextEntry, UUIDHolder uuidHolder) {
 
 
     Float realized = 0F;
@@ -238,7 +238,11 @@ public class SecurityPositionService {
       endDate = nextEntry.getValueDate().minusDays(1);
     }
 
-     ArrayList<PositionPO> positionPOS = Lists.newArrayList(positions);
+    ArrayList<PositionPO> positionPOS;
+    if (positions == null)
+      positionPOS = Lists.newArrayList();
+    else
+      positionPOS = Lists.newArrayList(positions);
     //Il existe des entrées dans la journée et il existe des positions le jour précédent
     if (!positionPOS.isEmpty()) {
       //la position de la veille
