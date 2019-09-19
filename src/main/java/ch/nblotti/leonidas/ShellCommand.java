@@ -98,15 +98,12 @@ public class ShellCommand {
       @Override
       public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
 
-        if (clientHttpResponse.getStatusCode() != HttpStatus.OK)
-          return true;
-        return false;
+        return clientHttpResponse.getStatusCode() != HttpStatus.OK;
       }
 
       @Override
       public void handleError(ClientHttpResponse response) throws IOException {
-        System.out.println(String.format("%s - %s", response.getStatusCode(), StreamUtils.copyToString(response.getBody(), Charset.defaultCharset())));
-        return;
+        logger.fine(String.format("%s - %s", response.getStatusCode(), StreamUtils.copyToString(response.getBody(), Charset.defaultCharset())));
       }
     });
     AccountRelationPO returns = rt.postForObject(accountrelationUrl, a, AccountRelationPO.class);

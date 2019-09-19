@@ -2,8 +2,6 @@ package ch.nblotti.leonidas.accountrelation;
 
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.List;
-
 public interface AccountRelationRepository extends CrudRepository<AccountRelationPO, Long> {
 
 

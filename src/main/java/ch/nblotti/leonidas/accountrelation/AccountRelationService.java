@@ -7,7 +7,6 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -20,9 +19,6 @@ public class AccountRelationService {
   @Autowired
   private AccountService accountService;
 
-
-  public AccountRelationService() {
-  }
 
   public Iterable<AccountRelationPO> findAll() {
 
