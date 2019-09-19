@@ -1,19 +1,26 @@
 package ch.nblotti.leonidas;
 
 import ch.nblotti.leonidas.account.AccountPO;
+import ch.nblotti.leonidas.accountrelation.AccountRelationPO;
 import ch.nblotti.leonidas.asset.AssetPO;
-import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -36,6 +43,8 @@ public class ShellCommand {
   private String assetUrl;
   @Value("${spring.application.account.url}")
   private String accountUrl;
+  @Value("${spring.application.accountrelation.url}")
+  private String accountrelationUrl;
 
   @Autowired
   DateTimeFormatter dateTimeFormatter;
@@ -67,6 +76,45 @@ public class ShellCommand {
       returns = rt.postForObject(accountUrl, a, AccountPO.class);
       return String.format("Created Account with id %s ", returns.getId());
     }
+  }
+
+  //acc --date 15.05.2019 --pcu USD
+  //acc --date 15.05.2019 --pcu USD
+  //rel --date 01.11.2010 --first 1 --sec 2
+  @ShellMethod("Create account relation")
+  public String rel(
+    @ShellOption(defaultValue = "") String date,
+    @ShellOption() int first,
+    @ShellOption() int sec
+
+  ) {
+    LocalDate openingDate = LocalDate.now();
+
+    if (!date.isEmpty())
+      openingDate = LocalDate.parse(date, dateTimeFormatter);
+    AccountRelationPO a = new AccountRelationPO(first, sec, openingDate);
+
+    rt.setErrorHandler(new ResponseErrorHandler() {
+      @Override
+      public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
+
+        if (clientHttpResponse.getStatusCode() != HttpStatus.OK)
+          return true;
+        return false;
+      }
+
+      @Override
+      public void handleError(ClientHttpResponse response) throws IOException {
+        System.out.println(String.format("%s - %s", response.getStatusCode(), StreamUtils.copyToString(response.getBody(), Charset.defaultCharset())));
+        return;
+      }
+    });
+    AccountRelationPO returns = rt.postForObject(accountrelationUrl, a, AccountRelationPO.class);
+    if (returns != null)
+      return String.format("Created AccountRelation with id %s at date %s", returns.getId(), dateTimeFormatter.format(returns.getCreationDate()));
+    else
+      return "";
+
   }
 
   @ShellMethod("Duplicate account")

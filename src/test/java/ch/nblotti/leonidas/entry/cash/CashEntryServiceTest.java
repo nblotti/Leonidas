@@ -145,8 +145,8 @@ public class CashEntryServiceTest {
     when(acountService.findAccountById(any())).thenReturn(currentAccountPO);
     when(assetService.getSymbol(any(), anyString())).thenReturn(assetPO);
     when(assetService.getValueDateForExchange(anyString())).thenReturn(3);
-    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(fxQquote);
-    when(quoteService.getQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), any())).thenReturn(fxQquote);
+    when(quoteService.getQuoteForDate(anyString(), anyString(), any())).thenReturn(quoteDTO);
     int valueDateForExchange = assetService.getValueDateForExchange(assetPO.getExchange());
 
 
@@ -220,8 +220,8 @@ public class CashEntryServiceTest {
     when(acountService.findAccountById(any())).thenReturn(currentAccountPO);
     when(assetService.getSymbol(any(), anyString())).thenReturn(assetPO);
     when(assetService.getValueDateForExchange(anyString())).thenReturn(3);
-    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(fxQquote);
-    when(quoteService.getQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), any())).thenReturn(fxQquote);
+    when(quoteService.getQuoteForDate(anyString(), anyString(), any())).thenReturn(quoteDTO);
     int valueDateForExchange = assetService.getValueDateForExchange(assetPO.getExchange());
 
 
@@ -277,7 +277,7 @@ public class CashEntryServiceTest {
 
     when(orderPO.getAccountId()).thenReturn(1);
     when(acountService.findAccountById(orderPO.getAccountId())).thenReturn(currentAccountPO);
-    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), any())).thenReturn(quoteDTO);
 
 
     when(currentAccountPO.getId()).thenReturn((1));
