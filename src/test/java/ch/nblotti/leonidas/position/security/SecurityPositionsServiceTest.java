@@ -8,7 +8,6 @@ import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.position.PositionRepository;
-import ch.nblotti.leonidas.position.cash.AggregatedCashEntryVO;
 import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
@@ -79,6 +78,103 @@ public class SecurityPositionsServiceTest {
   SecurityPositionService securityPositionService;
 
 
+  @Test
+  public void updateEntryAtZeroCredit() {
+    SecurityEntryPO currentEntry = mock(SecurityEntryPO.class);
+    AggregatedSecurityEntryVO existingEntry = mock(AggregatedSecurityEntryVO.class);
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getQuantity()).thenReturn(10f);
+    when(currentEntry.getNetAmount()).thenReturn(10f);
+    when(currentEntry.getGrossAmount()).thenReturn(10f);
+
+    securityPositionService.updateEntryAtZero(currentEntry, existingEntry);
+
+    verify(existingEntry, times(1)).setQuantity(-10f);
+    verify(existingEntry, times(1)).setNetPosValue(-10f);
+    verify(existingEntry, times(1)).setGrossPosValue(-10f);
+
+  }
+
+  @Test
+  public void updateEntryAtZero() {
+    SecurityEntryPO currentEntry = mock(SecurityEntryPO.class);
+    AggregatedSecurityEntryVO existingEntry = mock(AggregatedSecurityEntryVO.class);
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getQuantity()).thenReturn(10f);
+    when(currentEntry.getNetAmount()).thenReturn(10f);
+    when(currentEntry.getGrossAmount()).thenReturn(10f);
+
+    securityPositionService.updateEntryAtZero(currentEntry, existingEntry);
+
+    verify(existingEntry, times(1)).setQuantity(10f);
+    verify(existingEntry, times(1)).setNetPosValue(10f);
+    verify(existingEntry, times(1)).setGrossPosValue(10f);
+
+  }
+
+
+  @Test
+  public void updateEntryWithSameSign() {
+    SecurityEntryPO currentEntry = mock(SecurityEntryPO.class);
+    AggregatedSecurityEntryVO existingEntry = mock(AggregatedSecurityEntryVO.class);
+
+    when(currentEntry.getQuantity()).thenReturn(10f);
+    when(existingEntry.getQuantity()).thenReturn(20f);
+    when(currentEntry.getNetAmount()).thenReturn(10f);
+    when(existingEntry.getNetPosValue()).thenReturn(20f);
+    when(currentEntry.getGrossAmount()).thenReturn(10f);
+    when(existingEntry.getGrossPosValue()).thenReturn(20f);
+
+    securityPositionService.updateEntryWithSameSign(currentEntry, existingEntry);
+
+    verify(existingEntry, times(1)).setQuantity(30f);
+    verify(existingEntry, times(1)).setNetPosValue(30f);
+    verify(existingEntry, times(1)).setGrossPosValue(30f);
+
+  }
+
+  @Test
+  public void updateEntryWithDifferentSignChangeInSign() {
+    SecurityEntryPO currentEntry = mock(SecurityEntryPO.class);
+    AggregatedSecurityEntryVO existingEntry = mock(AggregatedSecurityEntryVO.class);
+
+    when(currentEntry.getQuantity()).thenReturn(20f);
+    when(existingEntry.getQuantity()).thenReturn(10f);
+    when(currentEntry.getNetAmount()).thenReturn(20f);
+    when(existingEntry.getNetPosValue()).thenReturn(10f);
+    when(currentEntry.getGrossAmount()).thenReturn(20f);
+    when(existingEntry.getGrossPosValue()).thenReturn(10f);
+
+    securityPositionService.updateEntryWithDifferentSign(currentEntry, existingEntry);
+
+    verify(existingEntry, times(1)).setDebitCreditCode(DEBIT_CREDIT.CRDT);
+    verify(existingEntry, times(1)).setQuantity(-10f);
+    verify(existingEntry, times(1)).setNetPosValue(-10f);
+    verify(existingEntry, times(1)).setGrossPosValue(-10f);
+
+  }
+
+  @Test
+  public void updateEntryWithDifferentSign() {
+    SecurityEntryPO currentEntry = mock(SecurityEntryPO.class);
+    AggregatedSecurityEntryVO existingEntry = mock(AggregatedSecurityEntryVO.class);
+
+    when(currentEntry.getQuantity()).thenReturn(10f);
+    when(existingEntry.getQuantity()).thenReturn(20f);
+    when(currentEntry.getNetAmount()).thenReturn(10f);
+    when(existingEntry.getNetPosValue()).thenReturn(20f);
+    when(currentEntry.getGrossAmount()).thenReturn(10f);
+    when(existingEntry.getGrossPosValue()).thenReturn(20f);
+
+    securityPositionService.updateEntryWithDifferentSign(currentEntry, existingEntry);
+
+    verify(existingEntry, times(1)).setDebitCreditCode(DEBIT_CREDIT.DBIT);
+    verify(existingEntry, times(1)).setQuantity(10f);
+    verify(existingEntry, times(1)).setNetPosValue(10f);
+    verify(existingEntry, times(1)).setGrossPosValue(10f);
+
+  }
+
 
   @Test
   public void aggregateSecuritiesEntriesSortByDay() {
@@ -87,7 +183,7 @@ public class SecurityPositionsServiceTest {
     Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
     Iterator<SecurityEntryPO> securityEntryPOIterator = mock(Iterator.class);
     SecurityEntryPO securityEntryPO1 = mock(SecurityEntryPO.class);
-    SecurityEntryPO securityEntryPO2= mock(SecurityEntryPO.class);
+    SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now());
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
@@ -99,8 +195,8 @@ public class SecurityPositionsServiceTest {
 
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntries.iterator()).thenReturn(securityEntryPOIterator);
-    when(securityEntryPOIterator.hasNext()).thenReturn(true,true,false);
-    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1,securityEntryPO2);
+    when(securityEntryPOIterator.hasNext()).thenReturn(true, true, false);
+    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1, securityEntryPO2);
     doNothing().when(spySecurityPositionService).updateEntryAtZero(any(), any());
 
     doNothing().when(spySecurityPositionService).updateEntryWithSameSign(any(), any());
@@ -111,16 +207,15 @@ public class SecurityPositionsServiceTest {
 
     List<AggregatedSecurityEntryVO> aggregatedSecurityEntryVOSLst = Lists.newArrayList(returnedAggregatedSecurityEntryVos);
 
-    Assert.assertEquals(2,aggregatedSecurityEntryVOSLst.size());
-    verify(spySecurityPositionService,times(0)).updateEntryWithDifferentSign(any(),any());
-    verify(spySecurityPositionService,times(0)).updateEntryAtZero(any(),any());
-    verify(spySecurityPositionService,times(0)).updateEntryWithSameSign(any(),any());
+    Assert.assertEquals(2, aggregatedSecurityEntryVOSLst.size());
+    verify(spySecurityPositionService, times(0)).updateEntryWithDifferentSign(any(), any());
+    verify(spySecurityPositionService, times(0)).updateEntryAtZero(any(), any());
+    verify(spySecurityPositionService, times(0)).updateEntryWithSameSign(any(), any());
 
     Assert.assertEquals(LocalDate.now().minusDays(1), aggregatedSecurityEntryVOSLst.get(0).getValueDate());
     Assert.assertEquals(LocalDate.now(), aggregatedSecurityEntryVOSLst.get(1).getValueDate());
 
   }
-
 
 
   @Test
@@ -130,7 +225,7 @@ public class SecurityPositionsServiceTest {
     Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
     Iterator<SecurityEntryPO> securityEntryPOIterator = mock(Iterator.class);
     SecurityEntryPO securityEntryPO1 = mock(SecurityEntryPO.class);
-    SecurityEntryPO securityEntryPO2= mock(SecurityEntryPO.class);
+    SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
@@ -141,8 +236,8 @@ public class SecurityPositionsServiceTest {
 
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntries.iterator()).thenReturn(securityEntryPOIterator);
-    when(securityEntryPOIterator.hasNext()).thenReturn(true,true,false);
-    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1,securityEntryPO2);
+    when(securityEntryPOIterator.hasNext()).thenReturn(true, true, false);
+    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1, securityEntryPO2);
     doNothing().when(spySecurityPositionService).updateEntryAtZero(any(), any());
 
     doNothing().when(spySecurityPositionService).updateEntryWithSameSign(any(), any());
@@ -153,10 +248,10 @@ public class SecurityPositionsServiceTest {
 
     List<AggregatedSecurityEntryVO> aggregatedSecurityEntryVOSLst = Lists.newArrayList(returnedAggregatedSecurityEntryVos);
 
-    Assert.assertEquals(0,aggregatedSecurityEntryVOSLst.size());
-    verify(spySecurityPositionService,times(0)).updateEntryWithDifferentSign(any(),any());
-    verify(spySecurityPositionService,times(0)).updateEntryAtZero(any(),any());
-    verify(spySecurityPositionService,times(0)).updateEntryWithSameSign(any(),any());
+    Assert.assertEquals(0, aggregatedSecurityEntryVOSLst.size());
+    verify(spySecurityPositionService, times(0)).updateEntryWithDifferentSign(any(), any());
+    verify(spySecurityPositionService, times(0)).updateEntryAtZero(any(), any());
+    verify(spySecurityPositionService, times(0)).updateEntryWithSameSign(any(), any());
 
   }
 
@@ -167,7 +262,7 @@ public class SecurityPositionsServiceTest {
     Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
     Iterator<SecurityEntryPO> securityEntryPOIterator = mock(Iterator.class);
     SecurityEntryPO securityEntryPO1 = mock(SecurityEntryPO.class);
-    SecurityEntryPO securityEntryPO2= mock(SecurityEntryPO.class);
+    SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
@@ -178,8 +273,8 @@ public class SecurityPositionsServiceTest {
 
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntries.iterator()).thenReturn(securityEntryPOIterator);
-    when(securityEntryPOIterator.hasNext()).thenReturn(true,true,false);
-    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1,securityEntryPO2);
+    when(securityEntryPOIterator.hasNext()).thenReturn(true, true, false);
+    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1, securityEntryPO2);
     doNothing().when(spySecurityPositionService).updateEntryAtZero(any(), any());
 
     doNothing().when(spySecurityPositionService).updateEntryWithSameSign(any(), any());
@@ -190,8 +285,8 @@ public class SecurityPositionsServiceTest {
 
     List<AggregatedSecurityEntryVO> aggregatedSecurityEntryVOSLst = Lists.newArrayList(returnedAggregatedSecurityEntryVos);
 
-    Assert.assertEquals(1,aggregatedSecurityEntryVOSLst.size());
-    verify(spySecurityPositionService,times(1)).updateEntryWithDifferentSign(any(),any());
+    Assert.assertEquals(1, aggregatedSecurityEntryVOSLst.size());
+    verify(spySecurityPositionService, times(1)).updateEntryWithDifferentSign(any(), any());
 
   }
 
@@ -202,7 +297,7 @@ public class SecurityPositionsServiceTest {
     Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
     Iterator<SecurityEntryPO> securityEntryPOIterator = mock(Iterator.class);
     SecurityEntryPO securityEntryPO1 = mock(SecurityEntryPO.class);
-    SecurityEntryPO securityEntryPO2= mock(SecurityEntryPO.class);
+    SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
@@ -210,8 +305,8 @@ public class SecurityPositionsServiceTest {
 
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntries.iterator()).thenReturn(securityEntryPOIterator);
-    when(securityEntryPOIterator.hasNext()).thenReturn(true,true,false);
-    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1,securityEntryPO2);
+    when(securityEntryPOIterator.hasNext()).thenReturn(true, true, false);
+    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1, securityEntryPO2);
     doNothing().when(spySecurityPositionService).updateEntryAtZero(any(), any());
 
     doNothing().when(spySecurityPositionService).updateEntryWithSameSign(any(), any());
@@ -222,8 +317,8 @@ public class SecurityPositionsServiceTest {
 
     List<AggregatedSecurityEntryVO> aggregatedSecurityEntryVOSLst = Lists.newArrayList(returnedAggregatedSecurityEntryVos);
 
-    Assert.assertEquals(1,aggregatedSecurityEntryVOSLst.size());
-    verify(spySecurityPositionService,times(1)).updateEntryWithSameSign(any(),any());
+    Assert.assertEquals(1, aggregatedSecurityEntryVOSLst.size());
+    verify(spySecurityPositionService, times(1)).updateEntryWithSameSign(any(), any());
 
   }
 
@@ -235,15 +330,15 @@ public class SecurityPositionsServiceTest {
     Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
     Iterator<SecurityEntryPO> securityEntryPOIterator = mock(Iterator.class);
     SecurityEntryPO securityEntryPO1 = mock(SecurityEntryPO.class);
-    SecurityEntryPO securityEntryPO2= mock(SecurityEntryPO.class);
+    SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.ZERO);
 
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntries.iterator()).thenReturn(securityEntryPOIterator);
-    when(securityEntryPOIterator.hasNext()).thenReturn(true,true,false);
-    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1,securityEntryPO2);
+    when(securityEntryPOIterator.hasNext()).thenReturn(true, true, false);
+    when(securityEntryPOIterator.next()).thenReturn(securityEntryPO1, securityEntryPO2);
     doNothing().when(spySecurityPositionService).updateEntryAtZero(any(), any());
 
     doNothing().when(spySecurityPositionService).updateEntryWithSameSign(any(), any());
@@ -252,7 +347,7 @@ public class SecurityPositionsServiceTest {
 
     Iterable<AggregatedSecurityEntryVO> returnedAggregatedSecurityEntryVos = spySecurityPositionService.aggregateSecuritiesEntriesByDay(securityEntries);
 
-    verify(spySecurityPositionService,times(1)).updateEntryAtZero(any(),any());
+    verify(spySecurityPositionService, times(1)).updateEntryAtZero(any(), any());
 
   }
 

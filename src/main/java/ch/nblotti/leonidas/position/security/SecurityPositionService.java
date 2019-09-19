@@ -154,7 +154,7 @@ public class SecurityPositionService {
   }
 
   void updateEntryWithSameSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
-    //les signes sont opposés, on cumule donc les quantités
+    //les signes sont identiques, on cumule donc les quantités
     existingEntry.setQuantity(existingEntry.getQuantity() + currentEntry.getQuantity());
     existingEntry.setNetPosValue(existingEntry.getNetPosValue() + currentEntry.getNetAmount());
     existingEntry.setGrossPosValue(existingEntry.getGrossPosValue() + currentEntry.getGrossAmount());
