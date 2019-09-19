@@ -31,13 +31,11 @@ public class CashPerformanceReceiver {
   public void receiveNewEntry(MessageVO messageVO) {
 
 
+    marketProcessService.setCashFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
-
-    marketProcessService.setCashFinishedForProcess( messageVO.getOrderID(),  messageVO.getAccountID());
-
-    if(logger.isLoggable(Level.FINE)){
+    if (logger.isLoggable(Level.FINE)) {
       logger.fine(String.format("Recalcul de la performance cash pour le compte %s", messageVO.getAccountID()));
-    };
+    }
 
 
   }

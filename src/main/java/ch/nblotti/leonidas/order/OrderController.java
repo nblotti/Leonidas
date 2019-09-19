@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class OrderController {
 
 
-  private final static Logger logger = Logger.getLogger("OrderController");
+  private static final Logger logger = Logger.getLogger("OrderController");
   public static final int PROCESSING = 102;
 
   @Autowired
@@ -37,7 +37,7 @@ public class OrderController {
 
   }
 
-  @RequestMapping(value = "/orders", method = RequestMethod.POST)
+  @PostMapping(value = "/orders")
   public OrderPO save(@Valid @RequestBody OrderPO orders, HttpServletResponse response) {//NOSONAR
 
     if (marketProcessService.isProcessForAccountRunning(orders.getAccountId())) {
@@ -54,7 +54,7 @@ public class OrderController {
 
   }
 
-  @RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
+  @GetMapping(value = "/orders/{id}")
   public Optional<OrderPO> findById(@PathVariable String id) {
 
     return orderService.findById(id);
