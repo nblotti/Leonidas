@@ -38,7 +38,7 @@
 
 — Phil Karlton
 
-Leonidas was named after the famous spartan king, who died in the battle of Thermopylae.  He is praised for his tenacity in executing orders and holding his positionPO.
+Leonidas was named after the famous spartan king, who died in the battle of Thermopylae.  He is praised for his tenacity in executing orders and holding his position.
 ## Scope
 
 Leonidas is part of a broader project to create an open-source robo-advisor. Using Leonidas, you will be able to create new portfolios and duplicate existing ones, to submit orders and measure their effect on your portfolio positionPOS and performancePO. Details such as stock and currency contribution will help you to refine your strategy. 
