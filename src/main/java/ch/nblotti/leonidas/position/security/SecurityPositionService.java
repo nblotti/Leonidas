@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 @Transactional
 public class SecurityPositionService {
 
-  private static Logger logger = Logger.getLogger("SecurityPositionService");
+  static Logger logger = Logger.getLogger("SecurityPositionService");
 
   @Autowired
   private PositionRepository repository;
@@ -279,18 +279,17 @@ public class SecurityPositionService {
 
   }
 
-  private Iterable<PositionPO> createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
+   Iterable<PositionPO> createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
 
     if (getLogger().isLoggable(Level.FINE)) {
       getLogger().fine(String.format("Création de position de %s à %s avec une quantité de %s", firstEntry.getValueDate().format(dateTimeFormatter), endDate.format(dateTimeFormatter), quantity));
     }
 
-    //on valorise
 
-    //dans le cas ou la quantité est à zéro, on ne crée qu'une position pour visualiser la plus value réalisée lors de la vente
     long loop = ChronoUnit.DAYS.between(firstEntry.getValueDate(), endDate);
 
-    if (quantity == 0) {
+     //dans le cas ou la quantité est à zéro, on ne crée qu'une position pour visualiser la plus value réalisée lors de la vente
+     if (quantity == 0) {
       loop = 0;
     }
 
@@ -326,7 +325,7 @@ public class SecurityPositionService {
 
   }
 
-  public  Logger getLogger(){
+  Logger getLogger() {
     return logger;
   }
 
