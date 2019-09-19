@@ -1,6 +1,5 @@
 package ch.nblotti.leonidas.quote;
 
-import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;

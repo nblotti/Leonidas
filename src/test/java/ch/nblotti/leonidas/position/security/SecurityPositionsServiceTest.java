@@ -99,8 +99,8 @@ public class SecurityPositionsServiceTest {
     when(positionPO1.getQuantity()).thenReturn(4f);
     when(positionPO2.getQuantity()).thenReturn(4f);
 
-    when(positionPO1.getCMA()).thenReturn(2f);
-    when(positionPO2.getCMA()).thenReturn(4f);
+    when(positionPO1.getCma()).thenReturn(2f);
+    when(positionPO2.getCma()).thenReturn(4f);
 
     when(positionPO1.getTMA()).thenReturn(2f);
     when(positionPO2.getTMA()).thenReturn(4f);
@@ -156,8 +156,8 @@ public class SecurityPositionsServiceTest {
     when(positionPO1.getQuantity()).thenReturn(2f);
     when(positionPO2.getQuantity()).thenReturn(4f);
 
-    when(positionPO1.getCMA()).thenReturn(2f);
-    when(positionPO2.getCMA()).thenReturn(4f);
+    when(positionPO1.getCma()).thenReturn(2f);
+    when(positionPO2.getCma()).thenReturn(4f);
 
     when(positionPO1.getTMA()).thenReturn(2f);
     when(positionPO2.getTMA()).thenReturn(4f);
@@ -211,8 +211,8 @@ public class SecurityPositionsServiceTest {
     when(positionPO1.getQuantity()).thenReturn(4f);
     when(positionPO2.getQuantity()).thenReturn(4f);
 
-    when(positionPO1.getCMA()).thenReturn(2f);
-    when(positionPO2.getCMA()).thenReturn(4f);
+    when(positionPO1.getCma()).thenReturn(2f);
+    when(positionPO2.getCma()).thenReturn(4f);
 
     when(positionPO1.getTMA()).thenReturn(2f);
     when(positionPO2.getTMA()).thenReturn(4f);
@@ -779,7 +779,7 @@ public class SecurityPositionsServiceTest {
     Assert.assertEquals(LocalDate.now().minusDays(10), positions.get(0).getPosDate());
     Assert.assertEquals(firstEntry.getAccount(), positions.get(0).getAccountId());
     Assert.assertEquals(quantity, positions.get(0).getQuantity());
-    Assert.assertEquals(cma, positions.get(0).getCMA());
+    Assert.assertEquals(cma, positions.get(0).getCma());
     Assert.assertEquals(tma, positions.get(0).getTMA());
     Assert.assertEquals(currentAccountPO.getPerformanceCurrency(), positions.get(0).getAccountPerformanceCurrency());
 
@@ -787,7 +787,7 @@ public class SecurityPositionsServiceTest {
     Assert.assertEquals(LocalDate.now().minusDays(9), positions.get(1).getPosDate());
     Assert.assertEquals(firstEntry.getAccount(), positions.get(1).getAccountId());
     Assert.assertEquals(quantity, positions.get(1).getQuantity());
-    Assert.assertEquals(cma, positions.get(1).getCMA());
+    Assert.assertEquals(cma, positions.get(1).getCma());
     Assert.assertEquals(tma, positions.get(1).getTMA());
     Assert.assertEquals(currentAccountPO.getPerformanceCurrency(), positions.get(1).getAccountPerformanceCurrency());
 
@@ -840,7 +840,7 @@ public class SecurityPositionsServiceTest {
     Assert.assertEquals(LocalDate.now().minusDays(10), positions.get(0).getPosDate());
     Assert.assertEquals(firstEntry.getAccount(), positions.get(0).getAccountId());
     Assert.assertEquals(quantity, positions.get(0).getQuantity());
-    Assert.assertEquals(cma, positions.get(0).getCMA());
+    Assert.assertEquals(cma, positions.get(0).getCma());
     Assert.assertEquals(tma, positions.get(0).getTMA());
     Assert.assertEquals(currentAccountPO.getPerformanceCurrency(), positions.get(0).getAccountPerformanceCurrency());
 

@@ -1,8 +1,6 @@
 package ch.nblotti.leonidas.quote;
 
 
-import ch.nblotti.leonidas.quote.AbstractQuoteService;
-import ch.nblotti.leonidas.quote.QuoteDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

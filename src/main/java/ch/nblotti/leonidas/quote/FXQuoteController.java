@@ -11,13 +11,13 @@ public class FXQuoteController {
 
 
   @Autowired
-  FXQuoteService FXQuoteService;
+  FXQuoteService fXQuoteService;
 
 
   @GetMapping("/quotes/fx/{currencyPair}")
   public Iterable<QuoteDTO> getFXQuote(@PathVariable String currencyPair) {
 
-    return FXQuoteService.getFXQuotes(currencyPair);
+    return fXQuoteService.getFXQuotes(currencyPair);
 
   }
 

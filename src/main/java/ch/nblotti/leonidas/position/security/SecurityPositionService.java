@@ -251,15 +251,15 @@ public class SecurityPositionService {
       if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.CRDT) {
         //il s'agit d'un achat, il faut adapter le CMA
         quantity = currentEntry.getQuantity() + lastDayPositionPO.getQuantity();
-        cma = ((lastDayPositionPO.getCMA() * lastDayPositionPO.getQuantity()) + (currentEntry.getNetPosValue())) / (lastDayPositionPO.getQuantity() + currentEntry.getQuantity());
+        cma = ((lastDayPositionPO.getCma() * lastDayPositionPO.getQuantity()) + (currentEntry.getNetPosValue())) / (lastDayPositionPO.getQuantity() + currentEntry.getQuantity());
         tma = (lastDayPositionPO.getTMA() * lastDayPositionPO.getQuantity() + (currentEntry.getFxchangeRate() * currentEntry.getQuantity())) / lastDayPositionPO.getQuantity() + currentEntry.getQuantity();
 
 
       } else {
         //il s'agit d'une vente, il faut adapter le réalisé
         quantity = -currentEntry.getQuantity() + lastDayPositionPO.getQuantity();
-        realized += currentEntry.getNetPosValue() - (lastDayPositionPO.getCMA() * currentEntry.getQuantity());
-        cma = quantity == 0 ? 0 : lastDayPositionPO.getCMA();
+        realized += currentEntry.getNetPosValue() - (lastDayPositionPO.getCma() * currentEntry.getQuantity());
+        cma = quantity == 0 ? 0 : lastDayPositionPO.getCma();
         tma = quantity == 0 ? 0 : lastDayPositionPO.getTMA();
 
 
@@ -311,13 +311,13 @@ public class SecurityPositionService {
       positionPO.setAccountId(firstEntry.getAccount());
       positionPO.setPosType(PositionPO.POS_TYPE.SECURITY);
       positionPO.setQuantity(quantity);
-      positionPO.setCMA(cma);
+      positionPO.setCma(cma);
       positionPO.setTMA(tma);
       positionPO.setSecurityID(firstEntry.getSecurityID());
       positionPO.setRealized(realized);
       positionPO.setAccountPerformanceCurrency(currentAccountPO.getPerformanceCurrency());
       positionPO.setPosValue(Float.valueOf(quoteService.getQuoteForDate(firstEntry.getExchange(), firstEntry.getSecurityID(), positionPO.getPosDate()).getAdjustedClose()) * quantity);
-      positionPO.setUnrealized(positionPO.getPosValue() - (positionPO.getCMA() * quantity));
+      positionPO.setUnrealized(positionPO.getPosValue() - (positionPO.getCma() * quantity));
       positionPO.setCurrency(firstEntry.getCurrency());
       positionPO.setPosValueReportingCurrency(positionPO.getPosValue() * Float.valueOf(fxQuoteService.getFXQuoteForDate(positionPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), positionPO.getPosDate()).getAdjustedClose()));
 

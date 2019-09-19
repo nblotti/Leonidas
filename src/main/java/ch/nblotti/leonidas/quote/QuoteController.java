@@ -28,14 +28,11 @@ public class QuoteController {
 
 
     //on reformate la date
-    List<QuoteDTO> transformedQuoteDTOS = quoteService.getQuotes(exchange, symbol).stream().map(i -> new QuoteDTO(dateTimeFormatter.format(quoteDateTimeFormatter.parse(i.getDate())), i.getOpen(), i.getHigh(), i.getLow(), i.getClose(), i.getAdjustedClose(), i.getVolume())).
+    return quoteService.getQuotes(exchange, symbol).stream().map(i -> new QuoteDTO(dateTimeFormatter.format(quoteDateTimeFormatter.parse(i.getDate())), i.getOpen(), i.getHigh(), i.getLow(), i.getClose(), i.getAdjustedClose(), i.getVolume())).
       collect(Collectors.toList());
-    return transformedQuoteDTOS;
 
-    //on reformate la date
 
   }
-
 
 
 }

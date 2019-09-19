@@ -26,7 +26,7 @@ public class PerformanceController {
 
 
   @GetMapping(value = "/performance/{accountID}/")
-  public List<PerformancePO> getTwrPerfByAccount(@PathVariable int accountID, HttpServletResponse response) throws NotFoundException {
+  public List<PerformancePO> getTwrPerfByAccount(@PathVariable int accountID, HttpServletResponse response) {
 
     if (marketProcessService.isProcessForAccountRunning(accountID)) {
       response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);

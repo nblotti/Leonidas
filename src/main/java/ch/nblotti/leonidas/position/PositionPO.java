@@ -54,7 +54,7 @@ public class PositionPO {
 
 
   @Column(name = "CMA")
-  private Float CMA;
+  private Float cma;
 
   @Column(name = "TMA")
   private Float tma;
@@ -141,12 +141,12 @@ public class PositionPO {
     this.posValue = posValue;
   }
 
-  public Float getCMA() {
-    return CMA;
+  public Float getCma() {
+    return cma;
   }
 
-  public void setCMA(Float CMA) {
-    this.CMA = CMA;
+  public void setCma(Float cma) {
+    this.cma = cma;
   }
 
   public POS_TYPE getPosType() {
@@ -219,7 +219,7 @@ public class PositionPO {
       return type;
     }
 
-    public static POS_TYPE fromType(int type) {
+    public POS_TYPE fromType(int type) {
       for (POS_TYPE current : POS_TYPE.values()) {
         if (current.getType() == type)
           return current;

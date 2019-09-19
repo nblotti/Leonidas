@@ -52,11 +52,11 @@ public class MessageVO {
     this.messageType = messageType;
   }
 
-  public static enum ENTITY_ACTION {
+  public enum ENTITY_ACTION {
     CREATE, DELETE, UPDATE, CANCEL
   }
 
-  public static enum MESSAGE_TYPE {
+  public enum MESSAGE_TYPE {
     MARKET_ORDER, CASH_ENTRY, SECURITY_ENTRY, SECURITY_POSITION, CASH_POSITION
   }
 

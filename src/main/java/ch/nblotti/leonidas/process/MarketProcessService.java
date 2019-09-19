@@ -29,10 +29,7 @@ public class MarketProcessService {
 
     int runningProcess = marketProcessRepository.findRunningProcessForAccount(accountID);
 
-    if (runningProcess != 0)
-      return true;
-
-    return false;
+    return (runningProcess != 0);
   }
 
   public void startMarketProcessService(OrderPO orderPO, int accountID) {

@@ -21,7 +21,7 @@ public class PerformanceRepository {
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
-  private final String sql = "SELECT * from  ACCOUNT_TWR_PERF WHERE ACCOUNT_ID = %s;";
+  private static final String sql = "SELECT * from  ACCOUNT_TWR_PERF WHERE ACCOUNT_ID = %s;";
 
 
   public List<PerformancePO> getTwrPerfByAccount(int accountID) {

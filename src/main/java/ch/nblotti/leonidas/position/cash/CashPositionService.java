@@ -223,7 +223,7 @@ public class CashPositionService {
       currentPositionPO.setAccountId(currentEntry.getAccount());
       currentPositionPO.setPosType(PositionPO.POS_TYPE.CASH);
       currentPositionPO.setPosValue(netAmount);
-      currentPositionPO.setCMA(netAmount);
+      currentPositionPO.setCma(netAmount);
       currentPositionPO.setCurrency(currentEntry.getCurrency());
       currentPositionPO.setAccountPerformanceCurrency(currentAccountPO.getPerformanceCurrency());
       currentPositionPO.setTMA(tma);
