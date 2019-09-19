@@ -205,7 +205,7 @@ public class PositionPO {
     this.tma = tma;
   }
 
-  public static enum POS_TYPE {
+  public enum POS_TYPE {
 
     CASH(0), SECURITY(1);
 
