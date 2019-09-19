@@ -78,8 +78,64 @@ public class SecurityPositionsServiceTest {
   @Autowired
   SecurityPositionService securityPositionService;
 
+
   @Test
   public void positionFromEntryPositionCredit() {
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    Iterator<PositionPO> positionsItr = mock(Iterator.class);
+    when(positions.iterator()).thenReturn(positionsItr);
+    PositionPO positionPO1 = mock(PositionPO.class);
+    PositionPO positionPO2= mock(PositionPO.class);
+    when(positionsItr.hasNext()).thenReturn(true,true,false);
+    when(positionsItr.next()).thenReturn(positionPO1,positionPO2);
+
+    when(positionPO1.getRealized()).thenReturn(2f);
+    when(positionPO2.getRealized()).thenReturn(4f);
+
+    when(positionPO1.getQuantity()).thenReturn(2f);
+    when(positionPO2.getQuantity()).thenReturn(4f);
+
+    when(positionPO1.getCMA()).thenReturn(2f);
+    when(positionPO2.getCMA()).thenReturn(4f);
+
+    when(positionPO1.getTMA()).thenReturn(2f);
+    when(positionPO2.getTMA()).thenReturn(4f);
+
+    AggregatedSecurityEntryVO currentEntry = mock(AggregatedSecurityEntryVO.class);
+    AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
+    SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
+
+    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
+
+    when(nextEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
+    when(currentEntry.getQuantity()).thenReturn(2f);
+    when(currentEntry.getNetPosValue()).thenReturn(2f);
+    when(currentEntry.getQuantity()).thenReturn(2f);
+    when(currentEntry.getFxchangeRate()).thenReturn(2f);
+
+    doReturn(null).when(spySecurityPositionService).createSecurityPositions(any(), quantity.capture(), cma.capture(), tma.capture(), any(), any(), endDate.capture(), any());
+
+
+    Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, null, uuidHolder);
+
+    Assert.assertNull( returnedPositionsIt);
+    Assert.assertEquals(6f,quantity.getValue(),0);
+    Assert.assertEquals(3f,cma.getValue(),0);
+    Assert.assertEquals(7f,tma.getValue(),0);
+    Assert.assertEquals(LocalDate.now(),endDate.getValue());
+  }
+
+
+  @Test
+  public void positionFromEntryPositionDebit() {
     SecurityPositionService spySecurityPositionService = spy(securityPositionService);
     AccountPO currentAccountPO = mock(AccountPO.class);
 
