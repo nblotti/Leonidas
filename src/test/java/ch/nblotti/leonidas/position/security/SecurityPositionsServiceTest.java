@@ -12,7 +12,6 @@ import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
 import com.google.common.collect.Lists;
-import net.bytebuddy.asm.Advice;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +80,24 @@ public class SecurityPositionsServiceTest {
 
 
   @Test
+  public void positionFromEntryDebitCreditZero() {
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AggregatedSecurityEntryVO currentEntry = mock(AggregatedSecurityEntryVO.class);
+    AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
+    SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
+
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.ZERO);
+
+
+    Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry, uuidHolder);
+
+    List<PositionPO> returnedPositions = Lists.newArrayList(returnedPositionsIt);
+    Assert.assertEquals(0, returnedPositions.size());
+  }
+
+  @Test
   public void updatePositionsTwoEntry() {
 
     SecurityPositionService spySecurityPositionService = spy(securityPositionService);
@@ -97,13 +114,13 @@ public class SecurityPositionsServiceTest {
     doReturn(positions).when(spySecurityPositionService).positionFromEntry(any(), any(), any(), nullable(AggregatedSecurityEntryVO.class), argumentCaptor.capture());
 
     when(securityEntries.iterator()).thenReturn(securityEntryVOIterator);
-    when(securityEntryVOIterator.hasNext()).thenReturn(true, true,false);
-    when(securityEntryVOIterator.next()).thenReturn(aggregatedSecurityEntryVO1,aggregatedSecurityEntryVO2);
+    when(securityEntryVOIterator.hasNext()).thenReturn(true, true, false);
+    when(securityEntryVOIterator.next()).thenReturn(aggregatedSecurityEntryVO1, aggregatedSecurityEntryVO2);
     spySecurityPositionService.updatePositions(currentAccountPO, securityEntries);
 
-    SecurityPositionService.UUIDHolder holder =argumentCaptor.getValue();
+    SecurityPositionService.UUIDHolder holder = argumentCaptor.getValue();
 
-    verify(spySecurityPositionService,times(2)).positionFromEntry(any(), any(), any(), any(), any());
+    verify(spySecurityPositionService, times(2)).positionFromEntry(any(), any(), any(), any(), any());
 
     String id = holder.getCurrentRandomUUID();
     Assert.assertEquals(id, holder.getCurrentRandomUUID());
@@ -130,7 +147,7 @@ public class SecurityPositionsServiceTest {
     when(securityEntryVOIterator.next()).thenReturn(aggregatedSecurityEntryVO1);
     spySecurityPositionService.updatePositions(currentAccountPO, securityEntries);
 
-    verify(spySecurityPositionService,times(1)).positionFromEntry(any(), any(), any(), nullable(AggregatedSecurityEntryVO.class), any());
+    verify(spySecurityPositionService, times(1)).positionFromEntry(any(), any(), any(), nullable(AggregatedSecurityEntryVO.class), any());
   }
 
 
