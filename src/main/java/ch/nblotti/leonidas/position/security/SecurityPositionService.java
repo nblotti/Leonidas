@@ -57,8 +57,7 @@ public class SecurityPositionService {
     return repository.saveAll(positionPOS);
   }
 
-  //TODO NBL : test me
-  public PositionPO updatePosition(SecurityEntryPO entry) {
+  public void updatePosition(SecurityEntryPO entry) {
 
     getLogger().log(Level.FINE, "Started update process");
     AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
@@ -83,8 +82,6 @@ public class SecurityPositionService {
 
     jmsOrderTemplate.convertAndSend("securitypositionbox", new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.SECURITY_POSITION, MessageVO.ENTITY_ACTION.CREATE));
 
-
-    return null;
 
   }
 

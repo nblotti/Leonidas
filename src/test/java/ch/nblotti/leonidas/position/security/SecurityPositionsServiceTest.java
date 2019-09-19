@@ -77,14 +77,19 @@ public class SecurityPositionsServiceTest {
   SecurityPositionService securityPositionService;
 
 
+  @Test
+  public void aggregateSecuritiesEntriesByDay() {
+
+    //private Iterable<AggregatedSecurityEntryVO>
+  }
 
 
   @Test
-  public void updatePositionNoPositionDeletion(){
+  public void updatePositionNoPositionDeletion() {
 
     SecurityPositionService spySecurityPositionService = spy(securityPositionService);
     SecurityEntryPO entry = mock(SecurityEntryPO.class);
-    Iterable<AggregatedSecurityEntryVO>  aggregatedSecurityEntryVOS = mock(Iterable.class);
+    Iterable<AggregatedSecurityEntryVO> aggregatedSecurityEntryVOS = mock(Iterable.class);
     Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
     AccountPO accountPO = mock(AccountPO.class);
     when(entry.getValueDate()).thenReturn(LocalDate.now().plusDays(10));
@@ -97,25 +102,22 @@ public class SecurityPositionsServiceTest {
     doReturn(aggregatedSecurityEntryVOS).when(spySecurityPositionService).aggregateSecuritiesEntriesByDay(anyIterable());
 
 
-
-
     AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
 
-    doNothing().when(spySecurityPositionService).updatePositions(anyObject(),anyIterable());
+    doNothing().when(spySecurityPositionService).updatePositions(any(), anyIterable());
 
-    PositionPO returnedPosition = spySecurityPositionService.updatePosition( entry);
+    spySecurityPositionService.updatePosition(entry);
 
-    verify( repository, times(0)).deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
+    verify(repository, times(0)).deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
   }
 
 
-
   @Test
-  public void updatePositionPositionDeletion(){
+  public void updatePositionPositionDeletion() {
 
     SecurityPositionService spySecurityPositionService = spy(securityPositionService);
     SecurityEntryPO entry = mock(SecurityEntryPO.class);
-    Iterable<AggregatedSecurityEntryVO>  aggregatedSecurityEntryVOS = mock(Iterable.class);
+    Iterable<AggregatedSecurityEntryVO> aggregatedSecurityEntryVOS = mock(Iterable.class);
     Iterable<SecurityEntryPO> securityEntries = mock(Iterable.class);
     AccountPO accountPO = mock(AccountPO.class);
     when(entry.getValueDate()).thenReturn(LocalDate.now());
@@ -128,26 +130,24 @@ public class SecurityPositionsServiceTest {
     doReturn(aggregatedSecurityEntryVOS).when(spySecurityPositionService).aggregateSecuritiesEntriesByDay(anyIterable());
 
 
-
-
     AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
 
-    doNothing().when(spySecurityPositionService).updatePositions(anyObject(),anyIterable());
+    doNothing().when(spySecurityPositionService).updatePositions(any(), anyIterable());
 
-    PositionPO returnedPosition = spySecurityPositionService.updatePosition( entry);
+    spySecurityPositionService.updatePosition(entry);
 
-    verify( repository, times(1)).deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
+    verify(repository, times(1)).deleteByPosTypeAndAccountIdAndSecurityIDAndCurrency(PositionPO.POS_TYPE.SECURITY, entry.getAccount(), entry.getSecurityID(), entry.getCurrency());
   }
 
   @Test
   public void saveAll() {
 
-  List<PositionPO> positions = mock(List.class);
+    List<PositionPO> positions = mock(List.class);
 
     when(repository.saveAll(anyIterable())).then(i -> i.getArgument(0));
-  Iterable<PositionPO> returnedPositions = securityPositionService.saveAll(positions);
+    Iterable<PositionPO> returnedPositions = securityPositionService.saveAll(positions);
 
-  Assert.assertEquals(positions,returnedPositions);
+    Assert.assertEquals(positions, returnedPositions);
 
   }
 
@@ -174,9 +174,9 @@ public class SecurityPositionsServiceTest {
     when(quoteDTO.getAdjustedClose()).thenReturn("2.1");
     when(fxQuoteDto.getAdjustedClose()).thenReturn("1.5");
 
-    when(quoteService.getQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+    when(quoteService.getQuoteForDate(anyString(), anyString(), any())).thenReturn(quoteDTO);
     when(firstEntry.getCurrency()).thenReturn("USD");
-    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(fxQuoteDto);
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), any())).thenReturn(fxQuoteDto);
 
     when(firstEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(10));
 
@@ -235,9 +235,9 @@ public class SecurityPositionsServiceTest {
     when(quoteDTO.getAdjustedClose()).thenReturn("2.1");
     when(fxQuoteDto.getAdjustedClose()).thenReturn("1.5");
 
-    when(quoteService.getQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(quoteDTO);
+    when(quoteService.getQuoteForDate(anyString(), anyString(), any())).thenReturn(quoteDTO);
     when(firstEntry.getCurrency()).thenReturn("USD");
-    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), anyObject())).thenReturn(fxQuoteDto);
+    when(fxQuoteService.getFXQuoteForDate(anyString(), anyString(), any())).thenReturn(fxQuoteDto);
 
     SecurityPositionService spySecurityPositionService = spy(securityPositionService);
 
