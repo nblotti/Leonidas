@@ -2,6 +2,7 @@ package ch.nblotti.leonidas.performance;
 
 
 import ch.nblotti.leonidas.process.MarketProcessService;
+import com.google.common.collect.Lists;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class PerformanceController {
 
     if (marketProcessService.isProcessForAccountRunning(accountID)) {
       response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-      return null;
+      return Lists.newArrayList();
     }
     return this.performanceRepository.getTwrPerfByAccount(accountID);
 
