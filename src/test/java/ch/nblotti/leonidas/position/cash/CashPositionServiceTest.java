@@ -447,7 +447,7 @@ public class CashPositionServiceTest {
 
     verify(fxQuoteService, times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
 
-    Assert.assertEquals(Lists.newArrayList(returnedpositions).size(), 31);
+    Assert.assertEquals(31,Lists.newArrayList(returnedpositions).size());
   }
 
   @Test
@@ -477,7 +477,7 @@ public class CashPositionServiceTest {
 
     verify(fxQuoteService, times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
 
-    Assert.assertEquals(Lists.newArrayList(returnedpositions).size(), 31);
+    Assert.assertEquals(31,Lists.newArrayList(returnedpositions).size());
   }
 
   @Test

@@ -89,7 +89,7 @@ public class QuoteServiceTest {
 
 
     List<QuoteDTO> returnedQuotes = quoteService.getQuotes(exchange, symbol);
-    Assert.assertEquals(returnedQuotes.size(), 3);
+    Assert.assertEquals(3,returnedQuotes.size());
 
   }
 

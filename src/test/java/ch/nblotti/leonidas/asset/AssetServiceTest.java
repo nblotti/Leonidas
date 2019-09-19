@@ -216,8 +216,8 @@ public class AssetServiceTest {
 
     Iterable<AssetPO> returnedAssets = spyAssetService.findSymbol(exchange, "FB");
     List<AssetPO> assetPOs = Lists.newArrayList(returnedAssets);
-    Assert.assertEquals(assetPOs.size(), 1);
-    Assert.assertEquals(assetPOs.get(0).getCode(), "FB");
+    Assert.assertEquals(1,assetPOs.size());
+    Assert.assertEquals("FB",assetPOs.get(0).getCode());
 
   }
 
@@ -281,7 +281,7 @@ public class AssetServiceTest {
   @Test
   public void getValueDateForExchange() {
     int dV = assetService.getValueDateForExchange("US");
-    Assert.assertEquals(dV, 3);
+    Assert.assertEquals(3,dV );
   }
 
 

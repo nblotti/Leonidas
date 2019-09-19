@@ -59,7 +59,7 @@ public class MarketProcessServiceTest {
 
     boolean returned = marketProcessService.isProcessForAccountRunning(accountID);
 
-    Assert.assertEquals(returned, Boolean.TRUE);
+    Assert.assertEquals(Boolean.TRUE,returned);
 
   }
 
@@ -73,7 +73,7 @@ public class MarketProcessServiceTest {
 
     boolean returned = marketProcessService.isProcessForAccountRunning(accountID);
 
-    Assert.assertEquals(returned, Boolean.FALSE);
+    Assert.assertEquals(Boolean.FALSE,returned);
 
   }
 
