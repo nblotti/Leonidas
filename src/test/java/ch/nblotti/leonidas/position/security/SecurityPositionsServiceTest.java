@@ -78,6 +78,78 @@ public class SecurityPositionsServiceTest {
   @Autowired
   SecurityPositionService securityPositionService;
 
+  @Test
+  public void positionFromEntryPositionEmptyLocalDateAfter() {
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AggregatedSecurityEntryVO currentEntry = mock(AggregatedSecurityEntryVO.class);
+    AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
+    SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
+    Iterator<PositionPO> positionsItr = mock(Iterator.class);
+    when(positionsItr.hasNext()).thenReturn(false);
+
+    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
+
+    when(positions.iterator()).thenReturn(positionsItr);
+    when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
+    when(currentEntry.getQuantity()).thenReturn(2f);
+    when(currentEntry.getNetPosValue()).thenReturn(2f);
+    when(currentEntry.getQuantity()).thenReturn(2f);
+    when(currentEntry.getFxchangeRate()).thenReturn(2f);
+
+    doReturn(null).when(spySecurityPositionService).createSecurityPositions(any(), quantity.capture(), cma.capture(), tma.capture(), any(), any(), endDate.capture(), any());
+
+
+    Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, null, uuidHolder);
+
+    Assert.assertNull( returnedPositionsIt);
+    Assert.assertEquals(2f,quantity.getValue(),0);
+    Assert.assertEquals(1f,cma.getValue(),0);
+    Assert.assertEquals(2f,tma.getValue(),0);
+    Assert.assertEquals(LocalDate.now(),endDate.getValue());
+  }
+
+  @Test
+  public void positionFromEntryPositionNull() {
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+    AggregatedSecurityEntryVO currentEntry = mock(AggregatedSecurityEntryVO.class);
+    AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
+    SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
+
+
+    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
+    ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
+    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
+
+    when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
+    when(currentEntry.getQuantity()).thenReturn(2f);
+    when(currentEntry.getNetPosValue()).thenReturn(2f);
+    when(currentEntry.getQuantity()).thenReturn(2f);
+    when(currentEntry.getFxchangeRate()).thenReturn(2f);
+
+    doReturn(null).when(spySecurityPositionService).createSecurityPositions(any(), quantity.capture(), cma.capture(), tma.capture(), any(), any(), endDate.capture(), any());
+
+
+    Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, null, currentEntry, nextEntry, uuidHolder);
+
+    Assert.assertNull( returnedPositionsIt);
+    Assert.assertEquals(2f,quantity.getValue(),0);
+    Assert.assertEquals(1f,cma.getValue(),0);
+    Assert.assertEquals(2f,tma.getValue(),0);
+    Assert.assertEquals(LocalDate.now().minusDays(1),endDate.getValue());
+  }
+
 
   @Test
   public void positionFromEntryDebitCreditZero() {
