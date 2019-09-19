@@ -216,7 +216,7 @@ public class SecurityPositionService {
   }
 
 
-  private Iterable<PositionPO> positionFromEntry(AccountPO currentAccountPO, Iterable<PositionPO> positions, AggregatedSecurityEntryVO currentEntry, AggregatedSecurityEntryVO nextEntry, UUIDHolder uuidHolder) {
+   Iterable<PositionPO> positionFromEntry(AccountPO currentAccountPO, Iterable<PositionPO> positions, AggregatedSecurityEntryVO currentEntry, AggregatedSecurityEntryVO nextEntry, UUIDHolder uuidHolder) {
 
 
     Float realized = 0F;

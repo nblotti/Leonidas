@@ -12,9 +12,11 @@ import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
 import com.google.common.collect.Lists;
+import net.bytebuddy.asm.Advice;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -76,6 +78,60 @@ public class SecurityPositionsServiceTest {
 
   @Autowired
   SecurityPositionService securityPositionService;
+
+
+  @Test
+  public void updatePositionsTwoEntry() {
+
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<AggregatedSecurityEntryVO> securityEntries = mock(Iterable.class);
+    Iterator<AggregatedSecurityEntryVO> securityEntryVOIterator = mock(Iterator.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+
+    AggregatedSecurityEntryVO aggregatedSecurityEntryVO1 = mock(AggregatedSecurityEntryVO.class);
+    AggregatedSecurityEntryVO aggregatedSecurityEntryVO2 = mock(AggregatedSecurityEntryVO.class);
+
+    ArgumentCaptor<SecurityPositionService.UUIDHolder> argumentCaptor = ArgumentCaptor.forClass(SecurityPositionService.UUIDHolder.class);
+
+    doReturn(positions).when(spySecurityPositionService).positionFromEntry(any(), any(), any(), nullable(AggregatedSecurityEntryVO.class), argumentCaptor.capture());
+
+    when(securityEntries.iterator()).thenReturn(securityEntryVOIterator);
+    when(securityEntryVOIterator.hasNext()).thenReturn(true, true,false);
+    when(securityEntryVOIterator.next()).thenReturn(aggregatedSecurityEntryVO1,aggregatedSecurityEntryVO2);
+    spySecurityPositionService.updatePositions(currentAccountPO, securityEntries);
+
+    SecurityPositionService.UUIDHolder holder =argumentCaptor.getValue();
+
+    verify(spySecurityPositionService,times(2)).positionFromEntry(any(), any(), any(), any(), any());
+
+    String id = holder.getCurrentRandomUUID();
+    Assert.assertEquals(id, holder.getCurrentRandomUUID());
+
+    String newId = holder.getNewRandomUUID();
+    Assert.assertEquals(newId, holder.getCurrentRandomUUID());
+  }
+
+  @Test
+  public void updatePositionsOneEntry() {
+
+    SecurityPositionService spySecurityPositionService = spy(securityPositionService);
+    AccountPO currentAccountPO = mock(AccountPO.class);
+    Iterable<AggregatedSecurityEntryVO> securityEntries = mock(Iterable.class);
+    Iterator<AggregatedSecurityEntryVO> securityEntryVOIterator = mock(Iterator.class);
+    Iterable<PositionPO> positions = mock(Iterable.class);
+
+    AggregatedSecurityEntryVO aggregatedSecurityEntryVO1 = mock(AggregatedSecurityEntryVO.class);
+
+    doReturn(positions).when(spySecurityPositionService).positionFromEntry(any(), any(), any(), nullable(AggregatedSecurityEntryVO.class), any());
+
+    when(securityEntries.iterator()).thenReturn(securityEntryVOIterator);
+    when(securityEntryVOIterator.hasNext()).thenReturn(true, false);
+    when(securityEntryVOIterator.next()).thenReturn(aggregatedSecurityEntryVO1);
+    spySecurityPositionService.updatePositions(currentAccountPO, securityEntries);
+
+    verify(spySecurityPositionService,times(1)).positionFromEntry(any(), any(), any(), nullable(AggregatedSecurityEntryVO.class), any());
+  }
 
 
   @Test
