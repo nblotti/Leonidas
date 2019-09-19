@@ -113,7 +113,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
     when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
+    when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(5));
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
     when(currentEntry.getQuantity()).thenReturn(2f);
@@ -130,7 +130,7 @@ public class SecurityPositionsServiceTest {
     Assert.assertEquals(6f,quantity.getValue(),0);
     Assert.assertEquals(3f,cma.getValue(),0);
     Assert.assertEquals(7f,tma.getValue(),0);
-    Assert.assertEquals(LocalDate.now(),endDate.getValue());
+    Assert.assertEquals(LocalDate.now().plusDays(4),endDate.getValue());
   }
 
 

@@ -238,15 +238,14 @@ public class SecurityPositionService {
       endDate = nextEntry.getValueDate().minusDays(1);
     }
 
-    ArrayList<PositionPO> positionPOS;
-    if (positions == null)
-      positionPOS = Lists.newArrayList();
-    else
-      positionPOS = Lists.newArrayList(positions);
+    ArrayList<PositionPO> positionList;
+    positionList = getPositionList(positions);
+
+
     //Il existe des entrées dans la journée et il existe des positions le jour précédent
-    if (!positionPOS.isEmpty()) {
+    if (!positionList.isEmpty()) {
       //la position de la veille
-      PositionPO lastDayPositionPO = positionPOS.get(positionPOS.size() - 1);
+      PositionPO lastDayPositionPO = positionList.get(positionList.size() - 1);
       realized = lastDayPositionPO.getRealized();
       //on additionne la quantité à la quantité de la valeur existante.
       if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.CRDT) {
@@ -276,6 +275,15 @@ public class SecurityPositionService {
 
     return createSecurityPositions(currentAccountPO, quantity, cma, tma, realized, currentEntry, endDate, uuidHolder);
 
+  }
+
+  private ArrayList<PositionPO> getPositionList(Iterable<PositionPO> positions) {
+    ArrayList<PositionPO> positionPOS;
+    if (positions == null)
+      positionPOS = Lists.newArrayList();
+    else
+      positionPOS = Lists.newArrayList(positions);
+    return positionPOS;
   }
 
   Iterable<PositionPO> createSecurityPositions(AccountPO currentAccountPO, Float quantity, Float cma, Float tma, Float realized, AggregatedSecurityEntryVO firstEntry, LocalDate endDate, UUIDHolder uuidHolder) {
