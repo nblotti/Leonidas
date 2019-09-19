@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 public class ShellCommand {
 
 
-  private static final Logger LOGGER = Logger.getLogger("ShellCommand");
+  private static final Logger logger = Logger.getLogger("ShellCommand");
 
   @Value("${spring.application.order.url}")
   private String orderUrl;
@@ -163,7 +163,7 @@ public class ShellCommand {
     ResponseEntity<OrderPO[]> responseEntity = rt.getForEntity(orderUrl, OrderPO[].class);
     List<OrderPO> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("id: %s, symbol: %s, status %s", i.getAccountId(), i.getSymbol(), i.getStatus())));
+    objects.stream().forEach(i -> logger.log(Level.FINE, String.format("id: %s, symbol: %s, status %s", i.getAccountId(), i.getSymbol(), i.getStatus())));
 
   }
 
@@ -173,7 +173,7 @@ public class ShellCommand {
     ResponseEntity<QuoteDTO[]> responseEntity = rt.getForEntity(String.format("%s/%s", quoteUrl, symbol), QuoteDTO[].class);
     List<QuoteDTO> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("id: %s, symbol: %s, adjustedClose %s", symbol, i.getDate(), i.getAdjustedClose())));
+    objects.stream().forEach(i -> logger.log(Level.FINE, String.format("id: %s, symbol: %s, adjustedClose %s", symbol, i.getDate(), i.getAdjustedClose())));
 
 
   }
@@ -184,7 +184,7 @@ public class ShellCommand {
     ResponseEntity<AssetPO[]> responseEntity = rt.getForEntity(String.format("%s/%s", assetUrl, symbol), AssetPO[].class);
     List<AssetPO> objects = Arrays.asList(responseEntity.getBody());
 
-    objects.stream().forEach(i -> LOGGER.log(Level.FINE, String.format("code: %s, exchange %s, name %s", i.getCode(), i.getExchange(), i.getName())));
+    objects.stream().forEach(i -> logger.log(Level.FINE, String.format("code: %s, exchange %s, name %s", i.getCode(), i.getExchange(), i.getName())));
 
 
   }

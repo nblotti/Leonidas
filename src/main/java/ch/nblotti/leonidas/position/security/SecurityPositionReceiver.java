@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class SecurityPositionReceiver {
 
 
-  private static Logger LOGGER = Logger.getLogger("SecurityEntryReceiver");
+  private static Logger logger = Logger.getLogger("SecurityEntryReceiver");
 
 
   @Autowired
@@ -38,8 +38,8 @@ public class SecurityPositionReceiver {
     marketProcessService.setSecurityPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
     if (securityEntry == null) {
-      if (LOGGER.isLoggable(Level.FINE)) {
-        LOGGER.fine(String.format("No securityEntry for id %s, returning", messageVO.getAccountID()));
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine(String.format("No securityEntry for id %s, returning", messageVO.getAccountID()));
       }
       return;
     }
@@ -47,27 +47,27 @@ public class SecurityPositionReceiver {
     switch (messageVO.getEntityAction()) {
 
       case CREATE:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Start creation of security positions for entry with id %s", messageVO.getAccountID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Start creation of security positions for entry with id %s", messageVO.getAccountID()));
         }
         long startTime = System.nanoTime();
         securityPositionService.updatePosition(securityEntry);
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", messageVO.getAccountID(), elapsedTime));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", messageVO.getAccountID(), elapsedTime));
         }
         break;
       case DELETE:
 
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Delete  security positions for entry from order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Delete  security positions for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 
       default:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Unknown action type for entry from order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Unknown action type for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 

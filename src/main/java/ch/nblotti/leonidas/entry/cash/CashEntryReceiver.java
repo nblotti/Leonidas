@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 @Component
 public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
 
-  private static final Logger LOGGER = Logger.getLogger("CashEntryReceiver");
+  private static final Logger logger = Logger.getLogger("CashEntryReceiver");
 
   @Autowired
   CashEntryService cashEntryService;
@@ -25,20 +25,20 @@ public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
     switch (messageVO.getMessageType()) {
       case MARKET_ORDER:
 
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Create cash entry from market order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Create cash entry from market order with id %s", messageVO.getOrderID()));
         }
         this.receiveNewOrder(messageVO);
         break;
       case CASH_ENTRY:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Create cash entry from cash order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Create cash entry from cash order with id %s", messageVO.getOrderID()));
         }
         this.receiveNewOrder(messageVO);
         break;
       default:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Action unknown for order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Action unknown for order with id %s", messageVO.getOrderID()));
         }
 
         break;
@@ -61,8 +61,8 @@ public class CashEntryReceiver extends EntryReceiver<CashEntryPO> {
         cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
         break;
       default:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Type unknown for order with id %s", orderPO.getId()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Type unknown for order with id %s", orderPO.getId()));
         }
         break;
     }

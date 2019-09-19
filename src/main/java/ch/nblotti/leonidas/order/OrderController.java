@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class OrderController {
 
 
-  private final static Logger LOGGER = Logger.getLogger("OrderController");
+  private final static Logger logger = Logger.getLogger("OrderController");
   public static final int PROCESSING = 102;
 
   @Autowired
@@ -45,8 +45,8 @@ public class OrderController {
       return null;
     }
 
-    if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine(String.format("Create market order process for market order with id %s", orders.getId()));
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine(String.format("Create market order process for market order with id %s", orders.getId()));
     }
 
 

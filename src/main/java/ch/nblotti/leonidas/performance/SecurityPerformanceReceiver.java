@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class SecurityPerformanceReceiver {
 
 
-  private static Logger LOGGER = Logger.getLogger("SecurityPerformanceReceiver");
+  private static Logger logger = Logger.getLogger("SecurityPerformanceReceiver");
 
 
   @Autowired
@@ -34,8 +34,8 @@ public class SecurityPerformanceReceiver {
 
     marketProcessService.setSecurityFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
-    if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine(String.format("Recalcul de la performance titre pour le compte %s", messageVO.getAccountID()));
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine(String.format("Recalcul de la performance titre pour le compte %s", messageVO.getAccountID()));
     }
 
   }

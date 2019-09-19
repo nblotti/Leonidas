@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class SecurityEntryReceiver extends EntryReceiver<SecurityEntryPO> {
 
 
-  private static final Logger LOGGER = Logger.getLogger("SecurityEntryReceiver");
+  private static final Logger logger = Logger.getLogger("SecurityEntryReceiver");
 
 
   @Autowired
@@ -34,8 +34,8 @@ public class SecurityEntryReceiver extends EntryReceiver<SecurityEntryPO> {
       case SECURITY_POSITION:
         break;
       default:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Type unknown for entry with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Type unknown for entry with id %s", messageVO.getOrderID()));
         }
         break;
     }

@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 public class SecurityEntryService {
 
 
-  static final Logger LOGGER = Logger.getLogger("SecurityEntryService");
+  static final Logger logger = Logger.getLogger("SecurityEntryService");
   static final String SECURITYENTRYBOX = "securityentrybox";
 
   @Autowired
@@ -112,7 +112,7 @@ public class SecurityEntryService {
   }
 
   protected Logger getLogger() {
-    return LOGGER;
+    return logger;
   }
 
 

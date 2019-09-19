@@ -22,7 +22,7 @@ import java.util.logging.Logger;
 @Component
 public class CashEntryService {
 
-  private static final Logger LOGGER = Logger.getLogger("CashEntryService");
+  private static final Logger logger = Logger.getLogger("CashEntryService");
 
   @Autowired
   private MarketProcessService marketProcessService;
@@ -146,7 +146,7 @@ public class CashEntryService {
   }
 
   protected Logger getLogger() {
-    return LOGGER;
+    return logger;
   }
 
 

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public abstract class EntryReceiver<T> {
 
 
-  private static final Logger LOGGER = Logger.getLogger("EntryReceiver");
+  private static final Logger logger = Logger.getLogger("EntryReceiver");
 
 
   @Autowired
@@ -42,19 +42,19 @@ public abstract class EntryReceiver<T> {
     switch (messageVO.getEntityAction()) {
 
       case CREATE:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Create entry from order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Create entry from order with id %s", messageVO.getOrderID()));
         }
         save(fromOrder(orderPO));
         break;
       case DELETE:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.log(Level.FINE, String.format("Delete entry from order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.log(Level.FINE, String.format("Delete entry from order with id %s", messageVO.getOrderID()));
         }
         break;
       default:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.log(Level.FINE, String.format("Unsupported action type for order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.log(Level.FINE, String.format("Unsupported action type for order with id %s", messageVO.getOrderID()));
         }
         break;
 

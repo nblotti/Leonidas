@@ -16,7 +16,7 @@ import java.util.logging.Level;
 public class CashPositionReceiver {
 
 
-  private static Logger LOGGER = Logger.getLogger("CashEntryReceiver");
+  private static Logger logger = Logger.getLogger("CashEntryReceiver");
 
 
   @Autowired
@@ -37,8 +37,8 @@ public class CashPositionReceiver {
     marketProcessService.setCashPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
     if (cashEntryTO == null) {
-      if (LOGGER.isLoggable(Level.FINE)) {
-        LOGGER.fine(String.format("No cashEntry for id %s, returning", messageVO.getOrderID()));
+      if (logger.isLoggable(Level.FINE)) {
+        logger.fine(String.format("No cashEntry for id %s, returning", messageVO.getOrderID()));
       }
       return;
     }
@@ -47,26 +47,26 @@ public class CashPositionReceiver {
     switch (messageVO.getEntityAction()) {
 
       case CREATE:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
         }
         long startTime = System.nanoTime();
         cashPositionService.updatePositions(cashEntryTO);
         long endTime = System.nanoTime();
         long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
         }
         break;
       case DELETE:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Delete  cash positions for entry from order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Delete  cash positions for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 
       default:
-        if (LOGGER.isLoggable(Level.FINE)) {
-          LOGGER.fine(String.format("Unknown action type for entry from order with id %s", messageVO.getOrderID()));
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Unknown action type for entry from order with id %s", messageVO.getOrderID()));
         }
         break;
 
