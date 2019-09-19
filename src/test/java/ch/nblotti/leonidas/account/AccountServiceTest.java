@@ -120,8 +120,8 @@ public class AccountServiceTest {
 
     List<AccountPO> result = Lists.newArrayList(acountService.findAll());
 
-    assertEquals(result.get(0), account1);
-    assertEquals(result.get(1), account2);
+    assertEquals(account1,result.get(0));
+    assertEquals(account2,result.get(1));
 
   }
 
@@ -130,14 +130,14 @@ public class AccountServiceTest {
 
     AccountPO result = acountService.save(account1);
 
-    assertEquals(result, account2);
+    assertEquals( account2,result);
   }
 
   @Test
   public void findAccountById() {
     AccountPO result = acountService.findAccountById(1);
 
-    assertEquals(result, account1);
+    assertEquals(account1,result);
   }
 
   @Test(expected = IllegalStateException.class)
@@ -153,8 +153,6 @@ public class AccountServiceTest {
 
     ArgumentCaptor<AccountPO> argument = ArgumentCaptor.forClass(AccountPO.class);
     verify(accountRepository).save(argument.capture());
-    //   assertEquals(now, argument.getValue().getEntryDate());
-//    assertEquals("CHF", argument.getValue().getPerformanceCurrency());
 
 
   }
@@ -177,15 +175,15 @@ public class AccountServiceTest {
     assertEquals(1, orders.size());
     OrderPO returned = orders.get(0);
 
-    assertEquals(order.getOrderQtyData(), 1F, 0);
-    assertEquals(order.getSide(), DEBIT_CREDIT.CRDT);
-    assertEquals(order.getStatus(), 1);
-    assertEquals(order.getSymbol(), "FB");
-    assertEquals(order.getSymbol(), "FB");
-    assertEquals(order.getTransactTime(), now);
-    assertEquals(order.getType(), ORDER_TYPE.CASH_ENTRY);
-    assertEquals(order.getCashCurrency(), "CHF");
-    assertEquals(order.getExchange(), "US");
+    assertEquals(1F,order.getOrderQtyData(),  0);
+    assertEquals(DEBIT_CREDIT.CRDT,order.getSide());
+    assertEquals( 1,order.getStatus());
+    assertEquals("FB",order.getSymbol());
+    assertEquals("FB",order.getSymbol());
+    assertEquals(now,order.getTransactTime());
+    assertEquals(ORDER_TYPE.CASH_ENTRY,order.getType());
+    assertEquals("CHF",order.getCashCurrency());
+    assertEquals( "US",order.getExchange());
 
   }
 
@@ -200,6 +198,6 @@ public class AccountServiceTest {
 
     AccountPO returned = spyAccountService.duplicateAccountById(1, account1);
 
-    assertEquals(returned, account2);
+    assertEquals(account2,returned );
   }
 }
