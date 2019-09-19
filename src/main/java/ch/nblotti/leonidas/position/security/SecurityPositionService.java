@@ -182,7 +182,7 @@ public class SecurityPositionService {
 
   void updatePositions(AccountPO currentAccountPO, Iterable<AggregatedSecurityEntryVO> securityEntries) {
 
-    Iterable<PositionPO> positions = null;
+    Iterable<PositionPO> positions = Lists.newArrayList();
 
     UUIDHolder uUIDHolder = new UUIDHolder() {
       private String uniqueID;
@@ -238,11 +238,11 @@ public class SecurityPositionService {
       endDate = nextEntry.getValueDate().minusDays(1);
     }
 
-
+     ArrayList<PositionPO> positionPOS = Lists.newArrayList(positions);
     //Il existe des entrées dans la journée et il existe des positions le jour précédent
-    if (positions != null && !Lists.newArrayList(positions).isEmpty()) {
+    if (!positionPOS.isEmpty()) {
       //la position de la veille
-      PositionPO lastDayPositionPO = Lists.newArrayList(positions).get(Lists.newArrayList(positions).size() - 1);
+      PositionPO lastDayPositionPO = positionPOS.get(positionPOS.size() - 1);
       realized = lastDayPositionPO.getRealized();
       //on additionne la quantité à la quantité de la valeur existante.
       if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.CRDT) {
