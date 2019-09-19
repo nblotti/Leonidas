@@ -138,7 +138,7 @@ public class SecurityPositionService {
 
   }
 
-  private boolean updateEntryWithDifferentSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
+  void updateEntryWithDifferentSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
 
     //On adapte le signe de l'entrée en fonction des cas
     if (existingEntry.getQuantity() - currentEntry.getQuantity() < 0) {
@@ -151,18 +151,16 @@ public class SecurityPositionService {
     existingEntry.setNetPosValue(existingEntry.getNetPosValue() - currentEntry.getNetAmount());
     existingEntry.setGrossPosValue(existingEntry.getGrossPosValue() - currentEntry.getGrossAmount());
 
-    //la somme est non null on retourne false
-    return false;
   }
 
-  private void updateEntryWithSameSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
+  void updateEntryWithSameSign(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO existingEntry) {
     //les signes sont opposés, on cumule donc les quantités
     existingEntry.setQuantity(existingEntry.getQuantity() + currentEntry.getQuantity());
     existingEntry.setNetPosValue(existingEntry.getNetPosValue() + currentEntry.getNetAmount());
     existingEntry.setGrossPosValue(existingEntry.getGrossPosValue() + currentEntry.getGrossAmount());
   }
 
-  private void updateEntryAtZero(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO aggregatedSecurityEntryVO) {
+  void updateEntryAtZero(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO aggregatedSecurityEntryVO) {
 
     if (currentEntry.getDebitCreditCode().equals(DEBIT_CREDIT.DBIT)) {
       aggregatedSecurityEntryVO.setQuantity(currentEntry.getQuantity());
