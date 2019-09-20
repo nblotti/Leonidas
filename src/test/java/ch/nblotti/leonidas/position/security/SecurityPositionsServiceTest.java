@@ -113,7 +113,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
+    when(currentEntry.getAchatVenteTitre()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
@@ -170,7 +170,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE_TITRE.ACHAT);
+    when(currentEntry.getAchatVenteTitre()).thenReturn(ACHAT_VENTE_TITRE.ACHAT);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(5));
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
@@ -225,7 +225,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
+    when(currentEntry.getAchatVenteTitre()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
@@ -263,7 +263,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
+    when(currentEntry.getAchatVenteTitre()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
 
     when(positions.iterator()).thenReturn(positionsItr);
@@ -299,7 +299,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
+    when(currentEntry.getAchatVenteTitre()).thenReturn(ACHAT_VENTE_TITRE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
@@ -330,7 +330,7 @@ public class SecurityPositionsServiceTest {
     AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
     SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
 
-    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE_TITRE.ZERO);
+    when(currentEntry.getAchatVenteTitre()).thenReturn(ACHAT_VENTE_TITRE.ZERO);
 
 
     Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry, uuidHolder);
@@ -462,7 +462,7 @@ public class SecurityPositionsServiceTest {
 
     securityPositionService.updateEntryWithDifferentSign(currentEntry, existingEntry);
 
-    verify(existingEntry, times(1)).setDebitCreditCode(ACHAT_VENTE_TITRE.ACHAT);
+    verify(existingEntry, times(1)).setAchatVenteTitre(ACHAT_VENTE_TITRE.ACHAT);
     verify(existingEntry, times(1)).setQuantity(-10f);
     verify(existingEntry, times(1)).setNetPosValue(-10f);
     verify(existingEntry, times(1)).setGrossPosValue(-10f);
@@ -483,7 +483,7 @@ public class SecurityPositionsServiceTest {
 
     securityPositionService.updateEntryWithDifferentSign(currentEntry, existingEntry);
 
-    verify(existingEntry, times(1)).setDebitCreditCode(ACHAT_VENTE_TITRE.VENTE);
+    verify(existingEntry, times(1)).setAchatVenteTitre(ACHAT_VENTE_TITRE.VENTE);
     verify(existingEntry, times(1)).setQuantity(10f);
     verify(existingEntry, times(1)).setNetPosValue(10f);
     verify(existingEntry, times(1)).setGrossPosValue(10f);

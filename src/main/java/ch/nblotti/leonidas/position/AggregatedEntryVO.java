@@ -10,7 +10,7 @@ public abstract class AggregatedEntryVO {
 
   private int account;
 
-  private ACHAT_VENTE_TITRE debitCreditCode;
+  private ACHAT_VENTE_TITRE achatVenteTitre;
 
 
   private LocalDate entryDate;
@@ -23,7 +23,7 @@ public abstract class AggregatedEntryVO {
 
   public AggregatedEntryVO(EntryPO currentEntryTO) {
 
-    this.debitCreditCode = currentEntryTO.getAchatVenteCode();
+    this.achatVenteTitre = currentEntryTO.getAchatVenteCode();
     this.entryDate = currentEntryTO.getEntryDate();
     this.valueDate = currentEntryTO.getValueDate();
     this.fxchangeRate = currentEntryTO.getFxExchangeRate();
@@ -39,12 +39,12 @@ public abstract class AggregatedEntryVO {
     this.account = account;
   }
 
-  public ACHAT_VENTE_TITRE getDebitCreditCode() {
-    return debitCreditCode;
+  public ACHAT_VENTE_TITRE getAchatVenteTitre() {
+    return achatVenteTitre;
   }
 
-  public void setDebitCreditCode(ACHAT_VENTE_TITRE debitCreditCode) {
-    this.debitCreditCode = debitCreditCode;
+  public void setAchatVenteTitre(ACHAT_VENTE_TITRE achatVenteTitre) {
+    this.achatVenteTitre = achatVenteTitre;
   }
 
   public LocalDate getEntryDate() {

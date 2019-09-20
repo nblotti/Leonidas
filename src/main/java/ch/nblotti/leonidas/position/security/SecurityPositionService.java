@@ -101,11 +101,11 @@ public class SecurityPositionService {
         AggregatedSecurityEntryVO existingAggregatedEntry = entryByDate.get(currentEntry.getValueDate());
 
 
-        if (existingAggregatedEntry.getDebitCreditCode().equals(ACHAT_VENTE_TITRE.ZERO)) {
+        if (existingAggregatedEntry.getAchatVenteTitre().equals(ACHAT_VENTE_TITRE.ZERO)) {
           //dans les cas ou le cumul actuel est null
           updateEntryAtZero(currentEntry, existingAggregatedEntry);
 
-        } else if (existingAggregatedEntry.getDebitCreditCode().equals(currentEntry.getAchatVenteCode())) {
+        } else if (existingAggregatedEntry.getAchatVenteTitre().equals(currentEntry.getAchatVenteCode())) {
           //dans les cas ou les deux mouvments sont dans le même sens on les cumule
           updateEntryWithSameSign(currentEntry, existingAggregatedEntry);
         } else {
@@ -142,9 +142,9 @@ public class SecurityPositionService {
 
     //On adapte le signe de l'entrée en fonction des cas
     if (existingEntry.getQuantity() - currentEntry.getQuantity() < 0) {
-      existingEntry.setDebitCreditCode(ACHAT_VENTE_TITRE.ACHAT);
+      existingEntry.setAchatVenteTitre(ACHAT_VENTE_TITRE.ACHAT);
     } else {
-      existingEntry.setDebitCreditCode(ACHAT_VENTE_TITRE.VENTE);
+      existingEntry.setAchatVenteTitre(ACHAT_VENTE_TITRE.VENTE);
     }
     //les signes sont opposés, on soustrait donc les quantités
     existingEntry.setQuantity(existingEntry.getQuantity() - currentEntry.getQuantity());
@@ -226,7 +226,7 @@ public class SecurityPositionService {
 
 
     //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
-    if (currentEntry.getDebitCreditCode() == ACHAT_VENTE_TITRE.ZERO) {
+    if (currentEntry.getAchatVenteTitre() == ACHAT_VENTE_TITRE.ZERO) {
       return Lists.newArrayList();
     }
 
@@ -248,7 +248,7 @@ public class SecurityPositionService {
       PositionPO lastDayPositionPO = positionList.get(positionList.size() - 1);
       realized = lastDayPositionPO.getRealized();
       //on additionne la quantité à la quantité de la valeur existante.
-      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE_TITRE.ACHAT) {
+      if (currentEntry.getAchatVenteTitre() == ACHAT_VENTE_TITRE.ACHAT) {
         //il s'agit d'un achat, il faut adapter le CMA
         quantity = currentEntry.getQuantity() + lastDayPositionPO.getQuantity();
         cma = ((lastDayPositionPO.getCma() * lastDayPositionPO.getQuantity()) + (currentEntry.getNetPosValue())) / (lastDayPositionPO.getQuantity() + currentEntry.getQuantity());
