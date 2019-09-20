@@ -1,6 +1,6 @@
 package ch.nblotti.leonidas.account;
 
-import ch.nblotti.leonidas.entry.ACHAT_VENTE;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.order.OrderService;
@@ -96,7 +96,7 @@ public class AccountServiceTest {
     when(order.getOrderQtyData())
       .thenReturn(1F);
     when(order.getSide())
-      .thenReturn(ACHAT_VENTE.ACHAT);
+      .thenReturn(ACHAT_VENTE_TITRE.ACHAT);
     when(order.getStatus())
       .thenReturn(1);
     when(order.getSymbol())
@@ -176,7 +176,7 @@ public class AccountServiceTest {
     OrderPO returned = orders.get(0);
 
     assertEquals(1F,order.getOrderQtyData(),  0);
-    assertEquals(ACHAT_VENTE.ACHAT,order.getSide());
+    assertEquals(ACHAT_VENTE_TITRE.ACHAT,order.getSide());
     assertEquals( 1,order.getStatus());
     assertEquals("FB",order.getSymbol());
     assertEquals("FB",order.getSymbol());

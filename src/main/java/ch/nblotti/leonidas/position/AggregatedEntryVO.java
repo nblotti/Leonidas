@@ -1,6 +1,6 @@
 package ch.nblotti.leonidas.position;
 
-import ch.nblotti.leonidas.entry.ACHAT_VENTE;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.entry.EntryPO;
 
 import java.time.LocalDate;
@@ -10,7 +10,7 @@ public abstract class AggregatedEntryVO {
 
   private int account;
 
-  private ACHAT_VENTE debitCreditCode;
+  private ACHAT_VENTE_TITRE debitCreditCode;
 
 
   private LocalDate entryDate;
@@ -39,11 +39,11 @@ public abstract class AggregatedEntryVO {
     this.account = account;
   }
 
-  public ACHAT_VENTE getDebitCreditCode() {
+  public ACHAT_VENTE_TITRE getDebitCreditCode() {
     return debitCreditCode;
   }
 
-  public void setDebitCreditCode(ACHAT_VENTE debitCreditCode) {
+  public void setDebitCreditCode(ACHAT_VENTE_TITRE debitCreditCode) {
     this.debitCreditCode = debitCreditCode;
   }
 

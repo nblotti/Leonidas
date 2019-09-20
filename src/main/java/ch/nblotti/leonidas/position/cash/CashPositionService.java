@@ -2,7 +2,7 @@ package ch.nblotti.leonidas.position.cash;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.entry.ACHAT_VENTE;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
@@ -123,10 +123,10 @@ public class CashPositionService {
           //dans les cas ou les deux mouvments sont dans un sens différent
 
           //si le mouvement fait changer de sens le total on inversse
-          if (existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount() < 0 && existingEntry.getDebitCreditCode().equals(ACHAT_VENTE.ACHAT)) {
-            existingEntry.setDebitCreditCode(ACHAT_VENTE.VENTE);
+          if (existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount() < 0 && existingEntry.getDebitCreditCode().equals(ACHAT_VENTE_TITRE.ACHAT)) {
+            existingEntry.setDebitCreditCode(ACHAT_VENTE_TITRE.VENTE);
           } else {
-            existingEntry.setDebitCreditCode(ACHAT_VENTE.ACHAT);
+            existingEntry.setDebitCreditCode(ACHAT_VENTE_TITRE.ACHAT);
           }
           //on soustraitss les deux montants
           existingEntry.setNetAmount(existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount());
@@ -159,7 +159,7 @@ public class CashPositionService {
     Float tma = 0F;
 
     //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
-    if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.ZERO) {
+    if (currentEntry.getDebitCreditCode() == ACHAT_VENTE_TITRE.ZERO) {
       return Lists.newArrayList();
     }
 
@@ -180,7 +180,7 @@ public class CashPositionService {
       PositionPO lastDayPositionPO = positionPOS.get(positionPOS.size() - 1);
 
       //on additionne la quantité à la quantité de la valeur existante.
-      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.VENTE) {
+      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE_TITRE.VENTE) {
         //il s'agit d'une vente de titre et donc d'un achat de cash : il faut adapter le CMA
 
         amount = lastDayPositionPO.getPosValue() + currentEntry.getNetAmount();
@@ -193,7 +193,7 @@ public class CashPositionService {
       }
 
     } else {
-      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.VENTE) {
+      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE_TITRE.VENTE) {
         amount = -currentEntry.getNetAmount();
         tma = currentEntry.getFxchangeRate();
 

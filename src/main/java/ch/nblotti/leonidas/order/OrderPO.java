@@ -1,7 +1,7 @@
 package ch.nblotti.leonidas.order;
 
 
-import ch.nblotti.leonidas.entry.ACHAT_VENTE;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -38,7 +38,7 @@ public class OrderPO {
 
   @NotNull(message = "side is mandatory")
   @Column(name = "SIDE")
-  private ACHAT_VENTE side;
+  private ACHAT_VENTE_TITRE side;
 
   @NotNull(message = "Transaction time is mandatory")
   @Column(name = "TRANSACT_TIME")
@@ -66,7 +66,7 @@ public class OrderPO {
 
   }
 
-  public OrderPO(String cIOrdID, int accountId, String symbol, ACHAT_VENTE side, LocalDate transactTime, float orderQtyData, int status) {
+  public OrderPO(String cIOrdID, int accountId, String symbol, ACHAT_VENTE_TITRE side, LocalDate transactTime, float orderQtyData, int status) {
     this.cIOrdID = cIOrdID;
     this.accountId = accountId;
     this.symbol = symbol;
@@ -108,11 +108,11 @@ public class OrderPO {
     this.symbol = symbol;
   }
 
-  public ACHAT_VENTE getSide() {
+  public ACHAT_VENTE_TITRE getSide() {
     return side;
   }
 
-  public void setSide(ACHAT_VENTE side) {
+  public void setSide(ACHAT_VENTE_TITRE side) {
     this.side = side;
   }
 

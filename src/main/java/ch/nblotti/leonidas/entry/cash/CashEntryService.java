@@ -4,7 +4,7 @@ import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
-import ch.nblotti.leonidas.entry.ACHAT_VENTE;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
@@ -92,7 +92,7 @@ public class CashEntryService {
 
     cashEntryTO.setValueDate(orderPO.getTransactTime().plusDays(valueDateForExchange));
     cashEntryTO.setGrossAmount(orderPO.getOrderQtyData() * Float.valueOf(quoteDTO.getAdjustedClose()));
-    cashEntryTO.setAchatVenteCode(orderPO.getSide().equals(ACHAT_VENTE.ACHAT) ? ACHAT_VENTE.VENTE : ACHAT_VENTE.ACHAT);
+    cashEntryTO.setAchatVenteCode(orderPO.getSide().equals(ACHAT_VENTE_TITRE.ACHAT) ? ACHAT_VENTE_TITRE.VENTE : ACHAT_VENTE_TITRE.ACHAT);
 
     cashEntryTO.setNetAmount(cashEntryTO.getGrossAmount());
     cashEntryTO.setCurrency(assetPO.getCurrency());

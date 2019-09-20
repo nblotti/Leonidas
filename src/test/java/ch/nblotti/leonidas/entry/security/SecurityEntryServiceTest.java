@@ -4,7 +4,7 @@ import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
-import ch.nblotti.leonidas.entry.ACHAT_VENTE;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.quote.FXQuoteService;
@@ -144,7 +144,7 @@ public class SecurityEntryServiceTest {
     when(orderPO.getAccountId()).thenReturn(1);
     when(orderPO.getId()).thenReturn(1l);
     when(orderPO.getTransactTime()).thenReturn(LocalDate.now());
-    when(orderPO.getSide()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(orderPO.getSide()).thenReturn(ACHAT_VENTE_TITRE.ACHAT);
     when(orderPO.getStatus()).thenReturn(1);
     when(quoteDTO.getAdjustedClose()).thenReturn("2");
     when(fxQuoteDTO.getAdjustedClose()).thenReturn("2");
@@ -162,7 +162,7 @@ public class SecurityEntryServiceTest {
     Assert.assertEquals("US", returned.getExchange());
     Assert.assertEquals("1", returned.getSecurityID());
     Assert.assertEquals(1, returned.getOrderID());
-    Assert.assertEquals(ACHAT_VENTE.ACHAT, returned.getAchatVenteCode());
+    Assert.assertEquals(ACHAT_VENTE_TITRE.ACHAT, returned.getAchatVenteCode());
     Assert.assertEquals(LocalDate.now(), returned.getEntryDate());
     Assert.assertEquals(LocalDate.now().plusDays(3), returned.getValueDate());
     Assert.assertEquals("CHF", returned.getCurrency());

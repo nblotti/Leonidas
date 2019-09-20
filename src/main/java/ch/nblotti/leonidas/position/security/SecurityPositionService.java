@@ -4,7 +4,7 @@ import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.quote.QuoteService;
-import ch.nblotti.leonidas.entry.ACHAT_VENTE;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.position.PositionRepository;
@@ -101,7 +101,7 @@ public class SecurityPositionService {
         AggregatedSecurityEntryVO existingAggregatedEntry = entryByDate.get(currentEntry.getValueDate());
 
 
-        if (existingAggregatedEntry.getDebitCreditCode().equals(ACHAT_VENTE.ZERO)) {
+        if (existingAggregatedEntry.getDebitCreditCode().equals(ACHAT_VENTE_TITRE.ZERO)) {
           //dans les cas ou le cumul actuel est null
           updateEntryAtZero(currentEntry, existingAggregatedEntry);
 
@@ -142,9 +142,9 @@ public class SecurityPositionService {
 
     //On adapte le signe de l'entrée en fonction des cas
     if (existingEntry.getQuantity() - currentEntry.getQuantity() < 0) {
-      existingEntry.setDebitCreditCode(ACHAT_VENTE.ACHAT);
+      existingEntry.setDebitCreditCode(ACHAT_VENTE_TITRE.ACHAT);
     } else {
-      existingEntry.setDebitCreditCode(ACHAT_VENTE.VENTE);
+      existingEntry.setDebitCreditCode(ACHAT_VENTE_TITRE.VENTE);
     }
     //les signes sont opposés, on soustrait donc les quantités
     existingEntry.setQuantity(existingEntry.getQuantity() - currentEntry.getQuantity());
@@ -162,7 +162,7 @@ public class SecurityPositionService {
 
   void updateEntryAtZero(SecurityEntryPO currentEntry, AggregatedSecurityEntryVO aggregatedSecurityEntryVO) {
 
-    if (currentEntry.getAchatVenteCode().equals(ACHAT_VENTE.VENTE)) {
+    if (currentEntry.getAchatVenteCode().equals(ACHAT_VENTE_TITRE.VENTE)) {
       aggregatedSecurityEntryVO.setQuantity(currentEntry.getQuantity());
       aggregatedSecurityEntryVO.setNetPosValue(currentEntry.getNetAmount());
       aggregatedSecurityEntryVO.setGrossPosValue(currentEntry.getGrossAmount());
@@ -226,7 +226,7 @@ public class SecurityPositionService {
 
 
     //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
-    if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.ZERO) {
+    if (currentEntry.getDebitCreditCode() == ACHAT_VENTE_TITRE.ZERO) {
       return Lists.newArrayList();
     }
 
@@ -248,7 +248,7 @@ public class SecurityPositionService {
       PositionPO lastDayPositionPO = positionList.get(positionList.size() - 1);
       realized = lastDayPositionPO.getRealized();
       //on additionne la quantité à la quantité de la valeur existante.
-      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.ACHAT) {
+      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE_TITRE.ACHAT) {
         //il s'agit d'un achat, il faut adapter le CMA
         quantity = currentEntry.getQuantity() + lastDayPositionPO.getQuantity();
         cma = ((lastDayPositionPO.getCma() * lastDayPositionPO.getQuantity()) + (currentEntry.getNetPosValue())) / (lastDayPositionPO.getQuantity() + currentEntry.getQuantity());
