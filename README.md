@@ -104,7 +104,7 @@ I will not provide support until the V1 is published.
 
  - __Order sequencing__ - done
  - __Fix for__ [Sonar](https://sonarcloud.io/dashboard?id=nblotti_leonidas) - done
- - __Benchmark__
+ - __Benchmark__ - done
  - __Contribution__
  
  <h4>Beta - Q4 2019</h4>
