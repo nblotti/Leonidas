@@ -3,7 +3,7 @@ package ch.nblotti.leonidas.position.security;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE;
 import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
@@ -113,7 +113,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
@@ -170,7 +170,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.ACHAT);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(5));
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
@@ -225,7 +225,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
@@ -263,7 +263,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().minusDays(5));
 
     when(positions.iterator()).thenReturn(positionsItr);
@@ -299,7 +299,7 @@ public class SecurityPositionsServiceTest {
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
 
     when(nextEntry.getValueDate()).thenReturn(LocalDate.now());
@@ -330,7 +330,7 @@ public class SecurityPositionsServiceTest {
     AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
     SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
 
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.ZERO);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.ZERO);
 
 
     Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry, uuidHolder);
@@ -397,7 +397,7 @@ public class SecurityPositionsServiceTest {
   public void updateEntryAtZeroCredit() {
     SecurityEntryPO currentEntry = mock(SecurityEntryPO.class);
     AggregatedSecurityEntryVO existingEntry = mock(AggregatedSecurityEntryVO.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
     when(currentEntry.getQuantity()).thenReturn(10f);
     when(currentEntry.getNetAmount()).thenReturn(10f);
     when(currentEntry.getGrossAmount()).thenReturn(10f);
@@ -414,7 +414,7 @@ public class SecurityPositionsServiceTest {
   public void updateEntryAtZero() {
     SecurityEntryPO currentEntry = mock(SecurityEntryPO.class);
     AggregatedSecurityEntryVO existingEntry = mock(AggregatedSecurityEntryVO.class);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(currentEntry.getQuantity()).thenReturn(10f);
     when(currentEntry.getNetAmount()).thenReturn(10f);
     when(currentEntry.getGrossAmount()).thenReturn(10f);
@@ -462,7 +462,7 @@ public class SecurityPositionsServiceTest {
 
     securityPositionService.updateEntryWithDifferentSign(currentEntry, existingEntry);
 
-    verify(existingEntry, times(1)).setDebitCreditCode(DEBIT_CREDIT.CRDT);
+    verify(existingEntry, times(1)).setDebitCreditCode(ACHAT_VENTE.ACHAT);
     verify(existingEntry, times(1)).setQuantity(-10f);
     verify(existingEntry, times(1)).setNetPosValue(-10f);
     verify(existingEntry, times(1)).setGrossPosValue(-10f);
@@ -483,7 +483,7 @@ public class SecurityPositionsServiceTest {
 
     securityPositionService.updateEntryWithDifferentSign(currentEntry, existingEntry);
 
-    verify(existingEntry, times(1)).setDebitCreditCode(DEBIT_CREDIT.DBIT);
+    verify(existingEntry, times(1)).setDebitCreditCode(ACHAT_VENTE.VENTE);
     verify(existingEntry, times(1)).setQuantity(10f);
     verify(existingEntry, times(1)).setNetPosValue(10f);
     verify(existingEntry, times(1)).setGrossPosValue(10f);
@@ -502,8 +502,8 @@ public class SecurityPositionsServiceTest {
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now());
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
-    when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
-    when(securityEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(securityEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
+    when(securityEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
 
     when(securityEntryPO1.getQuantity()).thenReturn(10f);
     when(securityEntryPO2.getQuantity()).thenReturn(10f);
@@ -543,8 +543,8 @@ public class SecurityPositionsServiceTest {
     SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
-    when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(securityEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(securityEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(securityEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
 
     when(securityEntryPO1.getQuantity()).thenReturn(10f);
     when(securityEntryPO2.getQuantity()).thenReturn(10f);
@@ -580,8 +580,8 @@ public class SecurityPositionsServiceTest {
     SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
-    when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(securityEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(securityEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(securityEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
 
     when(securityEntryPO1.getQuantity()).thenReturn(10f);
     when(securityEntryPO2.getQuantity()).thenReturn(5f);
@@ -615,8 +615,8 @@ public class SecurityPositionsServiceTest {
     SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
-    when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(securityEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(securityEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(securityEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
 
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntries.iterator()).thenReturn(securityEntryPOIterator);
@@ -648,7 +648,7 @@ public class SecurityPositionsServiceTest {
     SecurityEntryPO securityEntryPO2 = mock(SecurityEntryPO.class);
 
     when(securityEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
-    when(securityEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.ZERO);
+    when(securityEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ZERO);
 
     when(securityEntryPO2.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(securityEntries.iterator()).thenReturn(securityEntryPOIterator);

@@ -81,7 +81,7 @@ public class SecurityEntryService {
     securityEntry.setAccount(orderPO.getAccountId());
     securityEntry.setOrderID(orderPO.getId());
     securityEntry.setEntryDate(orderPO.getTransactTime());
-    securityEntry.setDebitCreditCode(orderPO.getSide());
+    securityEntry.setAchatVenteCode(orderPO.getSide());
     securityEntry.setStatus(orderPO.getStatus());
     securityEntry.setValueDate(orderPO.getTransactTime().plusDays(assetService.getValueDateForExchange(assetPO.getExchange())));
     securityEntry.setGrossAmount(orderPO.getOrderQtyData() * Float.valueOf(quoteDTO.getAdjustedClose()));

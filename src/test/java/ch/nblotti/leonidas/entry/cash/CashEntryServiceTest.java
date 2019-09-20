@@ -4,8 +4,7 @@ import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
-import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
-import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.quote.FXQuoteService;
@@ -155,7 +154,7 @@ public class CashEntryServiceTest {
     when(orderPO.getTransactTime()).thenReturn(LocalDate.now());
     when(orderPO.getOrderQtyData()).thenReturn(orderQty);
     when(orderPO.getStatus()).thenReturn(orderStatus);
-    when(orderPO.getSide()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(orderPO.getSide()).thenReturn(ACHAT_VENTE.ACHAT);
     when(orderPO.getExchange()).thenReturn(exchange);
     when(orderPO.getSymbol()).thenReturn(symbol);
 
@@ -181,7 +180,7 @@ public class CashEntryServiceTest {
 
     Assert.assertEquals(1, cashEntryPO.getAccount());
     Assert.assertEquals(1, cashEntryPO.getOrderID());
-    Assert.assertEquals(DEBIT_CREDIT.DBIT, cashEntryPO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.VENTE, cashEntryPO.getAchatVenteCode());
     Assert.assertEquals(LocalDate.now(), cashEntryPO.getEntryDate());
     Assert.assertEquals(LocalDate.now().plusDays(3), cashEntryPO.getValueDate());
     Assert.assertEquals(currency, cashEntryPO.getCurrency());
@@ -230,7 +229,7 @@ public class CashEntryServiceTest {
     when(orderPO.getTransactTime()).thenReturn(LocalDate.now());
     when(orderPO.getOrderQtyData()).thenReturn(orderQty);
     when(orderPO.getStatus()).thenReturn(orderStatus);
-    when(orderPO.getSide()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(orderPO.getSide()).thenReturn(ACHAT_VENTE.VENTE);
     when(orderPO.getExchange()).thenReturn(exchange);
     when(orderPO.getSymbol()).thenReturn(symbol);
 
@@ -256,7 +255,7 @@ public class CashEntryServiceTest {
 
     Assert.assertEquals(1, cashEntryPO.getAccount());
     Assert.assertEquals(1, cashEntryPO.getOrderID());
-    Assert.assertEquals(DEBIT_CREDIT.CRDT, cashEntryPO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.ACHAT, cashEntryPO.getAchatVenteCode());
     Assert.assertEquals(LocalDate.now(), cashEntryPO.getEntryDate());
     Assert.assertEquals(LocalDate.now().plusDays(3), cashEntryPO.getValueDate());
     Assert.assertEquals(currency, cashEntryPO.getCurrency());
@@ -286,7 +285,7 @@ public class CashEntryServiceTest {
 
     when(orderPO.getStatus()).thenReturn(1);
 
-    when(orderPO.getSide()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(orderPO.getSide()).thenReturn(ACHAT_VENTE.ACHAT);
     when(orderPO.getTransactTime()).thenReturn(LocalDate.now());
     when(orderPO.getAmount()).thenReturn(2f);
     when(orderPO.getCashCurrency()).thenReturn("CHF");
@@ -298,7 +297,7 @@ public class CashEntryServiceTest {
 
     Assert.assertEquals(1, cashEntryPO.getAccount());
     Assert.assertEquals(1, cashEntryPO.getOrderID());
-    Assert.assertEquals(DEBIT_CREDIT.CRDT, cashEntryPO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.ACHAT, cashEntryPO.getAchatVenteCode());
     Assert.assertEquals(LocalDate.now(), cashEntryPO.getEntryDate());
     Assert.assertEquals(LocalDate.now().plusDays(3), cashEntryPO.getValueDate());
     Assert.assertEquals("CHF", cashEntryPO.getCurrency());

@@ -17,7 +17,7 @@ public class EntryPO {
   protected long orderID;
   @NotNull(message = "Debit/Credit code is mandatory")
   @Column(name = "DEBIT_CREDIT_CODE")
-  protected DEBIT_CREDIT debitCreditCode;
+  protected ACHAT_VENTE achatVenteCode;
   @NotNull(message = "Entry date is mandatory")
   @Column(name = "ENTRY_DATE")
   protected LocalDate entryDate;
@@ -68,12 +68,12 @@ public class EntryPO {
     this.orderID = orderID;
   }
 
-  public DEBIT_CREDIT getDebitCreditCode() {
-    return debitCreditCode;
+  public ACHAT_VENTE getAchatVenteCode() {
+    return achatVenteCode;
   }
 
-  public void setDebitCreditCode(DEBIT_CREDIT debitCreditCode) {
-    this.debitCreditCode = debitCreditCode;
+  public void setAchatVenteCode(ACHAT_VENTE achatVenteCode) {
+    this.achatVenteCode = achatVenteCode;
   }
 
   public LocalDate getEntryDate() {

@@ -2,7 +2,7 @@ package ch.nblotti.leonidas.position.cash;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE;
 import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
@@ -99,8 +99,8 @@ public class CashPositionServiceTest {
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
     CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
 
-    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(cashEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(cashEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
     when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO1.getNetAmount()).thenReturn(100f);
@@ -117,7 +117,7 @@ public class CashPositionServiceTest {
     Assert.assertEquals(1, entryVOList.size());
     AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
     Assert.assertEquals(Float.valueOf(200), aggregatedCashEntryVO.getNetAmount());
-    Assert.assertEquals(DEBIT_CREDIT.CRDT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.ACHAT, aggregatedCashEntryVO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
 
   }
@@ -129,8 +129,8 @@ public class CashPositionServiceTest {
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
     CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
 
-    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
-    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(cashEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
+    when(cashEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO1.getNetAmount()).thenReturn(100f);
@@ -147,7 +147,7 @@ public class CashPositionServiceTest {
     Assert.assertEquals(1, entryVOList.size());
     AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
     Assert.assertEquals(Float.valueOf(200), aggregatedCashEntryVO.getNetAmount());
-    Assert.assertEquals(DEBIT_CREDIT.DBIT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.VENTE, aggregatedCashEntryVO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
 
   }
@@ -160,8 +160,8 @@ public class CashPositionServiceTest {
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
     CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
 
-    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(cashEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(cashEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO1.getNetAmount()).thenReturn(100f);
@@ -178,7 +178,7 @@ public class CashPositionServiceTest {
     Assert.assertEquals(1, entryVOList.size());
     AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
     Assert.assertEquals(Float.valueOf(-100), aggregatedCashEntryVO.getNetAmount());
-    Assert.assertEquals(DEBIT_CREDIT.DBIT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.VENTE, aggregatedCashEntryVO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
 
   }
@@ -190,8 +190,8 @@ public class CashPositionServiceTest {
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
     CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
 
-    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
-    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(cashEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
+    when(cashEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
     when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO1.getNetAmount()).thenReturn(100f);
@@ -208,7 +208,7 @@ public class CashPositionServiceTest {
     Assert.assertEquals(1, entryVOList.size());
     AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
     Assert.assertEquals(Float.valueOf(-100), aggregatedCashEntryVO.getNetAmount());
-    Assert.assertEquals(DEBIT_CREDIT.CRDT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.ACHAT, aggregatedCashEntryVO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
 
   }
@@ -221,8 +221,8 @@ public class CashPositionServiceTest {
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
     CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
 
-    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(cashEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(cashEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO1.getNetAmount()).thenReturn(100f);
@@ -239,7 +239,7 @@ public class CashPositionServiceTest {
     Assert.assertEquals(1, entryVOList.size());
     AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
     Assert.assertEquals(Float.valueOf(50), aggregatedCashEntryVO.getNetAmount());
-    Assert.assertEquals(DEBIT_CREDIT.CRDT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.ACHAT, aggregatedCashEntryVO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), aggregatedCashEntryVO.getValueDate());
 
   }
@@ -251,8 +251,8 @@ public class CashPositionServiceTest {
     CashEntryPO cashEntryPO1 = mock(CashEntryPO.class);
     CashEntryPO cashEntryPO2 = mock(CashEntryPO.class);
 
-    when(cashEntryPO1.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
-    when(cashEntryPO2.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(cashEntryPO1.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
+    when(cashEntryPO2.getAchatVenteCode()).thenReturn(ACHAT_VENTE.ACHAT);
     when(cashEntryPO1.getValueDate()).thenReturn(LocalDate.now().minusDays(1));
     when(cashEntryPO2.getValueDate()).thenReturn(LocalDate.now());
     when(cashEntryPO1.getNetAmount()).thenReturn(100f);
@@ -269,13 +269,13 @@ public class CashPositionServiceTest {
     Assert.assertEquals(2, entryVOList.size());
     AggregatedCashEntryVO aggregatedCashEntryVO = entryVOList.get(0);
     Assert.assertEquals(Float.valueOf(100), aggregatedCashEntryVO.getNetAmount());
-    Assert.assertEquals(DEBIT_CREDIT.CRDT, aggregatedCashEntryVO.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.ACHAT, aggregatedCashEntryVO.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now().minusDays(1), aggregatedCashEntryVO.getValueDate());
 
 
     AggregatedCashEntryVO aggregatedCashEntryV1 = entryVOList.get(1);
     Assert.assertEquals(Float.valueOf(100), aggregatedCashEntryV1.getNetAmount());
-    Assert.assertEquals(DEBIT_CREDIT.CRDT, aggregatedCashEntryV1.getDebitCreditCode());
+    Assert.assertEquals(ACHAT_VENTE.ACHAT, aggregatedCashEntryV1.getDebitCreditCode());
     Assert.assertEquals(LocalDate.now(), aggregatedCashEntryV1.getValueDate());
 
   }
@@ -287,7 +287,7 @@ public class CashPositionServiceTest {
     AggregatedCashEntryVO currentEntry = mock(AggregatedCashEntryVO.class);
     AggregatedCashEntryVO nextEntry = mock(AggregatedCashEntryVO.class);
 
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.ZERO);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.ZERO);
     Iterable<PositionPO> positionPOS = cashPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry);
     List<PositionPO> positionList = Lists.newArrayList(positionPOS);
 
@@ -308,7 +308,7 @@ public class CashPositionServiceTest {
     Iterator<PositionPO> iterator = mock(Iterator.class);
 
     when(positions.iterator()).thenReturn(iterator);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.ACHAT);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now());
     when(currentEntry.getNetAmount()).thenReturn(100f);
     when(currentEntry.getFxchangeRate()).thenReturn(2f);
@@ -336,7 +336,7 @@ public class CashPositionServiceTest {
 
 
     when(positions.iterator()).thenReturn(iterator);
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(1));
     when(currentEntry.getNetAmount()).thenReturn(100f);
     when(currentEntry.getFxchangeRate()).thenReturn(2f);
@@ -370,7 +370,7 @@ public class CashPositionServiceTest {
     when(iterator.next()).thenReturn(position1, position2);
 
 
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.DBIT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.VENTE);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(1));
     when(currentEntry.getNetAmount()).thenReturn(100f);
     when(currentEntry.getFxchangeRate()).thenReturn(2f);
@@ -408,7 +408,7 @@ public class CashPositionServiceTest {
     when(iterator.next()).thenReturn(position1, position2);
 
 
-    when(currentEntry.getDebitCreditCode()).thenReturn(DEBIT_CREDIT.CRDT);
+    when(currentEntry.getDebitCreditCode()).thenReturn(ACHAT_VENTE.ACHAT);
     when(currentEntry.getValueDate()).thenReturn(LocalDate.now().plusDays(1));
     when(currentEntry.getNetAmount()).thenReturn(50f);
 

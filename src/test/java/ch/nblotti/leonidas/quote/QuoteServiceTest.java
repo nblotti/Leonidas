@@ -2,6 +2,7 @@ package ch.nblotti.leonidas.quote;
 
 
 import ch.nblotti.leonidas.asset.AssetPO;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,8 +70,8 @@ public class QuoteServiceTest {
   public void getQuotesFromCache() {
 
 
-    Map<String, List<QuoteDTO>> cacheByExchange = mock(HashMap.class);
-    List<QuoteDTO> quotes = mock(List.class);
+    Map<String, Map<LocalDate, QuoteDTO>> cacheByExchange = mock(HashMap.class);
+    Map<LocalDate, QuoteDTO> quotes = mock(Map.class);
     String exchange = "US";
     String symbol = "FB";
     Cache cache = mock(ConcurrentMapCache.class);
@@ -88,15 +89,15 @@ public class QuoteServiceTest {
     when(cacheByExchange.containsKey(symbol)).thenReturn(true);
 
 
-    List<QuoteDTO> returnedQuotes = quoteService.getQuotes(exchange, symbol);
-    Assert.assertEquals(3,returnedQuotes.size());
+    Map<LocalDate, QuoteDTO> returnedQuotes = quoteService.getQuotes(exchange, symbol);
+    Assert.assertEquals(3, returnedQuotes.size());
 
   }
 
   @Test
   public void getQuotesNoCache() {
 
-
+    QuoteService spyQuoteService = spy(quoteService);
     Map<String, List<QuoteDTO>> cacheByExchange = mock(HashMap.class);
     List<QuoteDTO> quotes = mock(List.class);
     String exchange = "US";
@@ -107,6 +108,8 @@ public class QuoteServiceTest {
 
     QuoteDTO quoteDTO01 = mock(QuoteDTO.class);
     QuoteDTO quoteDTO02 = mock(QuoteDTO.class);
+    when(quoteDTO01.getDate()).thenReturn("2000-01-01");
+    when(quoteDTO02.getDate()).thenReturn("2001-01-01");
     QuoteDTO[] quotesArr = new QuoteDTO[]{quoteDTO01, quoteDTO02};
 
     when(cacheManager.getCache(QuoteService.QUOTES)).thenReturn(cache);
@@ -119,13 +122,14 @@ public class QuoteServiceTest {
     when(cacheByExchange.get(symbol)).thenReturn(quotes);
 
     when(cacheByExchange.containsKey(symbol)).thenReturn(true);
-    //when(rt.getForEntity(String.format(quoteUrl, symbol + "." + exchange, eodApiToken), QuoteDTO[].class)).thenReturn(responseEntity);
     when(rt.getForEntity(anyString(), any())).thenReturn(responseEntity);
 
     when(responseEntity.getBody()).thenReturn(quotesArr);
 
+    doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyQuoteService).getDateTimeFormatter();
+    doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyQuoteService).getQuoteDateTimeFormatter();
 
-    List<QuoteDTO> returnedQuotes = quoteService.getQuotes(exchange, symbol);
+    Map<LocalDate, QuoteDTO> returnedQuotes = spyQuoteService.getQuotes(exchange, symbol);
     Assert.assertEquals(2, returnedQuotes.size());
     verify(responseEntity, times(1)).getBody();
 
@@ -169,7 +173,7 @@ public class QuoteServiceTest {
     QuoteDTO quoteDTO2 = mock(QuoteDTO.class);
     AssetPO assetPO2 = mock(AssetPO.class);
     QuoteDTO[] quoteDTOS = new QuoteDTO[]{quoteDTO1, quoteDTO2};
-
+    Map<LocalDate, QuoteDTO> quoteDTOMap = Maps.newHashMap();
 
     QuoteService newQuoteService = new QuoteService();
     QuoteService spyQuoteService = spy(newQuoteService);
@@ -177,7 +181,11 @@ public class QuoteServiceTest {
     when(quoteDTO1.getDate()).thenReturn("01.01.1900");
     when(quoteDTO2.getDate()).thenReturn("01.01.1901");
 
-    doReturn(Arrays.asList(quoteDTOS)).when(spyQuoteService).getQuotes(exchange, symbol);
+    quoteDTOMap.put(LocalDate.parse(quoteDTO1.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO1);
+    quoteDTOMap.put(LocalDate.parse(quoteDTO2.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO2);
+
+
+    doReturn(quoteDTOMap).when(spyQuoteService).getQuotes(exchange, symbol);
 
     doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyQuoteService).getDateTimeFormatter();
     doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyQuoteService).getQuoteDateTimeFormatter();
@@ -199,15 +207,22 @@ public class QuoteServiceTest {
     AssetPO assetPO2 = mock(AssetPO.class);
     QuoteDTO[] quoteDTOS = new QuoteDTO[]{quoteDTO1, quoteDTO2};
 
+    Map<LocalDate, QuoteDTO> quoteDTOMap = Maps.newHashMap();
+
 
     QuoteService newQuoteService = new QuoteService();
     QuoteService spyQuoteService = spy(newQuoteService);
+
 
     when(quoteDTO1.getDate()).thenReturn("01.01.1900");
     when(quoteDTO1.getAdjustedClose()).thenReturn("500");
     when(quoteDTO2.getDate()).thenReturn(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     when(quoteDTO2.getAdjustedClose()).thenReturn("1000");
-    doReturn(Arrays.asList(quoteDTOS)).when(spyQuoteService).getQuotes(exchange, symbol);
+    quoteDTOMap.put(LocalDate.parse(quoteDTO1.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO1);
+    quoteDTOMap.put(LocalDate.parse(quoteDTO2.getDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")),quoteDTO2);
+
+
+    doReturn(quoteDTOMap).when(spyQuoteService).getQuotes(exchange, symbol);
 
     doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyQuoteService).getDateTimeFormatter();
     doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyQuoteService).getQuoteDateTimeFormatter();
@@ -215,37 +230,6 @@ public class QuoteServiceTest {
     QuoteDTO returned = spyQuoteService.getQuoteForDate(exchange, symbol, now);
 
     Assert.assertEquals("1000", returned.getAdjustedClose());
-  }
-
-
-  @Test
-  public void getLastQuote() {
-
-    String exchange = "US";
-    String symbol = "FB";
-    LocalDate now = LocalDate.now();
-    QuoteDTO quoteDTO1 = mock(QuoteDTO.class);
-    QuoteDTO quoteDTO2 = mock(QuoteDTO.class);
-    AssetPO assetPO2 = mock(AssetPO.class);
-    QuoteDTO[] quoteDTOS = new QuoteDTO[]{quoteDTO1, quoteDTO2};
-
-
-    QuoteService newQuoteService = new QuoteService();
-    QuoteService spyQuoteService = spy(newQuoteService);
-
-    when(quoteDTO1.getDate()).thenReturn("01.01.1900");
-    when(quoteDTO2.getDate()).thenReturn("01.01.1901");
-
-    doReturn(Arrays.asList(quoteDTOS)).when(spyQuoteService).getQuotes(exchange, symbol);
-
-    doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyQuoteService).getDateTimeFormatter();
-    doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyQuoteService).getQuoteDateTimeFormatter();
-
-    QuoteDTO lastQuote = spyQuoteService.getLastQuote(exchange, symbol);
-
-    Assert.assertEquals("01.01.1901", lastQuote.getDate());
-
-
   }
 
 

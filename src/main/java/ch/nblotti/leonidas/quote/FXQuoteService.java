@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-@Component(value="fxQuoteService")
+@Component(value = "fxQuoteService")
 public class FXQuoteService extends AbstractQuoteService {
 
 
@@ -21,7 +22,7 @@ public class FXQuoteService extends AbstractQuoteService {
   }
 
 
-  public List<QuoteDTO> getFXQuotes(String currencyPair) {
+  public Map<LocalDate, QuoteDTO> getFXQuotes(String currencyPair) {
 
     return getQuotes(FOREX, currencyPair);
 
@@ -50,21 +51,14 @@ public class FXQuoteService extends AbstractQuoteService {
     }
 
 
-    while (lastElement == null) {
+    Map<LocalDate, QuoteDTO> quotes = getFXQuotes(currencyPair);
 
-      for (Iterator<QuoteDTO> collectionItr = getFXQuotes(currencyPair).iterator(); collectionItr.hasNext(); ) {
-
-        QuoteDTO currentQuoteDTO = collectionItr.next();
-        if (currentQuoteDTO.getDate().equals(localDate.format(getQuoteDateTimeFormatter()))) {
-          lastElement = currentQuoteDTO;
-          break;
-        }
-      }
+    while (!quotes.containsKey(localDate)) {
       localDate = localDate.minusDays(1);
       if (localDate.equals(LocalDate.parse("01.01.1900", getDateTimeFormatter())))
         throw new IllegalStateException(String.format("No quotes found for symbol %s", currencyPair));
     }
-    return lastElement;
+    return quotes.get(localDate);
   }
 
 

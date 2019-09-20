@@ -3,7 +3,7 @@ package ch.nblotti.leonidas;
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.accountrelation.AccountRelationPO;
 import ch.nblotti.leonidas.asset.AssetPO;
-import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.quote.QuoteDTO;
@@ -146,7 +146,7 @@ public class ShellCommand {
     u.setAccountId(acc);
     u.setAmount(amo);
     u.setCashCurrency(cur);
-    u.setSide(DEBIT_CREDIT.fromType(side));
+    u.setSide(ACHAT_VENTE.fromType(side));
     u.setType(ORDER_TYPE.CASH_ENTRY);
     u.setTransactTime(ld);
     OrderPO returns = rt.postForObject(orderUrl, u, OrderPO.class);
@@ -184,7 +184,7 @@ public class ShellCommand {
     u.setAccountId(acc);
     u.setExchange(exch);
     u.setSymbol(symb);
-    u.setSide(DEBIT_CREDIT.fromType(side));
+    u.setSide(ACHAT_VENTE.fromType(side));
     u.setOrderQtyData(qty);
     u.setType(ORDER_TYPE.MARKET_ORDER);
     u.setTransactTime(ld);

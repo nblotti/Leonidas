@@ -2,7 +2,7 @@ package ch.nblotti.leonidas.position.cash;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.entry.DEBIT_CREDIT;
+import ch.nblotti.leonidas.entry.ACHAT_VENTE;
 import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
@@ -116,17 +116,17 @@ public class CashPositionService {
         AggregatedCashEntryVO existingEntry = cashEntryByDAte.get(currentCashEntryTO.getValueDate());
 
         //dans les cas ou les deux mouvments sont dans le même sens on les cumule
-        if (existingEntry.getDebitCreditCode().equals(currentCashEntryTO.getDebitCreditCode())) {
+        if (existingEntry.getDebitCreditCode().equals(currentCashEntryTO.getAchatVenteCode())) {
           existingEntry.setNetAmount(existingEntry.getNetAmount() + currentCashEntryTO.getNetAmount());
           existingEntry.setGrossAmount(existingEntry.getGrossAmount() + currentCashEntryTO.getGrossAmount());
         } else {
           //dans les cas ou les deux mouvments sont dans un sens différent
 
           //si le mouvement fait changer de sens le total on inversse
-          if (existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount() < 0 && existingEntry.getDebitCreditCode().equals(DEBIT_CREDIT.CRDT)) {
-            existingEntry.setDebitCreditCode(DEBIT_CREDIT.DBIT);
+          if (existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount() < 0 && existingEntry.getDebitCreditCode().equals(ACHAT_VENTE.ACHAT)) {
+            existingEntry.setDebitCreditCode(ACHAT_VENTE.VENTE);
           } else {
-            existingEntry.setDebitCreditCode(DEBIT_CREDIT.CRDT);
+            existingEntry.setDebitCreditCode(ACHAT_VENTE.ACHAT);
           }
           //on soustraitss les deux montants
           existingEntry.setNetAmount(existingEntry.getNetAmount() - currentCashEntryTO.getNetAmount());
@@ -159,7 +159,7 @@ public class CashPositionService {
     Float tma = 0F;
 
     //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
-    if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.ZERO) {
+    if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.ZERO) {
       return Lists.newArrayList();
     }
 
@@ -180,19 +180,20 @@ public class CashPositionService {
       PositionPO lastDayPositionPO = positionPOS.get(positionPOS.size() - 1);
 
       //on additionne la quantité à la quantité de la valeur existante.
-      if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT) {
-        //il s'agit d'un achat, il faut adapter le CMA
+      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.VENTE) {
+        //il s'agit d'une vente de titre et donc d'un achat de cash : il faut adapter le CMA
 
         amount = lastDayPositionPO.getPosValue() + currentEntry.getNetAmount();
         tma = (lastDayPositionPO.getTMA() * lastDayPositionPO.getPosValue() + (currentEntry.getFxchangeRate() * currentEntry.getNetAmount())) / lastDayPositionPO.getPosValue() + currentEntry.getNetAmount();
 
       } else {
-        //il s'agit d'une vente, il faut adapter le réalisé
+        //il s'agit d'un achat de cash il faut adapter le réalisé
         amount = lastDayPositionPO.getPosValue() - currentEntry.getNetAmount();
+        tma = lastDayPositionPO.getTMA();
       }
 
     } else {
-      if (currentEntry.getDebitCreditCode() == DEBIT_CREDIT.DBIT) {
+      if (currentEntry.getDebitCreditCode() == ACHAT_VENTE.VENTE) {
         amount = -currentEntry.getNetAmount();
         tma = currentEntry.getFxchangeRate();
 
@@ -230,7 +231,7 @@ public class CashPositionService {
 
       Float exchangeRate = Float.valueOf(fxQuoteService.getFXQuoteForDate(currentPositionPO.getCurrency(), currentAccountPO.getPerformanceCurrency(), currentPositionPO.getPosDate()).getAdjustedClose());
 
-      currentPositionPO.setPosValueReportingCurrency(currentEntry.getNetAmount() * exchangeRate);
+      currentPositionPO.setPosValueReportingCurrency(netAmount* exchangeRate);
 
       positionPOS.add(currentPositionPO);
     }

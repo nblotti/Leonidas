@@ -55,11 +55,11 @@ raw.result <- doCallJsonRestApi('POST',accounts_url,  account_data)
 
 
 order_url <- paste(server_url , "orders", sep = "", collapse = NULL)
-cash_usd_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"2","amount":"100000","type":"CASH_ENTRY","cashCurrency":"USD","transactTime":"2019-06-28"}'
+cash_usd_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"1","amount":"100000","type":"CASH_ENTRY","cashCurrency":"USD","transactTime":"2019-06-28"}'
 order.result <- doCallJsonRestApi('POST',order_url,  cash_usd_order_data)
 
 order_url <- paste(server_url , "orders", sep = "", collapse = NULL)
-cash_usd_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"2","amount":"100000","type":"CASH_ENTRY","cashCurrency":"EUR","transactTime":"2019-06-28"}'
+cash_usd_order_data <- '{"accountId":"1","cIOrdID":"test1" ,"side":"1","amount":"100000","type":"CASH_ENTRY","cashCurrency":"EUR","transactTime":"2019-06-28"}'
 order.result <- doCallJsonRestApi('POST',order_url,  cash_usd_order_data)
 
 

@@ -28,7 +28,7 @@ public class QuoteController {
 
 
     //on reformate la date
-    return quoteService.getQuotes(exchange, symbol).stream().map(i -> new QuoteDTO(dateTimeFormatter.format(quoteDateTimeFormatter.parse(i.getDate())), i.getOpen(), i.getHigh(), i.getLow(), i.getClose(), i.getAdjustedClose(), i.getVolume())).
+    return quoteService.getQuotes(exchange, symbol).values().stream().map(i -> new QuoteDTO(dateTimeFormatter.format(quoteDateTimeFormatter.parse(i.getDate())), i.getOpen(), i.getHigh(), i.getLow(), i.getClose(), i.getAdjustedClose(), i.getVolume())).
       collect(Collectors.toList());
 
 

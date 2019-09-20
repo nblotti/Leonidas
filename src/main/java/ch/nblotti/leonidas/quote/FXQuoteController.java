@@ -17,7 +17,7 @@ public class FXQuoteController {
   @GetMapping("/quotes/fx/{currencyPair}")
   public Iterable<QuoteDTO> getFXQuote(@PathVariable String currencyPair) {
 
-    return fXQuoteService.getFXQuotes(currencyPair);
+    return fXQuoteService.getFXQuotes(currencyPair).values();
 
   }
 

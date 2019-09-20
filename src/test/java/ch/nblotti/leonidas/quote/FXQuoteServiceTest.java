@@ -1,6 +1,7 @@
 package ch.nblotti.leonidas.quote;
 
 import ch.nblotti.leonidas.asset.AssetPO;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static ch.nblotti.leonidas.quote.FXQuoteService.QUOTES;
 import static org.mockito.ArgumentMatchers.any;
@@ -62,10 +64,10 @@ public class FXQuoteServiceTest {
   @Test
   public void getFXQuotes() {
 
-    List<QuoteDTO> quotes = mock(List.class);
+    Map<LocalDate, QuoteDTO> quotes = mock(Map.class);
     FXQuoteService spy = Mockito.spy(fXQuoteService);
     doReturn(quotes).when(spy).getQuotes(any(), any());
-    List<QuoteDTO> returnedQuotes = spy.getFXQuotes("USDCHF");
+    Map<LocalDate, QuoteDTO> returnedQuotes = spy.getFXQuotes("USDCHF");
     Assert.assertEquals(returnedQuotes, quotes);
 
 
@@ -102,13 +104,14 @@ public class FXQuoteServiceTest {
     QuoteDTO quoteDTO1 = mock(QuoteDTO.class);
     AssetPO assetPO2 = mock(AssetPO.class);
     QuoteDTO[] quoteDTOS = new QuoteDTO[]{quoteDTO1};
-
+    Map<LocalDate, QuoteDTO> quoteDTOMap = Maps.newHashMap();
 
     FXQuoteService spyFXQuoteService = spy(fXQuoteService);
 
     when(quoteDTO1.getDate()).thenReturn("01.01.1900");
+    quoteDTOMap.put(LocalDate.parse(quoteDTO1.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO1);
 
-    doReturn(Arrays.asList(quoteDTOS)).when(spyFXQuoteService).getFXQuotes(String.format("%s%s", "CHF", "EUR"));
+    doReturn(quoteDTOMap).when(spyFXQuoteService).getFXQuotes(String.format("%s%s", "CHF", "EUR"));
 
     doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyFXQuoteService).getDateTimeFormatter();
     doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyFXQuoteService).getQuoteDateTimeFormatter();
@@ -129,16 +132,20 @@ public class FXQuoteServiceTest {
     QuoteDTO quoteDTO2 = mock(QuoteDTO.class);
     AssetPO assetPO2 = mock(AssetPO.class);
     QuoteDTO[] quoteDTOS = new QuoteDTO[]{quoteDTO1, quoteDTO2};
-
-
+    Map<LocalDate, QuoteDTO> quoteDTOMap = Maps.newHashMap();
     FXQuoteService spyFXQuoteService = spy(fXQuoteService);
+
 
 
     when(quoteDTO1.getDate()).thenReturn("01.01.1900");
     when(quoteDTO1.getAdjustedClose()).thenReturn("500");
     when(quoteDTO2.getDate()).thenReturn(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
     when(quoteDTO2.getAdjustedClose()).thenReturn("1000");
-    doReturn(Arrays.asList(quoteDTOS)).when(spyFXQuoteService).getFXQuotes(String.format("%s%s", "CHF", "EUR"));
+    doReturn(quoteDTOMap).when(spyFXQuoteService).getFXQuotes(String.format("%s%s", "CHF", "EUR"));
+
+
+    quoteDTOMap.put(LocalDate.parse(quoteDTO1.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO1);
+    quoteDTOMap.put(LocalDate.parse(quoteDTO2.getDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")),quoteDTO2);
 
     doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyFXQuoteService).getDateTimeFormatter();
     doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyFXQuoteService).getQuoteDateTimeFormatter();
