@@ -36,6 +36,7 @@ public class LeonidasApplication {
   @Autowired
   private JdbcTemplate jdbcTemplate;
 
+
   @Bean
   public DefaultJmsListenerContainerFactory factory(ConnectionFactory connectionFactory,
                                                     DefaultJmsListenerContainerFactoryConfigurer configurer) {
@@ -83,9 +84,8 @@ public class LeonidasApplication {
 
   @Bean
   public DateTimeFormatter quoteDateTimeFormatter() {
-    return    DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    return DateTimeFormatter.ofPattern("yyyy-MM-dd");
   }
-
 
 
 }

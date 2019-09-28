@@ -2,8 +2,11 @@ package ch.nblotti.leonidas.order;
 
 
 import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_EVENTS;
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_STATES;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +30,9 @@ public class OrderController {
   MarketProcessService marketProcessService;
 
   @Autowired
+  StateMachine<MARKET_ORDER_STATES, MARKET_ORDER_EVENTS> stateMachine;
+
+  @Autowired
   AccountService acountService;
 
 
@@ -39,6 +45,15 @@ public class OrderController {
 
   @PostMapping(value = "/orders")
   public OrderPO save(@Valid @RequestBody OrderPO orders, HttpServletResponse response) {//NOSONAR
+
+    switch (orders.getType()) {
+      case MARKET_ORDER:
+        stateMachine.start();
+        stateMachine.sendEvent(MARKET_ORDER_EVENTS.ORDER_RECEIVED);
+        break;
+
+    }
+
 
     if (marketProcessService.isProcessForAccountRunning(orders.getAccountId())) {
       response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);

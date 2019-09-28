@@ -6,6 +6,8 @@ import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_EVENTS;
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_STATES;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
@@ -13,6 +15,7 @@ import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -23,6 +26,9 @@ import java.util.logging.Logger;
 public class CashEntryService {
 
   private static final Logger logger = Logger.getLogger("CashEntryService");
+
+  @Autowired
+  StateMachine<MARKET_ORDER_STATES, MARKET_ORDER_EVENTS> stateMachine;
 
   @Autowired
   private MarketProcessService marketProcessService;
@@ -138,7 +144,10 @@ public class CashEntryService {
     }
     CashEntryPO cashEntryTO = this.repository.save(entry);
 
+
     marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
+
+    stateMachine.sendEvent(MARKET_ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
 
     jmsOrderTemplate.convertAndSend("cashentrybox", new MessageVO(cashEntryTO.getOrderID(), cashEntryTO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
 

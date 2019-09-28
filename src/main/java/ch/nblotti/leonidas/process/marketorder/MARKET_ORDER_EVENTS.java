@@ -1,4 +1,4 @@
-package ch.nblotti.leonidas.process;
+package ch.nblotti.leonidas.process.marketorder;
 
 public enum MARKET_ORDER_EVENTS {
   ORDER_RECEIVED,ORDER_CREATION_SUCCESSFULL,

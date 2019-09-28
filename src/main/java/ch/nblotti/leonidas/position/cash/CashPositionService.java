@@ -7,6 +7,8 @@ import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.position.PositionRepository;
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_EVENTS;
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_STATES;
 import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteService;
 import ch.nblotti.leonidas.technical.MessageVO;
@@ -14,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,10 @@ import java.util.logging.Logger;
 public class CashPositionService {
 
   private static Logger logger = Logger.getLogger("CashPositionService");
+
+
+  @Autowired
+  StateMachine<MARKET_ORDER_STATES, MARKET_ORDER_EVENTS> stateMachine;
 
   @Autowired
   private PositionRepository repository;
@@ -79,7 +86,7 @@ public class CashPositionService {
     //5. On duplique les quantités entre les deux dates
     updatePositions(currentAccountPO, aggegatedCashEntries);
 
-
+    stateMachine.sendEvent(MARKET_ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
     jmsOrderTemplate.convertAndSend("cashpositionbox", new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.CASH_POSITION, MessageVO.ENTITY_ACTION.CREATE));
 
 

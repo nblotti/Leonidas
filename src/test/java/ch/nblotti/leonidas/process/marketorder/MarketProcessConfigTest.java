@@ -1,5 +1,8 @@
-package ch.nblotti.leonidas.process;
+package ch.nblotti.leonidas.process.marketorder;
 
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_EVENTS;
+import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_STATES;
+import ch.nblotti.leonidas.process.marketorder.MarketProcessConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,7 +15,6 @@ import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
-import org.springframework.statemachine.transition.Transition;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;

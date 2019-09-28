@@ -1,17 +1,21 @@
-package ch.nblotti.leonidas.process;
+package ch.nblotti.leonidas.process.marketorder;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.annotation.OnTransition;
 import org.springframework.statemachine.annotation.WithStateMachine;
-import org.springframework.statemachine.config.EnableStateMachineFactory;
+import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 
+import java.util.logging.Logger;
+
 @Configuration
-@EnableStateMachineFactory
+@EnableStateMachine
 @WithStateMachine
 public class MarketProcessConfig extends EnumStateMachineConfigurerAdapter<MARKET_ORDER_STATES, MARKET_ORDER_EVENTS> {
 
+  private static final Logger logger = Logger.getLogger("MarketProcessConfig");
 
   @Override
   public void configure(StateMachineStateConfigurer<MARKET_ORDER_STATES, MARKET_ORDER_EVENTS> states)
@@ -88,5 +92,77 @@ public class MarketProcessConfig extends EnumStateMachineConfigurerAdapter<MARKE
       .source(MARKET_ORDER_STATES.LAST).target(MARKET_ORDER_STATES.READY).event(MARKET_ORDER_EVENTS.EVENT3);
 
   }
+
+  @OnTransition(target = "READY")
+  public void toReady() {
+    logger.severe("READY");
+  }
+
+  @OnTransition(target = "ORDER_CREATING")
+  public void toOrderCreating() {
+    logger.severe("ORDER_CREATING");
+  }
+
+  @OnTransition(target = "ORDER_CREATED")
+  public void toOrderCreated() {
+    logger.severe("ORDER_CREATED");
+  }
+
+  /***********************CASH***************************************/
+
+  @OnTransition(target = "CREATING_CASH_ENTRY")
+  public void toCreatingCashEntry() {
+    logger.severe("CREATING_CASH_ENTRY");
+  }
+
+  @OnTransition(target = "CASH_ENTRY_CREATED")
+  public void toCashEntryrCreated() {
+    logger.severe("CASH_ENTRY_CREATED");
+  }
+
+  @OnTransition(target = "CREATING_CASH_POSITIONS")
+  public void toCreatingCashPosition() {
+    logger.severe("CREATING_CASH_POSITIONS");
+  }
+
+  @OnTransition(target = "CASH_POSITIONS_CREATED")
+  public void toCashPositionCreated() {
+    logger.severe("CASH_POSITIONS_CREATED");
+  }
+
+  /***********************SECURITY***************************************/
+
+  @OnTransition(target = "CREATING_SECURITY_ENTRY")
+  public void toCreatingSecurityEntry() {
+    logger.severe("CREATING_SECURITY_ENTRY");
+  }
+
+  @OnTransition(target = "SECURITY_ENTRY_CREATED")
+  public void toSecurityEntryrCreated() {
+    logger.severe("SECURITY_ENTRY_CREATED");
+  }
+
+  @OnTransition(target = "CREATING_SECURITY_POSITIONS")
+  public void toCreatingSecurityPosition() {
+    logger.severe("CREATING_SECURITY_POSITIONS");
+  }
+
+  @OnTransition(target = "SECURITY_POSITIONS_CREATED")
+  public void toSecurityPositionCreated() {
+    logger.severe("SECURITY_POSITIONS_CREATED");
+  }
+
+  /***********************SEND OF PROCESS***************************************/
+
+  @OnTransition(target = "JOIN")
+  public void toJoin() {
+    logger.severe("JOIN");
+  }
+
+  @OnTransition(target = "LAST")
+  public void toLast() {
+    logger.severe("LAST");
+  }
+
 }
 
