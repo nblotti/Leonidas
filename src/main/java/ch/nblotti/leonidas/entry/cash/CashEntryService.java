@@ -6,6 +6,7 @@ import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.process.order.MarketProcessor;
 import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
 import ch.nblotti.leonidas.process.order.ORDER_STATES;
 import ch.nblotti.leonidas.process.MarketProcessService;
@@ -27,8 +28,6 @@ public class CashEntryService {
 
   private static final Logger logger = Logger.getLogger("CashEntryService");
 
-  @Autowired
-  StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
 
   @Autowired
   private MarketProcessService marketProcessService;
@@ -146,8 +145,6 @@ public class CashEntryService {
 
 
     marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
-
-    stateMachine.sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
 
     jmsOrderTemplate.convertAndSend("cashentrybox", new MessageVO(cashEntryTO.getOrderID(), cashEntryTO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
 

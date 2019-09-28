@@ -1,5 +1,8 @@
 package ch.nblotti.leonidas;
 
+import ch.nblotti.leonidas.process.order.MarketProcessor;
+import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
+import ch.nblotti.leonidas.process.order.ORDER_STATES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,6 +19,8 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.statemachine.StateMachine;
+import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.web.client.RestTemplate;
 
 import javax.jms.ConnectionFactory;
@@ -86,6 +91,9 @@ public class LeonidasApplication {
   public DateTimeFormatter quoteDateTimeFormatter() {
     return DateTimeFormatter.ofPattern("yyyy-MM-dd");
   }
+
+
+
 
 
 }

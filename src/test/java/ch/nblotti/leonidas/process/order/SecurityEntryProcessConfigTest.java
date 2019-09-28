@@ -1,9 +1,6 @@
 package ch.nblotti.leonidas.process.order;
 
 import ch.nblotti.leonidas.order.ORDER_TYPE;
-import ch.nblotti.leonidas.process.order.MarketProcessConfig;
-import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
-import ch.nblotti.leonidas.process.order.ORDER_STATES;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +10,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.config.StateMachineBuilder;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
@@ -38,15 +34,10 @@ public class SecurityEntryProcessConfigTest {
 
 
     @Bean
-    public StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine() throws Exception {
+    public MarketProcessor marketProcessor() throws Exception {
       StateMachineBuilder.Builder<ORDER_STATES, ORDER_EVENTS> builder = StateMachineBuilder.builder();
 
-      MarketProcessConfig marketProcessConfig = new MarketProcessConfig();
-      marketProcessConfig.configure(builder.configureStates());
-      marketProcessConfig.configure(builder.configureTransitions());
-
-
-      return builder.build();
+      return new MarketProcessor();
 
     }
 
@@ -70,22 +61,9 @@ public class SecurityEntryProcessConfigTest {
   StateMachineListener stateMachineListenerAdapter;
 
   @Autowired
-  StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
+  MarketProcessor marketProcessor;
 
-
-  @Test
-  public void testStartMachine() {
-
-    ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
-    ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
-    StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
-    stateMachine.addStateListener(mockedStateMachineListenerAdapter);
-    stateMachine.start();
-    verify(mockedStateMachineListenerAdapter, times(1)).stateMachineStarted(any());
-
-    stateMachine.sendEvent(ORDER_EVENTS.EVENT3);
-  }
-
+  
   @Test
   public void testSecurityOrderOrderReceivedMachine() {
 
@@ -93,15 +71,15 @@ public class SecurityEntryProcessConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
-    stateMachine.start();
+    marketProcessor.start();
 
-    stateMachine.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessor.addStateListener(mockedStateMachineListenerAdapter);
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
       .build();
-    stateMachine.sendEvent(message);
+    marketProcessor.sendEvent(message);
     verify(mockedStateMachineListenerAdapter, times(1)).stateEntered(stateCaptor1.capture());
     Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_ENTRY, stateCaptor1.getValue().getId());
   }
@@ -114,15 +92,15 @@ public class SecurityEntryProcessConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
-    stateMachine.start();
+    marketProcessor.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
       .build();
-    stateMachine.sendEvent(message);
-    stateMachine.addStateListener(mockedStateMachineListenerAdapter);
-    stateMachine.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
+    marketProcessor.sendEvent(message);
+    marketProcessor.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
     verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
     Assert.assertEquals(ORDER_STATES.SE_SECURITY_ENTRY_CREATED, stateCaptor1.getAllValues().get(0).getId());
     Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_POSITIONS, stateCaptor1.getAllValues().get(1).getId());
@@ -136,16 +114,16 @@ public class SecurityEntryProcessConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
-    stateMachine.start();
+    marketProcessor.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
       .build();
-    stateMachine.sendEvent(message);
-    stateMachine.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
-    stateMachine.addStateListener(mockedStateMachineListenerAdapter);
-    stateMachine.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+    marketProcessor.sendEvent(message);
+    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
+    marketProcessor.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
     verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
     Assert.assertEquals(ORDER_STATES.SE_SECURITY_POSITIONS_CREATED, stateCaptor1.getAllValues().get(0).getId());
     Assert.assertEquals(ORDER_STATES.READY, stateCaptor1.getAllValues().get(1).getId());

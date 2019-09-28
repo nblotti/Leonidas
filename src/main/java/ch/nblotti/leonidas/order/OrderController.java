@@ -2,6 +2,7 @@ package ch.nblotti.leonidas.order;
 
 
 import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.process.order.MarketProcessor;
 import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
 import ch.nblotti.leonidas.process.order.ORDER_STATES;
 import ch.nblotti.leonidas.process.MarketProcessService;
@@ -32,7 +33,7 @@ public class OrderController {
   MarketProcessService marketProcessService;
 
   @Autowired
-  StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
+  MarketProcessor marketProcessor;
 
   @Autowired
   AccountService acountService;
@@ -48,14 +49,13 @@ public class OrderController {
   @PostMapping(value = "/orders")
   public OrderPO save(@Valid @RequestBody OrderPO order, HttpServletResponse response) {//NOSONAR
     Message<ORDER_EVENTS> message;
-    stateMachine.start();
     switch (order.getType()) {
       case MARKET_ORDER:
         message = MessageBuilder
           .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
           .setHeader("type", ORDER_TYPE.MARKET_ORDER)
           .build();
-        stateMachine.sendEvent(message);
+        marketProcessor.sendEvent(message);
 
 
         break;
@@ -65,7 +65,7 @@ public class OrderController {
           .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
           .setHeader("type", ORDER_TYPE.CASH_ENTRY)
           .build();
-        stateMachine.sendEvent(message);
+        marketProcessor.sendEvent(message);
 
 
         break;

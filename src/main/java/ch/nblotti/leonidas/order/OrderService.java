@@ -2,13 +2,11 @@ package ch.nblotti.leonidas.order;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
-import ch.nblotti.leonidas.process.order.ORDER_STATES;
 import ch.nblotti.leonidas.process.MarketProcessService;
+import ch.nblotti.leonidas.process.order.MarketProcessor;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,8 +20,8 @@ public class OrderService {
 
   public static final String ORDERBOX = "orderbox";
 
-  @Autowired
-  StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
+
+
   @Autowired
   private OrderRepository repository;
 
@@ -58,7 +56,7 @@ public class OrderService {
 
     OrderPO createdOrderPO = this.repository.save(orders);
 
-    stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
+
     marketProcessService.startMarketProcessService(createdOrderPO, accountPO);
     //poster un message sur le bus
     postMessage(createdOrderPO);
