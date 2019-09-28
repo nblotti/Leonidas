@@ -2,10 +2,12 @@ package ch.nblotti.leonidas.order;
 
 
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_EVENTS;
-import ch.nblotti.leonidas.process.marketorder.MARKET_ORDER_STATES;
+import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
+import ch.nblotti.leonidas.process.order.ORDER_STATES;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +32,7 @@ public class OrderController {
   MarketProcessService marketProcessService;
 
   @Autowired
-  StateMachine<MARKET_ORDER_STATES, MARKET_ORDER_EVENTS> stateMachine;
+  StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
 
   @Autowired
   AccountService acountService;
@@ -44,28 +46,45 @@ public class OrderController {
   }
 
   @PostMapping(value = "/orders")
-  public OrderPO save(@Valid @RequestBody OrderPO orders, HttpServletResponse response) {//NOSONAR
-
-    switch (orders.getType()) {
+  public OrderPO save(@Valid @RequestBody OrderPO order, HttpServletResponse response) {//NOSONAR
+    Message<ORDER_EVENTS> message;
+    stateMachine.start();
+    switch (order.getType()) {
       case MARKET_ORDER:
-        stateMachine.start();
-        stateMachine.sendEvent(MARKET_ORDER_EVENTS.ORDER_RECEIVED);
+        message = MessageBuilder
+          .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
+          .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+          .build();
+        stateMachine.sendEvent(message);
+
+
         break;
+
+      case CASH_ENTRY:
+        message = MessageBuilder
+          .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
+          .setHeader("type", ORDER_TYPE.CASH_ENTRY)
+          .build();
+        stateMachine.sendEvent(message);
+
+
+        break;
+
 
     }
 
 
-    if (marketProcessService.isProcessForAccountRunning(orders.getAccountId())) {
+    if (marketProcessService.isProcessForAccountRunning(order.getAccountId())) {
       response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       return null;
     }
 
     if (logger.isLoggable(Level.FINE)) {
-      logger.fine(String.format("Create market order process for market order with id %s", orders.getId()));
+      logger.fine(String.format("Create market order process for market order with id %s", order.getId()));
     }
 
 
-    return this.orderService.save(orders);
+    return this.orderService.save(order);
 
   }
 
