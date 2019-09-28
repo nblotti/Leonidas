@@ -1,7 +1,9 @@
 package ch.nblotti.leonidas.process.order;
 
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.technical.MessageVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.jms.annotation.JmsListener;
@@ -26,6 +28,10 @@ import java.util.logging.Logger;
 @Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES, ORDER_EVENTS> {
   private static final Logger logger = Logger.getLogger("MarketProcessor");
+
+
+  @Autowired
+  MarketProcessService marketProcessService;
 
 
   private final StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
@@ -64,11 +70,13 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
 
   @JmsListener(destination = "cashpositionbox", containerFactory = "factory")
   public void receiveNewCashPosition(MessageVO messageVO) {
+    marketProcessService.setCashFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
     this.stateMachine.sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
   }
 
   @JmsListener(destination = "securitypositionbox", containerFactory = "factory")
   public void receiveNewSecurityPosition(MessageVO messageVO) {
+    marketProcessService.setSecurityFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
     this.stateMachine.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
 
   }
