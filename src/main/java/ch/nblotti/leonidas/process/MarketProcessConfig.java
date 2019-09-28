@@ -19,10 +19,11 @@ public class MarketProcessConfig extends EnumStateMachineConfigurerAdapter<MARKE
     states
       .withStates()
       .initial(MARKET_ORDER_STATES.READY)
+      .state(MARKET_ORDER_STATES.ORDER_CREATING)
       .fork(MARKET_ORDER_STATES.ORDER_CREATED)
       .join(MARKET_ORDER_STATES.JOIN)
       .state(MARKET_ORDER_STATES.LAST)
-      .end(MARKET_ORDER_STATES.FINAL)
+      .end(MARKET_ORDER_STATES.READY)
       .and()
       .withStates()
       .parent(MARKET_ORDER_STATES.ORDER_CREATED)
@@ -47,7 +48,10 @@ public class MarketProcessConfig extends EnumStateMachineConfigurerAdapter<MARKE
     throws Exception {
     transitions
       .withExternal()
-      .source(MARKET_ORDER_STATES.READY).target(MARKET_ORDER_STATES.ORDER_CREATED).event(MARKET_ORDER_EVENTS.ORDER_RECEIVED)
+      .source(MARKET_ORDER_STATES.READY).target(MARKET_ORDER_STATES.ORDER_CREATING).event(MARKET_ORDER_EVENTS.ORDER_RECEIVED)
+      .and()
+      .withExternal()
+      .source(MARKET_ORDER_STATES.ORDER_CREATING).target(MARKET_ORDER_STATES.ORDER_CREATED).event(MARKET_ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL)
       .and()
       .withFork()
       .source(MARKET_ORDER_STATES.ORDER_CREATED)
@@ -81,7 +85,7 @@ public class MarketProcessConfig extends EnumStateMachineConfigurerAdapter<MARKE
       .source(MARKET_ORDER_STATES.JOIN).target(MARKET_ORDER_STATES.LAST)
       .and()
       .withExternal()
-      .source(MARKET_ORDER_STATES.LAST).target(MARKET_ORDER_STATES.FINAL).event(MARKET_ORDER_EVENTS.EVENT3);
+      .source(MARKET_ORDER_STATES.LAST).target(MARKET_ORDER_STATES.READY).event(MARKET_ORDER_EVENTS.EVENT3);
 
   }
 }
