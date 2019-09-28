@@ -19,6 +19,7 @@ import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @EnableStateMachine
@@ -47,9 +48,8 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
   @JmsListener(destination = "orderbox", containerFactory = "factory")
   public void orderListener(MessageVO messageVO) {
 
-    switch (messageVO.getMessageType()) {
-      case MARKET_ORDER:
-        this.stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
+    if (MessageVO.MESSAGE_TYPE.MARKET_ORDER == messageVO.getMessageType()) {
+      this.stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
     }
   }
 
@@ -200,7 +200,9 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
         .withExternal()
         .source(ORDER_STATES.MO_JOIN).target(ORDER_STATES.READY);
     } catch (Exception e) {
-      e.printStackTrace();
+
+      logger.severe(e.getMessage());
+
     }
     return builder.build();
   }
@@ -208,46 +210,30 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
 
   private Guard<ORDER_STATES, ORDER_EVENTS> isSecurityEntry() {
 
-    return new Guard<ORDER_STATES, ORDER_EVENTS>() {
 
-      @Override
-      public boolean evaluate(StateContext<ORDER_STATES, ORDER_EVENTS> context) {
-        ORDER_TYPE order_type = (ORDER_TYPE) context.getMessageHeader("type");
-        return ORDER_TYPE.SECURITY_ENTRY.equals(order_type);
+    return context -> ORDER_TYPE.SECURITY_ENTRY.equals((ORDER_TYPE) context.getMessageHeader("type"));
 
-      }
-    };
   }
 
 
   private Guard<ORDER_STATES, ORDER_EVENTS> isCashEntry() {
-    return new Guard<ORDER_STATES, ORDER_EVENTS>() {
 
-      @Override
-      public boolean evaluate(StateContext<ORDER_STATES, ORDER_EVENTS> context) {
-        ORDER_TYPE order_type = (ORDER_TYPE) context.getMessageHeader("type");
+    return context -> ORDER_TYPE.CASH_ENTRY.equals((ORDER_TYPE) context.getMessageHeader("type"));
 
-        return ORDER_TYPE.CASH_ENTRY.equals(order_type);
-      }
-    };
   }
 
   private Guard<ORDER_STATES, ORDER_EVENTS> isMarketOrder() {
-    return new Guard<ORDER_STATES, ORDER_EVENTS>() {
 
-      @Override
-      public boolean evaluate(StateContext<ORDER_STATES, ORDER_EVENTS> context) {
-        ORDER_TYPE order_type = (ORDER_TYPE) context.getMessageHeader("type");
+    return context -> ORDER_TYPE.MARKET_ORDER.equals((ORDER_TYPE) context.getMessageHeader("type"));
 
-        return ORDER_TYPE.MARKET_ORDER.equals(order_type);
-      }
-    };
   }
 
   @Override
   public void stateChanged(State from, State to) {
 
-    logger.severe(String.format("%s %s", from == null ? "" : from.getId(), to.getId()));
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine(String.format("%s %s", from == null ? "" : from.getId(), to.getId()));
+    }
   }
 
 }
