@@ -4,8 +4,6 @@ package ch.nblotti.leonidas.quote;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 @Component(value = "fxQuoteService")
@@ -32,7 +30,6 @@ public class FXQuoteService extends AbstractQuoteService {
   public QuoteDTO getFXQuoteForDate(String firstCurrency, String secondCurrency, LocalDate date) {
 
     String currencyPair;
-    QuoteDTO lastElement = null;
     LocalDate localDate = date;
 
     if (firstCurrency.equals(secondCurrency)) {

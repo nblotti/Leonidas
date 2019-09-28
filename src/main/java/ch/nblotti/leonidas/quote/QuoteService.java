@@ -4,7 +4,6 @@ package ch.nblotti.leonidas.quote;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Iterator;
 import java.util.Map;
 
 @Component
@@ -23,7 +22,6 @@ public class QuoteService extends AbstractQuoteService {
   /*Gestion des jours fériés et week-end : on prend le dernier disponible*/
   public QuoteDTO getQuoteForDate(String exchange, String symbol, LocalDate date) {
 
-    QuoteDTO lastElement = null;
     LocalDate localDate = date;
 
 

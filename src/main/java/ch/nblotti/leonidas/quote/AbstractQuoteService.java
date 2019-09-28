@@ -52,7 +52,7 @@ public abstract class AbstractQuoteService {
       List<QuoteDTO> quotes = Arrays.asList(responseEntity.getBody());
 
       Map<LocalDate, QuoteDTO> quotesByDate = Maps.newHashMap();
-      quotes.forEach((k) -> quotesByDate.put(LocalDate.parse(k.getDate(), getQuoteDateTimeFormatter()), k));
+      quotes.forEach(k -> quotesByDate.put(LocalDate.parse(k.getDate(), getQuoteDateTimeFormatter()), k));
 
       cachedQuotes.put(symbol, quotesByDate);
       cacheManager.getCache(getCashName()).put(exchange, cachedQuotes);
