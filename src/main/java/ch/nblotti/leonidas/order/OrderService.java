@@ -3,7 +3,6 @@ package ch.nblotti.leonidas.order;
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.process.order.MarketProcessor;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
@@ -19,7 +18,6 @@ import java.util.Optional;
 public class OrderService {
 
   public static final String ORDERBOX = "orderbox";
-
 
 
   @Autowired

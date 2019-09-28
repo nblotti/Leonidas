@@ -62,26 +62,6 @@ public class MarketOrderProcessConfigTest {
   MarketProcessor marketProcessor;
 
 
-  @Test
-  public void testMarketOrderlogAll() {
-
-    ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
-    ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
-
-    marketProcessor.addStateListener(stateMachineListenerAdapter);
-    marketProcessor.start();
-    marketProcessor.sendEvent(ORDER_EVENTS.ORDER_RECEIVED);
-    marketProcessor.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
-    marketProcessor.sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
-    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
-    marketProcessor.sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
-    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
-
-    marketProcessor.sendEvent(ORDER_EVENTS.EVENT3);
-  }
-
-
-
 
   @Test
   public void testMarketOrderOrderReceivedMachine() {

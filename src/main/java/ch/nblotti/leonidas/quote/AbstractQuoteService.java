@@ -37,14 +37,14 @@ public abstract class AbstractQuoteService {
   private String eodApiToken;
 
 
-  Map<LocalDate,QuoteDTO> getQuotes(String exchange, String symbol) {
+  Map<LocalDate, QuoteDTO> getQuotes(String exchange, String symbol) {
 
-    Map<String, Map<LocalDate,QuoteDTO>> cachedQuotes;
+    Map<String, Map<LocalDate, QuoteDTO>> cachedQuotes;
 
     if (cacheManager.getCache(getCashName()).get(exchange) == null)
       cachedQuotes = new HashMap<>();
     else
-      cachedQuotes = (Map<String, Map<LocalDate,QuoteDTO>>) cacheManager.getCache(getCashName()).get(exchange).get();
+      cachedQuotes = (Map<String, Map<LocalDate, QuoteDTO>>) cacheManager.getCache(getCashName()).get(exchange).get();
 
     if (!cachedQuotes.containsKey(symbol)) {
       ResponseEntity<QuoteDTO[]> responseEntity = rt.getForEntity(String.format(quoteUrl, symbol + "." + exchange, eodApiToken), QuoteDTO[].class);
@@ -52,7 +52,7 @@ public abstract class AbstractQuoteService {
       List<QuoteDTO> quotes = Arrays.asList(responseEntity.getBody());
 
       Map<LocalDate, QuoteDTO> quotesByDate = Maps.newHashMap();
-      quotes.forEach((k)->quotesByDate.put(LocalDate.parse(k.getDate(),getQuoteDateTimeFormatter()),k));
+      quotes.forEach((k) -> quotesByDate.put(LocalDate.parse(k.getDate(), getQuoteDateTimeFormatter()), k));
 
       cachedQuotes.put(symbol, quotesByDate);
       cacheManager.getCache(getCashName()).put(exchange, cachedQuotes);

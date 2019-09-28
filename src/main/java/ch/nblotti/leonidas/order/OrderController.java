@@ -2,14 +2,12 @@ package ch.nblotti.leonidas.order;
 
 
 import ch.nblotti.leonidas.account.AccountService;
+import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.process.order.MarketProcessor;
 import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
-import ch.nblotti.leonidas.process.order.ORDER_STATES;
-import ch.nblotti.leonidas.process.MarketProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -56,8 +54,6 @@ public class OrderController {
           .setHeader("type", ORDER_TYPE.MARKET_ORDER)
           .build();
         marketProcessor.sendEvent(message);
-
-
         break;
 
       case CASH_ENTRY:
@@ -66,8 +62,11 @@ public class OrderController {
           .setHeader("type", ORDER_TYPE.CASH_ENTRY)
           .build();
         marketProcessor.sendEvent(message);
-
-
+        break;
+      default:
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine("Kind of order not handled");
+        }
         break;
 
 

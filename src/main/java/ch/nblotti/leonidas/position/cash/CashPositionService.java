@@ -7,7 +7,6 @@ import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.position.PositionRepository;
-import ch.nblotti.leonidas.process.order.MarketProcessor;
 import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteService;
 import ch.nblotti.leonidas.technical.MessageVO;
@@ -157,7 +156,7 @@ public class CashPositionService {
 
 
     Float amount;
-    Float tma = 0F;
+    Float tma;
 
     //l'entrée aggrégée est à zéro, on ne crée pas de position pour ce jour
     if (currentEntry.getAchatVenteTitre() == ACHAT_VENTE_TITRE.ZERO) {

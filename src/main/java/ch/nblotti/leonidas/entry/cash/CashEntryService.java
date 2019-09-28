@@ -6,17 +6,13 @@ import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.process.order.MarketProcessor;
-import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
-import ch.nblotti.leonidas.process.order.ORDER_STATES;
 import ch.nblotti.leonidas.process.MarketProcessService;
+import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
-import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
