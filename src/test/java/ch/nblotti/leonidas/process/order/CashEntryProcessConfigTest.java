@@ -1,12 +1,18 @@
 package ch.nblotti.leonidas.process.order;
 
+import ch.nblotti.leonidas.entry.cash.CashEntryService;
+import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.position.cash.CashPositionService;
+import ch.nblotti.leonidas.position.security.SecurityPositionService;
+import ch.nblotti.leonidas.process.MarketProcessService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
@@ -27,6 +33,21 @@ import static org.mockito.Mockito.*;
 public class CashEntryProcessConfigTest {
 
   private static final Logger logger = Logger.getLogger("MarketProcessConfigTest");
+
+  @MockBean
+  SecurityEntryService securityEntryService;
+
+  @MockBean
+  SecurityPositionService securityPositionService;
+
+  @MockBean
+  CashEntryService cashEntryService;
+
+  @MockBean
+  MarketProcessService marketProcessService;
+
+  @MockBean
+  CashPositionService cashPositionService;
 
   @TestConfiguration
   static class MarketProcessConfigTestContextConfiguration {

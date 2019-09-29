@@ -1,11 +1,15 @@
 package ch.nblotti.leonidas.process.order;
 
+import ch.nblotti.leonidas.entry.cash.CashEntryPO;
+import ch.nblotti.leonidas.entry.cash.CashEntryService;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
+import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.position.cash.CashPositionService;
+import ch.nblotti.leonidas.position.security.SecurityPositionService;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
@@ -17,21 +21,32 @@ import org.springframework.statemachine.listener.CompositeStateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
 
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @EnableStateMachine
 @WithStateMachine
 @Component
-@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES, ORDER_EVENTS> {
   private static final Logger logger = Logger.getLogger("MarketProcessor");
 
 
   @Autowired
+  SecurityEntryService securityEntryService;
+
+  @Autowired
+  SecurityPositionService securityPositionService;
+
+  @Autowired
+  CashEntryService cashEntryService;
+
+  @Autowired
   MarketProcessService marketProcessService;
+
+  @Autowired
+  CashPositionService cashPositionService;
 
 
   private final StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
@@ -59,12 +74,39 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
 
   @JmsListener(destination = "cashentrybox", containerFactory = "factory")
   public void receiveNewCashEntry(MessageVO messageVO) {
+    CashEntryPO cashEntryTO = cashEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
+    }
+    long startTime = System.nanoTime();
+    cashPositionService.updatePositions(cashEntryTO);
+    long endTime = System.nanoTime();
+    long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
+    }
+
+    marketProcessService.setCashPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
     this.stateMachine.sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
 
   }
 
   @JmsListener(destination = "securityentrybox", containerFactory = "factory")
   public void receiveNewSecurityEntry(MessageVO messageVO) {
+    SecurityEntryPO securityEntry = securityEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine(String.format("Start creation of security positions for entry with id %s", messageVO.getAccountID()));
+    }
+    long startTime = System.nanoTime();
+    securityPositionService.updatePosition(securityEntry);
+    long endTime = System.nanoTime();
+    long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
+    if (logger.isLoggable(Level.FINE)) {
+      logger.fine(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", messageVO.getAccountID(), elapsedTime));
+    }
+    marketProcessService.setSecurityPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
+
+
     this.stateMachine.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
   }
 
