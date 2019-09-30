@@ -3,6 +3,7 @@ package ch.nblotti.leonidas.process.order;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.order.OrderService;
 import ch.nblotti.leonidas.position.cash.CashPositionService;
 import ch.nblotti.leonidas.position.security.SecurityPositionService;
 import ch.nblotti.leonidas.process.MarketProcessService;
@@ -33,6 +34,10 @@ import static org.mockito.Mockito.*;
 public class CashEntryProcessConfigTest {
 
   private static final Logger logger = Logger.getLogger("MarketProcessConfigTest");
+
+
+  @MockBean
+  OrderService orderService;
 
   @MockBean
   SecurityEntryService securityEntryService;

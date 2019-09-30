@@ -5,6 +5,9 @@ import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.order.OrderController;
+import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.order.OrderService;
 import ch.nblotti.leonidas.position.cash.CashPositionService;
 import ch.nblotti.leonidas.position.security.SecurityPositionService;
 import ch.nblotti.leonidas.process.MarketProcessService;
@@ -22,6 +25,7 @@ import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.state.State;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +52,9 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
   @Autowired
   CashPositionService cashPositionService;
 
+  @Autowired
+  OrderService orderService;
+
 
   private final StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
 
@@ -67,9 +74,32 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
   @JmsListener(destination = "orderbox", containerFactory = "factory")
   public void orderListener(MessageVO messageVO) {
 
-    if (MessageVO.MESSAGE_TYPE.MARKET_ORDER == messageVO.getMessageType()) {
-      this.stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
+    CashEntryPO cashEntryTO;
+
+    Optional<OrderPO> order = orderService.findById(String.valueOf(messageVO.getOrderID()));
+
+    if (!order.isPresent()) {
+      throw new IllegalStateException(String.format("No order for id %s, returning", messageVO.getOrderID()));
     }
+    OrderPO orderPO = order.get();
+
+    switch (orderPO.getType()) {
+      case MARKET_ORDER:
+        this.stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
+        cashEntryTO = cashEntryService.fromMarketOrder(orderPO);
+        cashEntryService.save(cashEntryTO);
+        break;
+      case CASH_ENTRY:
+        cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
+        cashEntryService.save(cashEntryTO);
+        break;
+      default:
+        if (logger.isLoggable(Level.FINE)) {
+          logger.fine(String.format("Type unknown for order with id %s", orderPO.getId()));
+        }
+        break;
+    }
+
   }
 
   @JmsListener(destination = "cashentrybox", containerFactory = "factory")

@@ -71,7 +71,7 @@ public class CashEntryService {
     return this.repository.findById(Long.valueOf(toString));
   }
 
-  protected CashEntryPO fromMarketOrder(OrderPO orderPO) {
+  public CashEntryPO fromMarketOrder(OrderPO orderPO) {
 
     QuoteDTO fxQquote;
     QuoteDTO quoteDTO;
@@ -105,7 +105,7 @@ public class CashEntryService {
     return cashEntryTO;
   }
 
-  protected CashEntryPO fromCashEntryOrder(OrderPO orderPO) {
+  public CashEntryPO fromCashEntryOrder(OrderPO orderPO) {
     CashEntryPO cashEntryTO = new CashEntryPO();
     QuoteDTO fxQquote;
 
@@ -132,7 +132,7 @@ public class CashEntryService {
   }
 
 
-  protected CashEntryPO save(CashEntryPO entry) {
+  public CashEntryPO save(CashEntryPO entry) {
 
     if (getLogger().isLoggable(Level.FINE)) {
       getLogger().fine(String.format("Created new entry with id %s", entry.getId()));
