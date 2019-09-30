@@ -3,7 +3,7 @@ package ch.nblotti.leonidas.order;
 
 import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.process.order.MarketProcessor;
+import ch.nblotti.leonidas.process.order.MarketProcessStrategy;
 import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
@@ -31,7 +31,7 @@ public class OrderController {
   MarketProcessService marketProcessService;
 
   @Autowired
-  MarketProcessor marketProcessor;
+  MarketProcessStrategy marketProcessStrategy;
 
   @Autowired
   AccountService acountService;
@@ -53,7 +53,7 @@ public class OrderController {
           .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
           .setHeader("type", ORDER_TYPE.MARKET_ORDER)
           .build();
-        marketProcessor.sendEvent(message);
+        marketProcessStrategy.sendEvent(message);
         break;
 
       case CASH_ENTRY:
@@ -61,7 +61,14 @@ public class OrderController {
           .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
           .setHeader("type", ORDER_TYPE.CASH_ENTRY)
           .build();
-        marketProcessor.sendEvent(message);
+        marketProcessStrategy.sendEvent(message);
+        break;
+      case SECURITY_ENTRY:
+        message = MessageBuilder
+          .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
+          .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
+          .build();
+        marketProcessStrategy.sendEvent(message);
         break;
       default:
         if (logger.isLoggable(Level.FINE)) {

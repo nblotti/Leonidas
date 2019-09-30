@@ -69,7 +69,7 @@ public class SecurityEntryService {
     return this.repository.findByAccountAndOrderID(account, orderID);
   }
 
-  public SecurityEntryPO fromOrder(OrderPO orderPO) {
+  public SecurityEntryPO fromSecurityEntryOrder(OrderPO orderPO) {
 
 
     SecurityEntryPO securityEntry = new SecurityEntryPO();

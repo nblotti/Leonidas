@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TestPropertySource(locations = "classpath:applicationtest.properties")
-public class SecurityEntryProcessConfigTest {
+public class SecurityEntryProcessStrategyConfigTest {
 
   private static final Logger logger = Logger.getLogger("MarketProcessConfigTest");
 
@@ -59,10 +59,10 @@ public class SecurityEntryProcessConfigTest {
 
 
     @Bean
-    public MarketProcessor marketProcessor() throws Exception {
+    public MarketProcessStrategy marketProcessor() throws Exception {
       StateMachineBuilder.Builder<ORDER_STATES, ORDER_EVENTS> builder = StateMachineBuilder.builder();
 
-      return new MarketProcessor();
+      return new MarketProcessStrategy();
 
     }
 
@@ -86,7 +86,7 @@ public class SecurityEntryProcessConfigTest {
   StateMachineListener stateMachineListenerAdapter;
 
   @Autowired
-  MarketProcessor marketProcessor;
+  MarketProcessStrategy marketProcessStrategy;
 
 
   @Test
@@ -96,15 +96,15 @@ public class SecurityEntryProcessConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
-    marketProcessor.start();
+    marketProcessStrategy.start();
 
-    marketProcessor.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
       .build();
-    marketProcessor.sendEvent(message);
+    marketProcessStrategy.sendEvent(message);
     verify(mockedStateMachineListenerAdapter, times(1)).stateEntered(stateCaptor1.capture());
     Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_ENTRY, stateCaptor1.getValue().getId());
   }
@@ -117,15 +117,15 @@ public class SecurityEntryProcessConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
-    marketProcessor.start();
+    marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
       .build();
-    marketProcessor.sendEvent(message);
-    marketProcessor.addStateListener(mockedStateMachineListenerAdapter);
-    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
+    marketProcessStrategy.sendEvent(message);
+    marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
     verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
     Assert.assertEquals(ORDER_STATES.SE_SECURITY_ENTRY_CREATED, stateCaptor1.getAllValues().get(0).getId());
     Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_POSITIONS, stateCaptor1.getAllValues().get(1).getId());
@@ -139,16 +139,16 @@ public class SecurityEntryProcessConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
-    marketProcessor.start();
+    marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
       .build();
-    marketProcessor.sendEvent(message);
-    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
-    marketProcessor.addStateListener(mockedStateMachineListenerAdapter);
-    marketProcessor.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+    marketProcessStrategy.sendEvent(message);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
+    marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
     verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
     Assert.assertEquals(ORDER_STATES.SE_SECURITY_POSITIONS_CREATED, stateCaptor1.getAllValues().get(0).getId());
     Assert.assertEquals(ORDER_STATES.READY, stateCaptor1.getAllValues().get(1).getId());

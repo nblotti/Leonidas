@@ -155,7 +155,7 @@ public class SecurityEntryServiceTest {
     when(assetPO.getCurrency()).thenReturn("CHF");
 
 
-    SecurityEntryPO returned = securityEntryService.fromOrder(orderPO);
+    SecurityEntryPO returned = securityEntryService.fromSecurityEntryOrder(orderPO);
 
     Assert.assertEquals(1, returned.getAccount());
     Assert.assertEquals(Float.valueOf(1), returned.getQuantity());

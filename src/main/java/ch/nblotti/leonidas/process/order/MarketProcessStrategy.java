@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 @EnableStateMachine
 @WithStateMachine
 @Component
-public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES, ORDER_EVENTS> {
+public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_STATES, ORDER_EVENTS> {
   private static final Logger logger = Logger.getLogger("MarketProcessor");
 
 
@@ -58,7 +58,7 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
 
   private final StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
 
-  public MarketProcessor() {
+  public MarketProcessStrategy() {
 
     stateMachine = buildMachine1();
     stateMachine.addStateListener(this);
@@ -74,7 +74,7 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
   @JmsListener(destination = "orderbox", containerFactory = "factory")
   public void orderListener(MessageVO messageVO) {
 
-    CashEntryPO cashEntryTO;
+
 
     Optional<OrderPO> order = orderService.findById(String.valueOf(messageVO.getOrderID()));
 
@@ -86,12 +86,19 @@ public class MarketProcessor extends CompositeStateMachineListener<ORDER_STATES,
     switch (orderPO.getType()) {
       case MARKET_ORDER:
         this.stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
-        cashEntryTO = cashEntryService.fromMarketOrder(orderPO);
-        cashEntryService.save(cashEntryTO);
+        CashEntryPO marketCashEntryTO= cashEntryService.fromMarketOrder(orderPO);
+        cashEntryService.save(marketCashEntryTO);
+        SecurityEntryPO marketSecurityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
+        securityEntryService.save(marketSecurityEntryTO);
         break;
       case CASH_ENTRY:
-        cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
+        CashEntryPO cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
         cashEntryService.save(cashEntryTO);
+        break;
+
+      case SECURITY_ENTRY :
+        SecurityEntryPO securityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
+        securityEntryService.save(securityEntryTO);
         break;
       default:
         if (logger.isLoggable(Level.FINE)) {
