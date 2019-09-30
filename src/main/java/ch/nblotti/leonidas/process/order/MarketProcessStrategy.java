@@ -33,7 +33,9 @@ import java.util.logging.Logger;
 @WithStateMachine
 @Component
 public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_STATES, ORDER_EVENTS> {
-  private static final Logger logger = Logger.getLogger("MarketProcessor");
+
+
+  private final Logger logger = Logger.getLogger("MarketProcessor");
 
 
   @Autowired
@@ -55,6 +57,8 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   OrderService orderService;
 
 
+
+
   private final StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
 
   public MarketProcessStrategy() {
@@ -67,7 +71,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
 
 
   public void addStateListener(StateMachineListener<ORDER_STATES, ORDER_EVENTS> listener) {
-    stateMachine.addStateListener(listener);
+    getStateMachine().addStateListener(listener);
   }
 
   @JmsListener(destination = "orderbox", containerFactory = "factory")
@@ -83,7 +87,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
 
     switch (orderPO.getType()) {
       case MARKET_ORDER:
-        this.stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
+        this.getStateMachine() .sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
         CashEntryPO marketCashEntryTO = cashEntryService.fromMarketOrder(orderPO);
         cashEntryService.save(marketCashEntryTO);
         SecurityEntryPO marketSecurityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
@@ -99,7 +103,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
         securityEntryService.save(securityEntryTO);
         break;
       default:
-        if (logger.isLoggable(Level.FINE)) {
+        if (getLogger().isLoggable(Level.FINE)) {
           logger.fine(String.format("Type unknown for order with id %s", orderPO.getId()));
         }
         break;
@@ -110,65 +114,65 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   @JmsListener(destination = "cashentrybox", containerFactory = "factory")
   public void receiveNewCashEntry(MessageVO messageVO) {
     CashEntryPO cashEntryTO = cashEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
-    if (logger.isLoggable(Level.FINE)) {
+    if (getLogger().isLoggable(Level.FINE)) {
       logger.fine(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
     }
     long startTime = System.nanoTime();
     cashPositionService.updatePositions(cashEntryTO);
     long endTime = System.nanoTime();
     long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-    if (logger.isLoggable(Level.FINE)) {
+    if (getLogger().isLoggable(Level.FINE)) {
       logger.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
     }
 
     marketProcessService.setCashPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.stateMachine.sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
+    this.getStateMachine() .sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
 
   }
 
   @JmsListener(destination = "securityentrybox", containerFactory = "factory")
   public void receiveNewSecurityEntry(MessageVO messageVO) {
     SecurityEntryPO securityEntry = securityEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
-    if (logger.isLoggable(Level.FINE)) {
+    if (getLogger().isLoggable(Level.FINE)) {
       logger.fine(String.format("Start creation of security positions for entry with id %s", messageVO.getAccountID()));
     }
     long startTime = System.nanoTime();
     securityPositionService.updatePosition(securityEntry);
     long endTime = System.nanoTime();
     long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-    if (logger.isLoggable(Level.FINE)) {
+    if (getLogger().isLoggable(Level.FINE)) {
       logger.fine(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", messageVO.getAccountID(), elapsedTime));
     }
     marketProcessService.setSecurityPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
 
-    this.stateMachine.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
+    this.getStateMachine() .sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
   }
 
   @JmsListener(destination = "cashpositionbox", containerFactory = "factory")
   public void receiveNewCashPosition(MessageVO messageVO) {
     marketProcessService.setCashFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.stateMachine.sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
+    this.getStateMachine() .sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
   }
 
   @JmsListener(destination = "securitypositionbox", containerFactory = "factory")
   public void receiveNewSecurityPosition(MessageVO messageVO) {
     marketProcessService.setSecurityFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.stateMachine.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+    this.getStateMachine() .sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
 
   }
 
 
   public boolean sendEvent(Message<ORDER_EVENTS> event) {
-    return stateMachine.sendEvent(event);
+    return getStateMachine() .sendEvent(event);
   }
 
   public boolean sendEvent(ORDER_EVENTS event) {
-    return stateMachine.sendEvent(event);
+    return getStateMachine() .sendEvent(event);
   }
 
   public void start() {
-    stateMachine.start();
+    getStateMachine() .start();
   }
 
   public StateMachine<ORDER_STATES, ORDER_EVENTS> buildMachine1() {
@@ -314,9 +318,17 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   @Override
   public void stateChanged(State from, State to) {
 
-    if (logger.isLoggable(Level.FINE)) {
+    if (getLogger().isLoggable(Level.FINE)) {
       logger.fine(String.format("%s %s", from == null ? "" : from.getId(), to.getId()));
     }
+  }
+
+  Logger getLogger() {
+    return logger;
+  }
+
+  public StateMachine<ORDER_STATES, ORDER_EVENTS> getStateMachine() {
+    return stateMachine;
   }
 
 }

@@ -21,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.listener.StateMachineListener;
 import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
@@ -30,6 +31,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.swing.text.html.Option;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
@@ -39,7 +42,10 @@ import static org.mockito.Mockito.*;
 @TestPropertySource(locations = "classpath:applicationtest.properties")
 public class MarketOrderProcessStrategyConfigTest {
 
-  private static final Logger logger = Logger.getLogger("MarketProcessConfigTest");
+  private static final Logger localLogger = Logger.getLogger("MarketProcessConfigTest");
+
+  @MockBean
+  Logger logger;
 
   @MockBean
   SecurityEntryService securityEntryService;
@@ -77,7 +83,7 @@ public class MarketOrderProcessStrategyConfigTest {
 
         @Override
         public void stateChanged(State from, State to) {
-          logger.severe(String.format("%s %s", from == null ? "" : from.getId(), to.getId()));
+          localLogger.severe(String.format("%s %s", from == null ? "" : from.getId(), to.getId()));
         }
 
       };
@@ -162,6 +168,7 @@ public class MarketOrderProcessStrategyConfigTest {
   @Test
   public void orderListenerSecurityOrder() {
 
+    MarketProcessStrategy marketProcessStrategySpy = spy(marketProcessStrategy);
     MessageVO messageVO = mock(MessageVO.class);
     Optional<OrderPO> optional = mock(Optional.class);
     when(messageVO.getOrderID()).thenReturn(0l);
@@ -178,13 +185,37 @@ public class MarketOrderProcessStrategyConfigTest {
     when(optional.get()).thenReturn(orderPO);
     when(orderPO.getType()).thenReturn(ORDER_TYPE.SECURITY_ENTRY);
 
-    marketProcessStrategy.orderListener(messageVO);
+    doReturn(logger).when(marketProcessStrategySpy).getLogger();
+    when(logger.isLoggable(Level.FINE)).thenReturn(true);
+    marketProcessStrategySpy.orderListener(messageVO);
     verify(cashEntryService, times(0)).save(marketCashEntryTO);
 
     verify(cashEntryService, times(0)).fromMarketOrder(orderPO);
     verify(securityEntryService, times(1)).save(marketSecurityEntryTO);
   }
 
+  @Test
+  public void orderListenerCashEntry() {
+
+    StateMachine stateMachine = mock(StateMachine.class);
+    MessageVO messageVO = mock(MessageVO.class);
+    MarketProcessStrategy marketProcessStrategySpy = spy(marketProcessStrategy);
+    doReturn(logger).when(marketProcessStrategySpy).getLogger();
+    doReturn(stateMachine).when(marketProcessStrategySpy).getStateMachine();
+    when(logger.isLoggable(Level.FINE)).thenReturn(true);
+    when(messageVO.getOrderID()).thenReturn(1l);
+    when(messageVO.getAccountID()).thenReturn(1);
+
+    SecurityEntryPO securityEntryPO = mock(SecurityEntryPO.class);
+    when(securityEntryService.findByAccountAndOrderID(anyInt(), anyLong())).thenReturn(securityEntryPO);
+
+    marketProcessStrategySpy.receiveNewSecurityEntry(messageVO);
+    verify(securityPositionService, times(1)).updatePosition(securityEntryPO);
+    verify(marketProcessService, times(1)).setSecurityPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
+    verify(stateMachine, times(1)).sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
+
+
+  }
 
   @Test
   public void testMarketOrderOrderReceivedMachine() {
