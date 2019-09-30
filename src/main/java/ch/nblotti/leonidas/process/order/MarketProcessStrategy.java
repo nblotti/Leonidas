@@ -5,7 +5,6 @@ import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
-import ch.nblotti.leonidas.order.OrderController;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.order.OrderService;
 import ch.nblotti.leonidas.position.cash.CashPositionService;
@@ -75,7 +74,6 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   public void orderListener(MessageVO messageVO) {
 
 
-
     Optional<OrderPO> order = orderService.findById(String.valueOf(messageVO.getOrderID()));
 
     if (!order.isPresent()) {
@@ -86,7 +84,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     switch (orderPO.getType()) {
       case MARKET_ORDER:
         this.stateMachine.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
-        CashEntryPO marketCashEntryTO= cashEntryService.fromMarketOrder(orderPO);
+        CashEntryPO marketCashEntryTO = cashEntryService.fromMarketOrder(orderPO);
         cashEntryService.save(marketCashEntryTO);
         SecurityEntryPO marketSecurityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
         securityEntryService.save(marketSecurityEntryTO);
@@ -96,7 +94,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
         cashEntryService.save(cashEntryTO);
         break;
 
-      case SECURITY_ENTRY :
+      case SECURITY_ENTRY:
         SecurityEntryPO securityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
         securityEntryService.save(securityEntryTO);
         break;

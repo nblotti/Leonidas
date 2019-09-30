@@ -1,12 +1,16 @@
 package ch.nblotti.leonidas.process.order;
 
+import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.order.OrderService;
 import ch.nblotti.leonidas.position.cash.CashPositionService;
 import ch.nblotti.leonidas.position.security.SecurityPositionService;
 import ch.nblotti.leonidas.process.MarketProcessService;
+import ch.nblotti.leonidas.technical.MessageVO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +28,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
@@ -86,6 +92,98 @@ public class MarketOrderProcessStrategyConfigTest {
   @Autowired
   MarketProcessStrategy marketProcessStrategy;
 
+
+  @Test(expected = IllegalStateException.class)
+  public void orderListenerOrderNotFound() {
+
+    MessageVO messageVO = mock(MessageVO.class);
+    Optional<OrderPO> optional = mock(Optional.class);
+    when(messageVO.getOrderID()).thenReturn(0l);
+    when(orderService.findById(String.valueOf(messageVO.getOrderID()))).thenReturn(optional);
+    when(optional.isPresent()).thenReturn(false);
+
+    marketProcessStrategy.orderListener(messageVO);
+  }
+
+  @Test
+  public void orderListenerMarketOrder() {
+
+    MessageVO messageVO = mock(MessageVO.class);
+    Optional<OrderPO> optional = mock(Optional.class);
+    when(messageVO.getOrderID()).thenReturn(0l);
+    OrderPO orderPO = mock(OrderPO.class);
+    CashEntryPO marketCashEntryTO = mock(CashEntryPO.class);
+    SecurityEntryPO marketSecurityEntryTO = mock(SecurityEntryPO.class);
+
+    when(cashEntryService.fromMarketOrder(orderPO)).thenReturn(marketCashEntryTO);
+    when(securityEntryService.fromSecurityEntryOrder(orderPO)).thenReturn(marketSecurityEntryTO);
+
+
+    when(orderService.findById(String.valueOf(messageVO.getOrderID()))).thenReturn(optional);
+    when(optional.isPresent()).thenReturn(true);
+    when(optional.get()).thenReturn(orderPO);
+    when(orderPO.getType()).thenReturn(ORDER_TYPE.MARKET_ORDER);
+
+    marketProcessStrategy.orderListener(messageVO);
+    verify(cashEntryService, times(1)).save(marketCashEntryTO);
+
+    verify(securityEntryService, times(1)).save(marketSecurityEntryTO);
+
+
+  }
+
+  @Test
+  public void cashOrderListenerCashOrder() {
+
+    MessageVO messageVO = mock(MessageVO.class);
+    Optional<OrderPO> optional = mock(Optional.class);
+    when(messageVO.getOrderID()).thenReturn(0l);
+    OrderPO orderPO = mock(OrderPO.class);
+    CashEntryPO marketCashEntryTO = mock(CashEntryPO.class);
+    SecurityEntryPO marketSecurityEntryTO = mock(SecurityEntryPO.class);
+
+    when(cashEntryService.fromCashEntryOrder(orderPO)).thenReturn(marketCashEntryTO);
+    when(securityEntryService.fromSecurityEntryOrder(orderPO)).thenReturn(marketSecurityEntryTO);
+
+
+    when(orderService.findById(String.valueOf(messageVO.getOrderID()))).thenReturn(optional);
+    when(optional.isPresent()).thenReturn(true);
+    when(optional.get()).thenReturn(orderPO);
+    when(orderPO.getType()).thenReturn(ORDER_TYPE.CASH_ENTRY);
+
+    marketProcessStrategy.orderListener(messageVO);
+    verify(cashEntryService, times(1)).save(marketCashEntryTO);
+
+    verify(cashEntryService, times(0)).fromMarketOrder(orderPO);
+    verify(securityEntryService, times(0)).save(marketSecurityEntryTO);
+  }
+
+
+  @Test
+  public void orderListenerSecurityOrder() {
+
+    MessageVO messageVO = mock(MessageVO.class);
+    Optional<OrderPO> optional = mock(Optional.class);
+    when(messageVO.getOrderID()).thenReturn(0l);
+    OrderPO orderPO = mock(OrderPO.class);
+    CashEntryPO marketCashEntryTO = mock(CashEntryPO.class);
+    SecurityEntryPO marketSecurityEntryTO = mock(SecurityEntryPO.class);
+
+    when(cashEntryService.fromCashEntryOrder(orderPO)).thenReturn(marketCashEntryTO);
+    when(securityEntryService.fromSecurityEntryOrder(orderPO)).thenReturn(marketSecurityEntryTO);
+
+
+    when(orderService.findById(String.valueOf(messageVO.getOrderID()))).thenReturn(optional);
+    when(optional.isPresent()).thenReturn(true);
+    when(optional.get()).thenReturn(orderPO);
+    when(orderPO.getType()).thenReturn(ORDER_TYPE.SECURITY_ENTRY);
+
+    marketProcessStrategy.orderListener(messageVO);
+    verify(cashEntryService, times(0)).save(marketCashEntryTO);
+
+    verify(cashEntryService, times(0)).fromMarketOrder(orderPO);
+    verify(securityEntryService, times(1)).save(marketSecurityEntryTO);
+  }
 
 
   @Test
@@ -244,7 +342,6 @@ public class MarketOrderProcessStrategyConfigTest {
     Assert.assertEquals(ORDER_STATES.MO_CASH_POSITIONS_CREATED, stateCaptor1.getAllValues().get(1).getId());
     Assert.assertEquals(ORDER_STATES.READY, stateCaptor1.getAllValues().get(2).getId());
   }
-
 
 
 }
