@@ -59,7 +59,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
 
   private final StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
 
-  public MarketProcessStrategy() {
+  public MarketProcessStrategy() throws Exception {
 
     stateMachine = buildMachine1();
     stateMachine.addStateListener(this);
@@ -158,9 +158,8 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     getStateMachine().start();
   }
 
-  public StateMachine<ORDER_STATES, ORDER_EVENTS> buildMachine1() {
+  public StateMachine<ORDER_STATES, ORDER_EVENTS> buildMachine1() throws Exception {
     StateMachineBuilder.Builder<ORDER_STATES, ORDER_EVENTS> builder = StateMachineBuilder.builder();
-    try {
       builder.configureStates()
         .withStates()
         .initial(ORDER_STATES.READY)
@@ -269,11 +268,6 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
         .and()
         .withExternal()
         .source(ORDER_STATES.MO_JOIN).target(ORDER_STATES.READY);
-    } catch (Exception e) {
-
-      logger.severe(e.getMessage());
-
-    }
     return builder.build();
   }
 
