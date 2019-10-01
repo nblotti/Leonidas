@@ -114,16 +114,13 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   @JmsListener(destination = "cashentrybox", containerFactory = "factory")
   public void receiveNewCashEntry(MessageVO messageVO) {
     CashEntryPO cashEntryTO = cashEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
-    if (getLogger().isLoggable(Level.FINE)) {
-      logger.fine(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
-    }
+    log(String.format("Start creation of cash positions for entry with id %s", messageVO.getOrderID()));
+
     long startTime = System.nanoTime();
     cashPositionService.updatePositions(cashEntryTO);
     long endTime = System.nanoTime();
     long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-    if (getLogger().isLoggable(Level.FINE)) {
-      logger.fine(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
-    }
+    log(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
 
     marketProcessService.setCashPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
     this.getStateMachine() .sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
@@ -133,16 +130,14 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   @JmsListener(destination = "securityentrybox", containerFactory = "factory")
   public void receiveNewSecurityEntry(MessageVO messageVO) {
     SecurityEntryPO securityEntry = securityEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID());
-    if (getLogger().isLoggable(Level.FINE)) {
-      logger.fine(String.format("Start creation of security positions for entry with id %s", messageVO.getAccountID()));
-    }
+    log(String.format("Start creation of security positions for entry with id %s", messageVO.getAccountID()));
+
     long startTime = System.nanoTime();
     securityPositionService.updatePosition(securityEntry);
     long endTime = System.nanoTime();
     long elapsedTime = TimeUnit.SECONDS.convert((endTime - startTime), TimeUnit.NANOSECONDS);
-    if (getLogger().isLoggable(Level.FINE)) {
-      logger.fine(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", messageVO.getAccountID(), elapsedTime));
-    }
+    log(String.format("End creation of security positions for entry from order with id %s, it took me %d seconds", messageVO.getAccountID(), elapsedTime));
+
     marketProcessService.setSecurityPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
 
@@ -330,5 +325,12 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   public StateMachine<ORDER_STATES, ORDER_EVENTS> getStateMachine() {
     return stateMachine;
   }
+
+  void log(String logValue){
+    if (getLogger().isLoggable(Level.FINE)) {
+      logger.fine(logValue);
+    }
+  }
+
 
 }

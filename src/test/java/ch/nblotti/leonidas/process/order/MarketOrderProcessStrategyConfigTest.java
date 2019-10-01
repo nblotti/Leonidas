@@ -186,6 +186,7 @@ public class MarketOrderProcessStrategyConfigTest {
     when(orderPO.getType()).thenReturn(ORDER_TYPE.SECURITY_ENTRY);
 
     doReturn(logger).when(marketProcessStrategySpy).getLogger();
+    doNothing().when(marketProcessStrategySpy).log(any());
     when(logger.isLoggable(Level.FINE)).thenReturn(true);
     marketProcessStrategySpy.orderListener(messageVO);
     verify(cashEntryService, times(0)).save(marketCashEntryTO);
