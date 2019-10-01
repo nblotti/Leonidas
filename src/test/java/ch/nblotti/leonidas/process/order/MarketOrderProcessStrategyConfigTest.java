@@ -389,8 +389,6 @@ public class MarketOrderProcessStrategyConfigTest {
     StateMachine stateMachine = mock(StateMachine.class);
 
 
-
-
     when(cashEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID())).thenReturn(cashEntryTO);
 
 
@@ -409,7 +407,42 @@ public class MarketOrderProcessStrategyConfigTest {
 
   }
 
+  @Test
+  public void testReceiveNewCashPosition() {
+    MarketProcessStrategy marketProcessStrategySpy = spy(marketProcessStrategy);
+    MessageVO messageVO = mock(MessageVO.class);
+    StateMachine stateMachine = mock(StateMachine.class);
 
+
+    when(messageVO.getOrderID()).thenReturn(0l);
+    when(messageVO.getAccountID()).thenReturn(1);
+    doReturn(stateMachine).when(marketProcessStrategySpy).getStateMachine();
+
+    marketProcessStrategySpy.receiveNewCashPosition(messageVO);
+
+    verify(marketProcessService, times(1)).setCashFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
+    verify(stateMachine, times(1)).sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
+  }
+
+  @Test
+  public void testReceiveNewSecurityPosition() {
+
+    MarketProcessStrategy marketProcessStrategySpy = spy(marketProcessStrategy);
+    MessageVO messageVO = mock(MessageVO.class);
+    StateMachine stateMachine = mock(StateMachine.class);
+
+
+    when(messageVO.getOrderID()).thenReturn(0l);
+    when(messageVO.getAccountID()).thenReturn(1);
+    doReturn(stateMachine).when(marketProcessStrategySpy).getStateMachine();
+
+    marketProcessStrategySpy.receiveNewSecurityPosition(messageVO);
+
+    verify(marketProcessService, times(1)).setSecurityFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
+    verify(stateMachine, times(1)).sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+
+
+  }
 
 
 }

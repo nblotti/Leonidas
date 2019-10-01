@@ -83,26 +83,18 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     }
     OrderPO orderPO = order.get();
 
-    switch (orderPO.getType()) {
-      case MARKET_ORDER:
-        this.getStateMachine().sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
-        CashEntryPO marketCashEntryTO = cashEntryService.fromMarketOrder(orderPO);
-        cashEntryService.save(marketCashEntryTO);
-        SecurityEntryPO marketSecurityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
-        securityEntryService.save(marketSecurityEntryTO);
-        break;
-      case CASH_ENTRY:
-        CashEntryPO cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
-        cashEntryService.save(cashEntryTO);
-        break;
-
-      case SECURITY_ENTRY:
-        SecurityEntryPO securityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
-        securityEntryService.save(securityEntryTO);
-        break;
-      default:
-        log(String.format("Type unknown for order with id %s", orderPO.getId()));
-        break;
+    if (orderPO.getType() == ORDER_TYPE.MARKET_ORDER) {
+      this.getStateMachine().sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
+      CashEntryPO marketCashEntryTO = cashEntryService.fromMarketOrder(orderPO);
+      cashEntryService.save(marketCashEntryTO);
+      SecurityEntryPO marketSecurityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
+      securityEntryService.save(marketSecurityEntryTO);
+    } else if (orderPO.getType() == ORDER_TYPE.CASH_ENTRY) {
+      CashEntryPO cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
+      cashEntryService.save(cashEntryTO);
+    } else if (orderPO.getType() == ORDER_TYPE.SECURITY_ENTRY) {
+      SecurityEntryPO securityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
+      securityEntryService.save(securityEntryTO);
     }
 
   }
