@@ -57,8 +57,6 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   OrderService orderService;
 
 
-
-
   private final StateMachine<ORDER_STATES, ORDER_EVENTS> stateMachine;
 
   public MarketProcessStrategy() {
@@ -87,7 +85,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
 
     switch (orderPO.getType()) {
       case MARKET_ORDER:
-        this.getStateMachine() .sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
+        this.getStateMachine().sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
         CashEntryPO marketCashEntryTO = cashEntryService.fromMarketOrder(orderPO);
         cashEntryService.save(marketCashEntryTO);
         SecurityEntryPO marketSecurityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
@@ -103,9 +101,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
         securityEntryService.save(securityEntryTO);
         break;
       default:
-        if (getLogger().isLoggable(Level.FINE)) {
-          logger.fine(String.format("Type unknown for order with id %s", orderPO.getId()));
-        }
+        log(String.format("Type unknown for order with id %s", orderPO.getId()));
         break;
     }
 
@@ -123,7 +119,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     log(String.format("End creation of cash positions for entry from order with id %s, it took me %d seconds", messageVO.getOrderID(), elapsedTime));
 
     marketProcessService.setCashPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.getStateMachine() .sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
+    this.getStateMachine().sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
 
   }
 
@@ -141,33 +137,33 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     marketProcessService.setSecurityPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
 
 
-    this.getStateMachine() .sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
+    this.getStateMachine().sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
   }
 
   @JmsListener(destination = "cashpositionbox", containerFactory = "factory")
   public void receiveNewCashPosition(MessageVO messageVO) {
     marketProcessService.setCashFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.getStateMachine() .sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
+    this.getStateMachine().sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
   }
 
   @JmsListener(destination = "securitypositionbox", containerFactory = "factory")
   public void receiveNewSecurityPosition(MessageVO messageVO) {
     marketProcessService.setSecurityFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.getStateMachine() .sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+    this.getStateMachine().sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
 
   }
 
 
   public boolean sendEvent(Message<ORDER_EVENTS> event) {
-    return getStateMachine() .sendEvent(event);
+    return getStateMachine().sendEvent(event);
   }
 
   public boolean sendEvent(ORDER_EVENTS event) {
-    return getStateMachine() .sendEvent(event);
+    return getStateMachine().sendEvent(event);
   }
 
   public void start() {
-    getStateMachine() .start();
+    getStateMachine().start();
   }
 
   public StateMachine<ORDER_STATES, ORDER_EVENTS> buildMachine1() {
@@ -313,9 +309,8 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   @Override
   public void stateChanged(State from, State to) {
 
-    if (getLogger().isLoggable(Level.FINE)) {
-      logger.fine(String.format("%s %s", from == null ? "" : from.getId(), to.getId()));
-    }
+    log(String.format("%s %s", from == null ? "" : from.getId(), to.getId()));
+
   }
 
   Logger getLogger() {
@@ -326,7 +321,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     return stateMachine;
   }
 
-  void log(String logValue){
+  void log(String logValue) {
     if (getLogger().isLoggable(Level.FINE)) {
       logger.fine(logValue);
     }
