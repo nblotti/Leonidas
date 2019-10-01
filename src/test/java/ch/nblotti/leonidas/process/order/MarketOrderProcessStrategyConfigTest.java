@@ -376,4 +376,40 @@ public class MarketOrderProcessStrategyConfigTest {
   }
 
 
+  @Test
+  public void testReceiveNewCashEntry() {
+
+
+    MarketProcessStrategy marketProcessStrategySpy = spy(marketProcessStrategy);
+    MessageVO messageVO = mock(MessageVO.class);
+    when(messageVO.getOrderID()).thenReturn(0l);
+    when(messageVO.getAccountID()).thenReturn(1);
+    CashEntryPO cashEntryTO = mock(CashEntryPO.class);
+
+    StateMachine stateMachine = mock(StateMachine.class);
+
+
+
+
+    when(cashEntryService.findByAccountAndOrderID(messageVO.getAccountID(), messageVO.getOrderID())).thenReturn(cashEntryTO);
+
+
+    doReturn(logger).when(marketProcessStrategySpy).getLogger();
+    doNothing().when(marketProcessStrategySpy).log(any());
+    doReturn(stateMachine).when(marketProcessStrategySpy).getStateMachine();
+
+
+    marketProcessStrategySpy.receiveNewCashEntry(messageVO);
+
+    verify(cashPositionService, times(1)).updatePositions(cashEntryTO);
+
+    verify(marketProcessService, times(1)).setCashPositionRunningForProcess(messageVO.getOrderID(), messageVO.getAccountID());
+
+    verify(stateMachine, times(1)).sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
+
+  }
+
+
+
+
 }
