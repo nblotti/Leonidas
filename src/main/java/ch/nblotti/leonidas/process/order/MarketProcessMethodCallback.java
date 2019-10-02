@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 @Component
 public class MarketProcessMethodCallback {
 
-  private final Logger logger = Logger.getLogger("DataAccessFieldCallback");
 
   public static final String ORDERBOX = "orderbox";
 
