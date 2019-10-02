@@ -106,7 +106,7 @@ public class SecurityEntryProcessStrategyConfigTest {
       .build();
     marketProcessStrategy.sendEvent(message);
     verify(mockedStateMachineListenerAdapter, times(1)).stateEntered(stateCaptor1.capture());
-    Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_ENTRY, stateCaptor1.getValue().getId());
+    Assert.assertEquals(ORDER_STATES.SE_ORDER_CREATING, stateCaptor1.getValue().getId());
   }
 
 
@@ -125,10 +125,15 @@ public class SecurityEntryProcessStrategyConfigTest {
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
-    verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
-    Assert.assertEquals(ORDER_STATES.SE_SECURITY_ENTRY_CREATED, stateCaptor1.getAllValues().get(0).getId());
-    Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_POSITIONS, stateCaptor1.getAllValues().get(1).getId());
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+    verify(mockedStateMachineListenerAdapter, times(6)).stateEntered(stateCaptor1.capture());
+    Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_ENTRY, stateCaptor1.getAllValues().get(1).getId());
+    Assert.assertEquals(ORDER_STATES.SE_SECURITY_ENTRY_CREATED, stateCaptor1.getAllValues().get(2).getId());
+    Assert.assertEquals(ORDER_STATES.SE_CREATING_SECURITY_POSITIONS, stateCaptor1.getAllValues().get(3).getId());
+    Assert.assertEquals(ORDER_STATES.SE_SECURITY_POSITIONS_CREATED, stateCaptor1.getAllValues().get(4).getId());
+    Assert.assertEquals(ORDER_STATES.READY, stateCaptor1.getAllValues().get(5).getId());
   }
 
 
@@ -146,6 +151,7 @@ public class SecurityEntryProcessStrategyConfigTest {
       .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
       .build();
     marketProcessStrategy.sendEvent(message);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL);
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);

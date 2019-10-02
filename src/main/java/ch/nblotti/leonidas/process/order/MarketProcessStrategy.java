@@ -91,10 +91,12 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
       securityEntryService.save(marketSecurityEntryTO);
     }
     if (orderPO.getType() == ORDER_TYPE.CASH_ENTRY) {
+      this.getStateMachine().sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
       CashEntryPO cashEntryTO = cashEntryService.fromCashEntryOrder(orderPO);
       cashEntryService.save(cashEntryTO);
     }
     if (orderPO.getType() == ORDER_TYPE.SECURITY_ENTRY) {
+      this.getStateMachine().sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
       SecurityEntryPO securityEntryTO = securityEntryService.fromSecurityEntryOrder(orderPO);
       securityEntryService.save(securityEntryTO);
     }
@@ -166,33 +168,37 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
       .withStates()
       .initial(ORDER_STATES.READY)
       .choice(ORDER_STATES.TREATING_EVENT)
-      .state(ORDER_STATES.ORDER_CREATING)
-      .fork(ORDER_STATES.ORDER_CREATED)
+      .state(ORDER_STATES.MO_ORDER_CREATING)
+      .fork(ORDER_STATES.MO_ORDER_CREATED)
       .join(ORDER_STATES.MO_JOIN)
       .state(ORDER_STATES.LAST)
       .end(ORDER_STATES.READY)
       .and()
       .withStates()
-      .parent(ORDER_STATES.ORDER_CREATED)
+      .parent(ORDER_STATES.MO_ORDER_CREATED)
       .initial(ORDER_STATES.MO_CREATING_CASH_ENTRY)
       .state(ORDER_STATES.MO_CASH_ENTRY_CREATED)
       .state(ORDER_STATES.MO_CREATING_CASH_POSITIONS)
       .end(ORDER_STATES.MO_CASH_POSITIONS_CREATED)
       .and()
       .withStates()
-      .parent(ORDER_STATES.ORDER_CREATED)
+      .parent(ORDER_STATES.MO_ORDER_CREATED)
       .initial(ORDER_STATES.MO_CREATING_SECURITY_ENTRY)
       .state(ORDER_STATES.MO_SECURITY_ENTRY_CREATED)
       .state(ORDER_STATES.MO_CREATING_SECURITY_POSITIONS)
       .end(ORDER_STATES.MO_SECURITY_POSITIONS_CREATED)
       .and()
       .withStates()
+      .state(ORDER_STATES.CE_ORDER_CREATING)
+      .state(ORDER_STATES.CE_ORDER_CREATED)
       .state(ORDER_STATES.CE_CREATING_CASH_ENTRY)
       .state(ORDER_STATES.CE_CASH_ENTRY_CREATED)
       .state(ORDER_STATES.CE_CREATING_CASH_POSITIONS)
       .state(ORDER_STATES.CE_CASH_POSITIONS_CREATED)
       .and()
       .withStates()
+      .state(ORDER_STATES.SE_ORDER_CREATING)
+      .state(ORDER_STATES.SE_ORDER_CREATED)
       .state(ORDER_STATES.SE_CREATING_SECURITY_ENTRY)
       .state(ORDER_STATES.SE_SECURITY_ENTRY_CREATED)
       .state(ORDER_STATES.SE_CREATING_SECURITY_POSITIONS)
@@ -205,11 +211,17 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
       .and()
       .withChoice()
       .source(ORDER_STATES.TREATING_EVENT)
-      .first(ORDER_STATES.ORDER_CREATING, isMarketOrder())
-      .then(ORDER_STATES.CE_CREATING_CASH_ENTRY, isCashEntry())
-      .then(ORDER_STATES.SE_CREATING_SECURITY_ENTRY, isSecurityEntry())
+      .first(ORDER_STATES.MO_ORDER_CREATING, isMarketOrder())
+      .then(ORDER_STATES.CE_ORDER_CREATING, isCashEntry())
+      .then(ORDER_STATES.SE_ORDER_CREATING, isSecurityEntry())
       .last(ORDER_STATES.READY)
 /* Flux d'un apport cash*/
+      .and()
+      .withExternal()
+      .source(ORDER_STATES.CE_ORDER_CREATING).target(ORDER_STATES.CE_ORDER_CREATED).event(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL)
+      .and()
+      .withExternal()
+      .source(ORDER_STATES.CE_ORDER_CREATED).target(ORDER_STATES.CE_CREATING_CASH_ENTRY)
       .and()
       .withExternal()
       .source(ORDER_STATES.CE_CREATING_CASH_ENTRY).target(ORDER_STATES.CE_CASH_ENTRY_CREATED).event(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL)
@@ -225,6 +237,12 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
 /* Flux d'un apport de titre*/
       .and()
       .withExternal()
+      .source(ORDER_STATES.SE_ORDER_CREATING).target(ORDER_STATES.SE_ORDER_CREATED).event(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL)
+      .and()
+      .withExternal()
+      .source(ORDER_STATES.SE_ORDER_CREATED).target(ORDER_STATES.SE_CREATING_SECURITY_ENTRY)
+      .and()
+      .withExternal()
       .source(ORDER_STATES.SE_CREATING_SECURITY_ENTRY).target(ORDER_STATES.SE_SECURITY_ENTRY_CREATED).event(ORDER_EVENTS.SECURITY_ENTRY_CREATION_SUCCESSFULL)
       .and()
       .withExternal()
@@ -238,10 +256,10 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
 /* Flux d'un ordre de marché*/
       .and()
       .withExternal()
-      .source(ORDER_STATES.ORDER_CREATING).target(ORDER_STATES.ORDER_CREATED).event(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL)
+      .source(ORDER_STATES.MO_ORDER_CREATING).target(ORDER_STATES.MO_ORDER_CREATED).event(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL)
       .and()
       .withFork()
-      .source(ORDER_STATES.ORDER_CREATED)
+      .source(ORDER_STATES.MO_ORDER_CREATED)
       .target(ORDER_STATES.MO_CREATING_CASH_ENTRY)
       .target(ORDER_STATES.MO_CREATING_SECURITY_ENTRY)
       .and()

@@ -46,44 +46,19 @@ public class OrderController {
 
   @PostMapping(value = "/orders")
   public OrderPO save(@Valid @RequestBody OrderPO order, HttpServletResponse response) {//NOSONAR
-    Message<ORDER_EVENTS> message;
-    switch (order.getType()) {
-      case MARKET_ORDER:
-        message = MessageBuilder
-          .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
-          .setHeader("type", ORDER_TYPE.MARKET_ORDER)
-          .build();
-        marketProcessStrategy.sendEvent(message);
-        break;
-
-      case CASH_ENTRY:
-        message = MessageBuilder
-          .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
-          .setHeader("type", ORDER_TYPE.CASH_ENTRY)
-          .build();
-        marketProcessStrategy.sendEvent(message);
-        break;
-      case SECURITY_ENTRY:
-        message = MessageBuilder
-          .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
-          .setHeader("type", ORDER_TYPE.SECURITY_ENTRY)
-          .build();
-        marketProcessStrategy.sendEvent(message);
-        break;
-      default:
-        if (logger.isLoggable(Level.FINE)) {
-          logger.fine("Kind of order not handled");
-        }
-        break;
-
-
-    }
 
 
     if (marketProcessService.isProcessForAccountRunning(order.getAccountId())) {
       response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
       return null;
     }
+
+    Message<ORDER_EVENTS> message = MessageBuilder
+      .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
+      .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .build();
+    marketProcessStrategy.sendEvent(message);
+
 
     if (logger.isLoggable(Level.FINE)) {
       logger.fine(String.format("Create market order process for market order with id %s", order.getId()));

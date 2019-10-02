@@ -29,9 +29,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -235,7 +233,7 @@ public class MarketOrderProcessStrategyConfigTest {
       .build();
     marketProcessStrategy.sendEvent(message);
     verify(mockedStateMachineListenerAdapter, times(1)).stateEntered(stateCaptor1.capture());
-    Assert.assertEquals(ORDER_STATES.ORDER_CREATING, stateCaptor1.getValue().getId());
+    Assert.assertEquals(ORDER_STATES.MO_ORDER_CREATING, stateCaptor1.getValue().getId());
   }
 
   @Test
@@ -255,7 +253,7 @@ public class MarketOrderProcessStrategyConfigTest {
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
     verify(mockedStateMachineListenerAdapter, times(3)).stateEntered(stateCaptor1.capture());
-    Assert.assertEquals(ORDER_STATES.ORDER_CREATED, stateCaptor1.getAllValues().get(0).getId());
+    Assert.assertEquals(ORDER_STATES.MO_ORDER_CREATED, stateCaptor1.getAllValues().get(0).getId());
     Assert.assertEquals(ORDER_STATES.MO_CREATING_CASH_ENTRY, stateCaptor1.getAllValues().get(1).getId());
     Assert.assertEquals(ORDER_STATES.MO_CREATING_SECURITY_ENTRY, stateCaptor1.getAllValues().get(2).getId());
   }

@@ -105,7 +105,7 @@ public class CashEntryProcessStrategyConfigTest {
       .build();
     marketProcessStrategy.sendEvent(message);
     verify(mockedStateMachineListenerAdapter, times(1)).stateEntered(stateCaptor1.capture());
-    Assert.assertEquals(ORDER_STATES.CE_CREATING_CASH_ENTRY, stateCaptor1.getValue().getId());
+    Assert.assertEquals(ORDER_STATES.CE_ORDER_CREATING, stateCaptor1.getValue().getId());
   }
 
 
@@ -124,10 +124,10 @@ public class CashEntryProcessStrategyConfigTest {
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
-    marketProcessStrategy.sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
     verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
-    Assert.assertEquals(ORDER_STATES.CE_CASH_ENTRY_CREATED, stateCaptor1.getAllValues().get(0).getId());
-    Assert.assertEquals(ORDER_STATES.CE_CREATING_CASH_POSITIONS, stateCaptor1.getAllValues().get(1).getId());
+    Assert.assertEquals(ORDER_STATES.CE_ORDER_CREATED, stateCaptor1.getAllValues().get(0).getId());
+    Assert.assertEquals(ORDER_STATES.CE_CREATING_CASH_ENTRY, stateCaptor1.getAllValues().get(1).getId());
   }
 
 
@@ -145,12 +145,14 @@ public class CashEntryProcessStrategyConfigTest {
       .setHeader("type", ORDER_TYPE.CASH_ENTRY)
       .build();
     marketProcessStrategy.sendEvent(message);
-    marketProcessStrategy.sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessStrategy.sendEvent(ORDER_EVENTS.CASH_ENTRY_CREATION_SUCCESSFULL);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
-    verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
-    Assert.assertEquals(ORDER_STATES.CE_CASH_POSITIONS_CREATED, stateCaptor1.getAllValues().get(0).getId());
-    Assert.assertEquals(ORDER_STATES.READY, stateCaptor1.getAllValues().get(1).getId());
+
+    verify(mockedStateMachineListenerAdapter, times(4)).stateEntered(stateCaptor1.capture());
+    Assert.assertEquals(ORDER_STATES.CE_CASH_POSITIONS_CREATED, stateCaptor1.getAllValues().get(2).getId());
+   Assert.assertEquals(ORDER_STATES.READY, stateCaptor1.getAllValues().get(3).getId());
   }
 
 
