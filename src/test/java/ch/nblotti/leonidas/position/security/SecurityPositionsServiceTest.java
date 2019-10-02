@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -59,10 +58,6 @@ public class SecurityPositionsServiceTest {
   QuoteService quoteService;
 
 
-  @MockBean
-  JmsTemplate jmsOrderTemplate;
-
-
   @TestConfiguration
   static class SecurityPositionServiceTestContextConfiguration {
 
@@ -79,7 +74,6 @@ public class SecurityPositionsServiceTest {
   SecurityPositionService securityPositionService;
 
 
-
   @Test
   public void positionFromEntryPositionDebit() {
     SecurityPositionService spySecurityPositionService = spy(securityPositionService);
@@ -89,9 +83,9 @@ public class SecurityPositionsServiceTest {
     Iterator<PositionPO> positionsItr = mock(Iterator.class);
     when(positions.iterator()).thenReturn(positionsItr);
     PositionPO positionPO1 = mock(PositionPO.class);
-    PositionPO positionPO2= mock(PositionPO.class);
-    when(positionsItr.hasNext()).thenReturn(true,true,false);
-    when(positionsItr.next()).thenReturn(positionPO1,positionPO2);
+    PositionPO positionPO2 = mock(PositionPO.class);
+    when(positionsItr.hasNext()).thenReturn(true, true, false);
+    when(positionsItr.next()).thenReturn(positionPO1, positionPO2);
 
     when(positionPO1.getRealized()).thenReturn(2f);
     when(positionPO2.getRealized()).thenReturn(4f);
@@ -109,7 +103,7 @@ public class SecurityPositionsServiceTest {
     AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
     SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
 
-    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
@@ -127,14 +121,12 @@ public class SecurityPositionsServiceTest {
 
     Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry, uuidHolder);
 
-    Assert.assertNull( returnedPositionsIt);
-    Assert.assertEquals(2f,quantity.getValue(),0);
-    Assert.assertEquals(4f,cma.getValue(),0);
-    Assert.assertEquals(4f,tma.getValue(),0);
-    Assert.assertEquals(LocalDate.now().minusDays(1),endDate.getValue());
+    Assert.assertNull(returnedPositionsIt);
+    Assert.assertEquals(2f, quantity.getValue(), 0);
+    Assert.assertEquals(4f, cma.getValue(), 0);
+    Assert.assertEquals(4f, tma.getValue(), 0);
+    Assert.assertEquals(LocalDate.now().minusDays(1), endDate.getValue());
   }
-
-
 
 
   @Test
@@ -146,9 +138,9 @@ public class SecurityPositionsServiceTest {
     Iterator<PositionPO> positionsItr = mock(Iterator.class);
     when(positions.iterator()).thenReturn(positionsItr);
     PositionPO positionPO1 = mock(PositionPO.class);
-    PositionPO positionPO2= mock(PositionPO.class);
-    when(positionsItr.hasNext()).thenReturn(true,true,false);
-    when(positionsItr.next()).thenReturn(positionPO1,positionPO2);
+    PositionPO positionPO2 = mock(PositionPO.class);
+    when(positionsItr.hasNext()).thenReturn(true, true, false);
+    when(positionsItr.next()).thenReturn(positionPO1, positionPO2);
 
     when(positionPO1.getRealized()).thenReturn(2f);
     when(positionPO2.getRealized()).thenReturn(4f);
@@ -166,7 +158,7 @@ public class SecurityPositionsServiceTest {
     AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
     SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
 
-    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
@@ -184,11 +176,11 @@ public class SecurityPositionsServiceTest {
 
     Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, null, uuidHolder);
 
-    Assert.assertNull( returnedPositionsIt);
-    Assert.assertEquals(6f,quantity.getValue(),0);
-    Assert.assertEquals(3f,cma.getValue(),0);
-    Assert.assertEquals(7f,tma.getValue(),0);
-    Assert.assertEquals(LocalDate.now().plusDays(4),endDate.getValue());
+    Assert.assertNull(returnedPositionsIt);
+    Assert.assertEquals(6f, quantity.getValue(), 0);
+    Assert.assertEquals(3f, cma.getValue(), 0);
+    Assert.assertEquals(7f, tma.getValue(), 0);
+    Assert.assertEquals(LocalDate.now().plusDays(4), endDate.getValue());
   }
 
 
@@ -201,9 +193,9 @@ public class SecurityPositionsServiceTest {
     Iterator<PositionPO> positionsItr = mock(Iterator.class);
     when(positions.iterator()).thenReturn(positionsItr);
     PositionPO positionPO1 = mock(PositionPO.class);
-    PositionPO positionPO2= mock(PositionPO.class);
-    when(positionsItr.hasNext()).thenReturn(true,true,false);
-    when(positionsItr.next()).thenReturn(positionPO1,positionPO2);
+    PositionPO positionPO2 = mock(PositionPO.class);
+    when(positionsItr.hasNext()).thenReturn(true, true, false);
+    when(positionsItr.next()).thenReturn(positionPO1, positionPO2);
 
     when(positionPO1.getRealized()).thenReturn(2f);
     when(positionPO2.getRealized()).thenReturn(4f);
@@ -221,7 +213,7 @@ public class SecurityPositionsServiceTest {
     AggregatedSecurityEntryVO nextEntry = mock(AggregatedSecurityEntryVO.class);
     SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
 
-    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
@@ -238,14 +230,12 @@ public class SecurityPositionsServiceTest {
 
     Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, nextEntry, uuidHolder);
 
-    Assert.assertNull( returnedPositionsIt);
-    Assert.assertEquals(0f,quantity.getValue(),0);
-    Assert.assertEquals(0f,cma.getValue(),0);
-    Assert.assertEquals(0f,tma.getValue(),0);
-    Assert.assertEquals(LocalDate.now().minusDays(1),endDate.getValue());
+    Assert.assertNull(returnedPositionsIt);
+    Assert.assertEquals(0f, quantity.getValue(), 0);
+    Assert.assertEquals(0f, cma.getValue(), 0);
+    Assert.assertEquals(0f, tma.getValue(), 0);
+    Assert.assertEquals(LocalDate.now().minusDays(1), endDate.getValue());
   }
-
-
 
 
   @Test
@@ -259,7 +249,7 @@ public class SecurityPositionsServiceTest {
     Iterator<PositionPO> positionsItr = mock(Iterator.class);
     when(positionsItr.hasNext()).thenReturn(false);
 
-    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
@@ -278,11 +268,11 @@ public class SecurityPositionsServiceTest {
 
     Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, positions, currentEntry, null, uuidHolder);
 
-    Assert.assertNull( returnedPositionsIt);
-    Assert.assertEquals(2f,quantity.getValue(),0);
-    Assert.assertEquals(1f,cma.getValue(),0);
-    Assert.assertEquals(2f,tma.getValue(),0);
-    Assert.assertEquals(LocalDate.now(),endDate.getValue());
+    Assert.assertNull(returnedPositionsIt);
+    Assert.assertEquals(2f, quantity.getValue(), 0);
+    Assert.assertEquals(1f, cma.getValue(), 0);
+    Assert.assertEquals(2f, tma.getValue(), 0);
+    Assert.assertEquals(LocalDate.now(), endDate.getValue());
   }
 
   @Test
@@ -295,7 +285,7 @@ public class SecurityPositionsServiceTest {
     SecurityPositionService.UUIDHolder uuidHolder = mock(SecurityPositionService.UUIDHolder.class);
 
 
-    ArgumentCaptor<LocalDate> endDate= ArgumentCaptor.forClass(LocalDate.class);
+    ArgumentCaptor<LocalDate> endDate = ArgumentCaptor.forClass(LocalDate.class);
     ArgumentCaptor<Float> quantity = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> cma = ArgumentCaptor.forClass(Float.class);
     ArgumentCaptor<Float> tma = ArgumentCaptor.forClass(Float.class);
@@ -313,11 +303,11 @@ public class SecurityPositionsServiceTest {
 
     Iterable<PositionPO> returnedPositionsIt = spySecurityPositionService.positionFromEntry(currentAccountPO, null, currentEntry, nextEntry, uuidHolder);
 
-    Assert.assertNull( returnedPositionsIt);
-    Assert.assertEquals(2f,quantity.getValue(),0);
-    Assert.assertEquals(1f,cma.getValue(),0);
-    Assert.assertEquals(2f,tma.getValue(),0);
-    Assert.assertEquals(LocalDate.now().minusDays(1),endDate.getValue());
+    Assert.assertNull(returnedPositionsIt);
+    Assert.assertEquals(2f, quantity.getValue(), 0);
+    Assert.assertEquals(1f, cma.getValue(), 0);
+    Assert.assertEquals(2f, tma.getValue(), 0);
+    Assert.assertEquals(LocalDate.now().minusDays(1), endDate.getValue());
   }
 
 

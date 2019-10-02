@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -53,8 +52,6 @@ public class CashPositionServiceTest {
   @MockBean
   AccountService accountService;
 
-  @MockBean
-  JmsTemplate jmsOrderTemplate;
 
   @MockBean
   QuoteService quoteService;
@@ -447,7 +444,7 @@ public class CashPositionServiceTest {
 
     verify(fxQuoteService, times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
 
-    Assert.assertEquals(31,Lists.newArrayList(returnedpositions).size());
+    Assert.assertEquals(31, Lists.newArrayList(returnedpositions).size());
   }
 
   @Test
@@ -477,7 +474,7 @@ public class CashPositionServiceTest {
 
     verify(fxQuoteService, times(31)).getFXQuoteForDate(anyString(), anyString(), anyObject());
 
-    Assert.assertEquals(31,Lists.newArrayList(returnedpositions).size());
+    Assert.assertEquals(31, Lists.newArrayList(returnedpositions).size());
   }
 
   @Test

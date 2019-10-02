@@ -3,8 +3,6 @@ package ch.nblotti.leonidas.order;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.process.MarketProcessService;
-import ch.nblotti.leonidas.technical.MessageVO;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,7 +24,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +48,6 @@ public class OrderServiceTest {
 
   @MockBean
   private JmsTemplate jmsTemplate;
-
 
 
   @TestConfiguration
