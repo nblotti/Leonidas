@@ -6,7 +6,7 @@
 
 
 //accountPO creation
- acc --date 15.05.2019 --pcu USD
+ acc --date 15.05.2019 --pcu CHF
 
  //cash entry
  ordc --acc 1 --id test1 --amo 100000 --side 2 --cur USD --dtv 28.06.2019

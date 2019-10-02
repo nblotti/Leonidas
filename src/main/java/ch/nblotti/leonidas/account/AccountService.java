@@ -3,7 +3,6 @@ package ch.nblotti.leonidas.account;
 
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.order.OrderService;
-import ch.nblotti.leonidas.process.MarketProcessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,13 +11,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.groupingBy;
-
 @Component
 public class AccountService {
 
-  @Autowired
-  MarketProcessService marketProcessService;
   @Autowired
   private AccountRepository accountRepository;
 
@@ -54,13 +49,14 @@ public class AccountService {
     this.orderService = orderService;
   }
 
-
   public AccountPO duplicateAccountById(Integer oldAccountId, AccountPO accountPO) {
 
 
     AccountPO newAccountPO = duplicateAccount(oldAccountId, accountPO.getEntryDate(), accountPO.getPerformanceCurrency());
     List<OrderPO> orders = duplicateOrders(newAccountPO, oldAccountId);
-    orderService.saveAll(orders);
+
+    for (OrderPO order : orders)
+      orderService.save(order);
 
     return newAccountPO;
   }
@@ -73,7 +69,7 @@ public class AccountService {
     AccountPO newAccountPO = new AccountPO();
     newAccountPO.setEntryDate(date);
     newAccountPO.setPerformanceCurrency(perfcurrency == null ? acc.getPerformanceCurrency() : perfcurrency);
-    return this.accountRepository.save(newAccountPO);
+    return this.save(newAccountPO);
 
 
   }

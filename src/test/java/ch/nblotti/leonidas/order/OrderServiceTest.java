@@ -92,51 +92,6 @@ public class OrderServiceTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void postDefaultMessage() {
-
-
-    OrderPO orderPO1 = mock(OrderPO.class);
-    MessageVO returned;
-
-    when(orderPO1.getType()).thenReturn(order_type);
-
-    returned = orderService.postMessage(orderPO1);
-  }
-
-  @Test
-  public void postMessage() {
-
-
-    OrderPO orderPO1 = mock(OrderPO.class);
-    MessageVO returned;
-    OrderPO orderPO2 = mock(OrderPO.class);
-    OrderPO orderPO3 = mock(OrderPO.class);
-
-
-    when(orderPO1.getType()).thenReturn(ORDER_TYPE.MARKET_ORDER);
-    when(orderPO2.getType()).thenReturn(ORDER_TYPE.CASH_ENTRY);
-    when(orderPO3.getType()).thenReturn(ORDER_TYPE.SECURITY_ENTRY);
-
-    returned = orderService.postMessage(orderPO1);
-    verify(jmsTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
-    Assert.assertEquals(MessageVO.MESSAGE_TYPE.MARKET_ORDER, returned.getMessageType());
-    reset(jmsTemplate);
-
-    returned = orderService.postMessage(orderPO2);
-    verify(jmsTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
-    Assert.assertEquals(MessageVO.MESSAGE_TYPE.CASH_ENTRY, returned.getMessageType());
-    reset(jmsTemplate);
-
-    returned = orderService.postMessage(orderPO3);
-    verify(jmsTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
-    Assert.assertEquals(MessageVO.MESSAGE_TYPE.SECURITY_ENTRY, returned.getMessageType());
-    reset(jmsTemplate);
-
-
-  }
-
-
   @Test
   public void findAll() {
 
@@ -207,32 +162,6 @@ public class OrderServiceTest {
 
     Iterable<OrderPO> returned = orderService.findByAccountIdAndTransactTimeAfter(accountId, transactTime);
     verify(repository, times(1)).findByAccountIdAndTransactTimeAfter(accountId, transactTime);
-  }
-
-  @Test
-
-
-  public void saveAll() {
-
-
-    OrderPO orderPO1 = mock(OrderPO.class);
-    OrderPO orderPO2 = mock(OrderPO.class);
-    Iterable<OrderPO> orders = mock(Iterable.class);
-    Iterator<OrderPO> orderPOIterator = mock(Iterator.class);
-
-    when(orderPOIterator.hasNext()).thenReturn(true, true, false);
-    when(orderPOIterator.next()).thenReturn(orderPO1).thenReturn(orderPO2);
-    when(orderPO1.getType()).thenReturn(ORDER_TYPE.MARKET_ORDER);
-    when(orderPO2.getType()).thenReturn(ORDER_TYPE.MARKET_ORDER);
-
-    when(orders.iterator()).thenReturn(orderPOIterator);
-    when(repository.saveAll(orders)).thenReturn(orders);
-
-    orderService.saveAll(orders);
-    verify(marketProcessService, times(2)).startMarketProcessService(any());
-
-    verify(jmsTemplate, times(2)).convertAndSend(anyString(), any(MessageVO.class));
-
   }
 
 

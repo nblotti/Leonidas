@@ -43,8 +43,6 @@ public class AccountServiceTest {
 
 
   @MockBean
-  MarketProcessService marketProcessService;
-  @MockBean
   AccountRepository accountRepository;
   @MockBean
   DateTimeFormatter dateTimeFormatter;
