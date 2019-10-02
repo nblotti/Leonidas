@@ -3,6 +3,7 @@ package ch.nblotti.leonidas.process.order;
 import ch.nblotti.leonidas.entry.cash.CashEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.order.OrderPO;
+import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.technical.MessageVO;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,7 +15,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.logging.Logger;
 
 @Aspect
 @Component
@@ -24,6 +24,10 @@ public class MarketProcessMethodCallback {
   public static final String ORDERBOX = "orderbox";
   public static final String SECURITYENTRYBOX = "securityentrybox";
   public static final String CASHENTRYBOX = "cashentrybox";
+
+
+  public static final String CASHPOSITIONBOX = "cashpositionbox";
+  public static final String SECURITYPOSITIONBOX = "securitypositionbox";
 
   @Autowired
   private JmsTemplate jmsTemplate;
@@ -62,7 +66,22 @@ public class MarketProcessMethodCallback {
 
       marketProcessService.setSecurityhEntryRunningForProcess(securityEntryPO.getOrderID(), securityEntryPO.getAccount());
       jmsTemplate.convertAndSend(SECURITYENTRYBOX, new MessageVO(securityEntryPO.getOrderID(), securityEntryPO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
+    } else if (myAnnotation.entity().isAssignableFrom(PositionPO.class)) {
+
+      if (myAnnotation.postype() == 0) {
+        CashEntryPO entry = (CashEntryPO) toreturn;
+
+        jmsTemplate.convertAndSend(CASHPOSITIONBOX, new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.CASH_POSITION, MessageVO.ENTITY_ACTION.CREATE));
+
+      } else if (myAnnotation.postype() == 1) {
+
+        SecurityEntryPO entry = (SecurityEntryPO) toreturn;
+        jmsTemplate.convertAndSend(SECURITYPOSITIONBOX, new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.SECURITY_POSITION, MessageVO.ENTITY_ACTION.CREATE));
+
+      }
+
     }
+
     return toreturn;
 
   }

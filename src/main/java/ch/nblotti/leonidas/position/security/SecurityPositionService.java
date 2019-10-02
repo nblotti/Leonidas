@@ -2,18 +2,17 @@ package ch.nblotti.leonidas.position.security;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.position.PositionPO;
-import ch.nblotti.leonidas.quote.QuoteService;
 import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
+import ch.nblotti.leonidas.position.PositionPO;
 import ch.nblotti.leonidas.position.PositionRepository;
+import ch.nblotti.leonidas.process.order.MarketProcess;
 import ch.nblotti.leonidas.quote.FXQuoteService;
-import ch.nblotti.leonidas.technical.MessageVO;
+import ch.nblotti.leonidas.quote.QuoteService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,14 +49,12 @@ public class SecurityPositionService {
   QuoteService quoteService;
 
 
-  @Autowired
-  JmsTemplate jmsOrderTemplate;
-
   public Iterable<PositionPO> saveAll(List<PositionPO> positionPOS) {
     return repository.saveAll(positionPOS);
   }
 
-  public void updatePosition(SecurityEntryPO entry) {
+  @MarketProcess(entity = PositionPO.class, postype = 1)
+  public SecurityEntryPO updatePosition(SecurityEntryPO entry) {
 
     getLogger().log(Level.FINE, "Started update process");
     AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
@@ -80,9 +77,7 @@ public class SecurityPositionService {
     //5. On duplique les quantités entre les deux dates
     updatePositions(currentAccountPO, aggregatedSecurityEntries);
 
-    jmsOrderTemplate.convertAndSend("securitypositionbox", new MessageVO(entry.getOrderID(), entry.getAccount(), MessageVO.MESSAGE_TYPE.SECURITY_POSITION, MessageVO.ENTITY_ACTION.CREATE));
-
-
+    return entry;
   }
 
 
