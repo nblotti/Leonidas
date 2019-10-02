@@ -1,7 +1,5 @@
 package ch.nblotti.leonidas.process.order;
 
-import ch.nblotti.leonidas.position.PositionPO;
-
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
@@ -9,5 +7,6 @@ import java.lang.annotation.*;
 @Documented
 public @interface MarketProcess {
   Class<?> entity();
+
   int postype() default 0;
 }

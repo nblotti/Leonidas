@@ -5,14 +5,11 @@ import ch.nblotti.leonidas.account.AccountService;
 import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.process.order.MarketProcess;
+import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
-import ch.nblotti.leonidas.quote.FXQuoteService;
-import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

@@ -2,7 +2,6 @@ package ch.nblotti.leonidas.order;
 
 import ch.nblotti.leonidas.account.AccountPO;
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.process.order.MarketProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,7 +21,6 @@ public class OrderService {
 
   @Autowired
   private AccountService accountService;
-
 
 
   @GetMapping("/orders")
