@@ -6,11 +6,9 @@ import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
-import ch.nblotti.leonidas.technical.MessageVO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -37,8 +34,6 @@ public class SecurityEntryServiceTest {
   @MockBean
   private SecurityEntryRepository repository;
 
-  @MockBean
-  private JmsTemplate jmsOrderTemplate;
 
   @MockBean
   AccountService accountService;
@@ -52,9 +47,6 @@ public class SecurityEntryServiceTest {
 
   @MockBean
   FXQuoteService fxQuoteService;
-
-  @MockBean
-  MarketProcessService marketProcessService;
 
 
   @TestConfiguration
@@ -192,8 +184,6 @@ public class SecurityEntryServiceTest {
 
     SecurityEntryPO returned = spySecurityEntryService.save(securityEntryPO);
 
-    verify(marketProcessService, times(1)).setSecurityhEntryRunningForProcess(1, 1);
-    verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
     verify(logger, times(1)).fine(anyString());
 
     Assert.assertEquals(securityEntryPO, returned);
@@ -215,8 +205,6 @@ public class SecurityEntryServiceTest {
 
     SecurityEntryPO returned = spySecurityEntryService.save(securityEntryPO);
 
-    verify(marketProcessService, times(1)).setSecurityhEntryRunningForProcess(1, 1);
-    verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
     verify(logger, times(0)).fine(anyString());
 
     Assert.assertEquals(securityEntryPO, returned);

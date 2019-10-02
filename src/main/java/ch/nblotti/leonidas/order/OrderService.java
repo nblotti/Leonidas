@@ -24,9 +24,6 @@ public class OrderService {
   private AccountService accountService;
 
 
-  @Autowired
-  MarketProcessService marketProcessService;
-
 
   @GetMapping("/orders")
 

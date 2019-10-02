@@ -6,6 +6,7 @@ import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
+import ch.nblotti.leonidas.process.order.MarketProcess;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
 import ch.nblotti.leonidas.quote.FXQuoteService;
@@ -23,13 +24,9 @@ public class SecurityEntryService {
 
 
   static final Logger logger = Logger.getLogger("SecurityEntryService");
-  static final String SECURITYENTRYBOX = "securityentrybox";
 
   @Autowired
   private SecurityEntryRepository repository;
-
-  @Autowired
-  private JmsTemplate jmsOrderTemplate;
 
   @Autowired
   AccountService accountService;
@@ -43,9 +40,6 @@ public class SecurityEntryService {
 
   @Autowired
   FXQuoteService fxQuoteService;
-
-  @Autowired
-  MarketProcessService marketProcessService;
 
 
   public Iterable<SecurityEntryPO> findAll() {
@@ -97,17 +91,14 @@ public class SecurityEntryService {
     return securityEntry;
   }
 
-
+  @MarketProcess(entity = SecurityEntryPO.class)
   public SecurityEntryPO save(SecurityEntryPO securityEntryPO) {
 
     if (getLogger().isLoggable(Level.FINE)) {
       getLogger().fine(String.format("Created new entry with id %s", securityEntryPO.getId()));
     }
-    SecurityEntryPO saved = this.repository.save(securityEntryPO);
-    marketProcessService.setSecurityhEntryRunningForProcess(securityEntryPO.getOrderID(), securityEntryPO.getAccount());
-    jmsOrderTemplate.convertAndSend(SECURITYENTRYBOX, new MessageVO(securityEntryPO.getOrderID(), securityEntryPO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
+    return repository.save(securityEntryPO);
 
-    return saved;
 
   }
 

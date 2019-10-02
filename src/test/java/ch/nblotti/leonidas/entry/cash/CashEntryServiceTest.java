@@ -6,11 +6,9 @@ import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
-import ch.nblotti.leonidas.technical.MessageVO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,14 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
@@ -33,13 +31,7 @@ public class CashEntryServiceTest {
 
 
   @MockBean
-  private MarketProcessService marketProcessService;
-
-  @MockBean
   private CashEntryRepository repository;
-
-  @MockBean
-  private JmsTemplate jmsOrderTemplate;
 
   @MockBean
   private QuoteService quoteService;
@@ -327,8 +319,6 @@ public class CashEntryServiceTest {
 
     ch.nblotti.leonidas.entry.cash.CashEntryPO returned = spyCashEntryService.save(cashEntryPO);
 
-    verify(marketProcessService, times(1)).setCashEntryRunningForProcess(1, 1);
-    verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
     verify(logger, times(1)).fine(anyString());
 
     Assert.assertEquals(cashEntryPO, returned);
@@ -350,8 +340,6 @@ public class CashEntryServiceTest {
 
     CashEntryPO returned = spyCashEntryService.save(cashEntryPO);
 
-    verify(marketProcessService, times(1)).setCashEntryRunningForProcess(1, 1);
-    verify(jmsOrderTemplate, times(1)).convertAndSend(anyString(), any(MessageVO.class));
     verify(logger, times(0)).fine(anyString());
 
     Assert.assertEquals(cashEntryPO, returned);

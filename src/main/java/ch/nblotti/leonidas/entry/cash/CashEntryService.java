@@ -6,13 +6,11 @@ import ch.nblotti.leonidas.asset.AssetPO;
 import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.entry.ACHAT_VENTE_TITRE;
 import ch.nblotti.leonidas.order.OrderPO;
-import ch.nblotti.leonidas.process.MarketProcessService;
+import ch.nblotti.leonidas.process.order.MarketProcess;
 import ch.nblotti.leonidas.quote.FXQuoteService;
 import ch.nblotti.leonidas.quote.QuoteDTO;
 import ch.nblotti.leonidas.quote.QuoteService;
-import ch.nblotti.leonidas.technical.MessageVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -26,13 +24,7 @@ public class CashEntryService {
 
 
   @Autowired
-  private MarketProcessService marketProcessService;
-
-  @Autowired
   private CashEntryRepository repository;
-
-  @Autowired
-  private JmsTemplate jmsOrderTemplate;
 
   @Autowired
   private QuoteService quoteService;
@@ -132,19 +124,13 @@ public class CashEntryService {
   }
 
 
+  @MarketProcess(entity = CashEntryPO.class)
   public CashEntryPO save(CashEntryPO entry) {
 
     if (getLogger().isLoggable(Level.FINE)) {
       getLogger().fine(String.format("Created new entry with id %s", entry.getId()));
     }
-    CashEntryPO cashEntryTO = this.repository.save(entry);
-
-
-    marketProcessService.setCashEntryRunningForProcess(entry.getOrderID(), entry.getAccount());
-
-    jmsOrderTemplate.convertAndSend("cashentrybox", new MessageVO(cashEntryTO.getOrderID(), cashEntryTO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
-
-    return cashEntryTO;
+    return repository.save(entry);
   }
 
   protected Logger getLogger() {

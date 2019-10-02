@@ -53,8 +53,6 @@ public class OrderServiceTest {
   private JmsTemplate jmsTemplate;
 
 
-  @MockBean
-  MarketProcessService marketProcessService;
 
   @TestConfiguration
   static class OrderServiceTestContextConfiguration {

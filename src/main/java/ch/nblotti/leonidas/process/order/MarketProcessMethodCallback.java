@@ -1,5 +1,7 @@
 package ch.nblotti.leonidas.process.order;
 
+import ch.nblotti.leonidas.entry.cash.CashEntryPO;
+import ch.nblotti.leonidas.entry.security.SecurityEntryPO;
 import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.technical.MessageVO;
@@ -20,6 +22,8 @@ public class MarketProcessMethodCallback {
 
 
   public static final String ORDERBOX = "orderbox";
+  public static final String SECURITYENTRYBOX = "securityentrybox";
+  public static final String CASHENTRYBOX = "cashentrybox";
 
   @Autowired
   private JmsTemplate jmsTemplate;
@@ -40,12 +44,24 @@ public class MarketProcessMethodCallback {
 
     if (myAnnotation.entity().isAssignableFrom(OrderPO.class)) {
 
-
-      OrderPO createdOrderPO = (OrderPO) joinPoint.proceed();
-
+      OrderPO createdOrderPO = (OrderPO) toreturn;
       postMessage(createdOrderPO);
       marketProcessService.startMarketProcessService(createdOrderPO, createdOrderPO.getAccountId());
 
+    } else if (myAnnotation.entity().isAssignableFrom(CashEntryPO.class)) {
+
+      CashEntryPO cashEntryPO = (CashEntryPO) toreturn;
+      marketProcessService.setCashEntryRunningForProcess(cashEntryPO.getOrderID(), cashEntryPO.getAccount());
+
+      jmsTemplate.convertAndSend(CASHENTRYBOX, new MessageVO(cashEntryPO.getOrderID(), cashEntryPO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
+
+    } else if (myAnnotation.entity().isAssignableFrom(SecurityEntryPO.class)) {
+
+      SecurityEntryPO securityEntryPO = (SecurityEntryPO) toreturn;
+
+
+      marketProcessService.setSecurityhEntryRunningForProcess(securityEntryPO.getOrderID(), securityEntryPO.getAccount());
+      jmsTemplate.convertAndSend(SECURITYENTRYBOX, new MessageVO(securityEntryPO.getOrderID(), securityEntryPO.getAccount(), MessageVO.MESSAGE_TYPE.CASH_ENTRY, MessageVO.ENTITY_ACTION.CREATE));
     }
     return toreturn;
 
