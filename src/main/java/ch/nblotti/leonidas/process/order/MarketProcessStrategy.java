@@ -139,13 +139,13 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   @JmsListener(destination = "cashpositionbox", containerFactory = "factory")
   public void receiveNewCashPosition(MessageVO messageVO) {
     marketProcessService.setCashFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.getStateMachine().sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
+   boolean success =  this.getStateMachine().sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
   }
 
   @JmsListener(destination = "securitypositionbox", containerFactory = "factory")
   public void receiveNewSecurityPosition(MessageVO messageVO) {
     marketProcessService.setSecurityFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    this.getStateMachine().sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+    boolean success =  this.getStateMachine().sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
 
   }
 
@@ -167,6 +167,7 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     builder.configureStates()
       .withStates()
       .initial(ORDER_STATES.READY)
+      .choice(ORDER_STATES.VALID_EVENT)
       .choice(ORDER_STATES.TREATING_EVENT)
       .state(ORDER_STATES.MO_ORDER_CREATING)
       .fork(ORDER_STATES.MO_ORDER_CREATED)
@@ -211,7 +212,12 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
       .and()
       .withChoice()
       .source(ORDER_STATES.TREATING_EVENT)
-      .first(ORDER_STATES.MO_ORDER_CREATING, isMarketOrder())
+      .first(ORDER_STATES.INVALID_EVENT, isOrderInValid())
+      .last(ORDER_STATES.VALID_EVENT)
+      .and()
+      .withChoice()
+      .source(ORDER_STATES.VALID_EVENT)
+      .then(ORDER_STATES.MO_ORDER_CREATING, isMarketOrder())
       .then(ORDER_STATES.CE_ORDER_CREATING, isCashEntry())
       .then(ORDER_STATES.SE_ORDER_CREATING, isSecurityEntry())
       .last(ORDER_STATES.READY)
@@ -289,6 +295,10 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
       .withExternal()
       .source(ORDER_STATES.MO_JOIN).target(ORDER_STATES.READY);
     return builder.build();
+  }
+
+  private Guard<ORDER_STATES, ORDER_EVENTS> isOrderInValid() {
+    return context -> !orderService.isOrderValid(context.getMessageHeader("order"));
   }
 
 

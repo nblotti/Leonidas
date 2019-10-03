@@ -3,6 +3,7 @@ package ch.nblotti.leonidas.process.order;
 import ch.nblotti.leonidas.entry.cash.CashEntryService;
 import ch.nblotti.leonidas.entry.security.SecurityEntryService;
 import ch.nblotti.leonidas.order.ORDER_TYPE;
+import ch.nblotti.leonidas.order.OrderPO;
 import ch.nblotti.leonidas.order.OrderService;
 import ch.nblotti.leonidas.position.cash.CashPositionService;
 import ch.nblotti.leonidas.position.security.SecurityPositionService;
@@ -97,12 +98,18 @@ public class CashEntryProcessStrategyConfigTest {
 
     marketProcessStrategy.start();
 
+
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
+
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.CASH_ENTRY)
+      .setHeader("order", orderPO)
       .build();
+
     marketProcessStrategy.sendEvent(message);
     verify(mockedStateMachineListenerAdapter, times(1)).stateEntered(stateCaptor1.capture());
     Assert.assertEquals(ORDER_STATES.CE_ORDER_CREATING, stateCaptor1.getValue().getId());
@@ -116,11 +123,15 @@ public class CashEntryProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
+     OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
+
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.CASH_ENTRY)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
@@ -138,11 +149,15 @@ public class CashEntryProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
+
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.CASH_ENTRY)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);

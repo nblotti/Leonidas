@@ -225,11 +225,16 @@ public class MarketOrderProcessStrategyConfigTest {
 
     marketProcessStrategy.start();
 
+
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
+
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     verify(mockedStateMachineListenerAdapter, times(1)).stateEntered(stateCaptor1.capture());
@@ -242,12 +247,15 @@ public class MarketOrderProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
 
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
@@ -265,12 +273,15 @@ public class MarketOrderProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
 
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
@@ -287,12 +298,15 @@ public class MarketOrderProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
 
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
@@ -310,11 +324,15 @@ public class MarketOrderProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
 
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
+
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
@@ -331,12 +349,15 @@ public class MarketOrderProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
 
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);
@@ -353,12 +374,15 @@ public class MarketOrderProcessStrategyConfigTest {
     ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
     ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
     StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(true);
 
     marketProcessStrategy.start();
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
       .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
       .build();
     marketProcessStrategy.sendEvent(message);
     marketProcessStrategy.sendEvent(ORDER_EVENTS.ORDER_CREATION_SUCCESSFULL);

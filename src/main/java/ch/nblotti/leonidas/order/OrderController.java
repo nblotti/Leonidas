@@ -55,9 +55,10 @@ public class OrderController {
 
     Message<ORDER_EVENTS> message = MessageBuilder
       .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
-      .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("type", order.getType())
+      .setHeader("order", order)
       .build();
-    marketProcessStrategy.sendEvent(message);
+   boolean success =  marketProcessStrategy.sendEvent(message);
 
 
     if (logger.isLoggable(Level.FINE)) {
