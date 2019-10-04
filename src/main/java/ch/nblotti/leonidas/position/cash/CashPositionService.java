@@ -60,7 +60,7 @@ public class CashPositionService {
   @MarketProcess(entity = PositionPO.class, postype = 0)
   public CashEntryPO updatePositions(CashEntryPO entry) {
 
-
+    getLogger().severe("Creating Cash positions");
     repository.deleteByPosTypeAndAccountIdAndCurrency(PositionPO.POS_TYPE.CASH, entry.getAccount(), entry.getCurrency());
 
 
@@ -76,6 +76,8 @@ public class CashPositionService {
 
     //5. On duplique les quantités entre les deux dates
     updatePositions(currentAccountPO, aggegatedCashEntries);
+
+    getLogger().severe("end cash positions");
 
     return entry;
 

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,6 +34,19 @@ public class QuoteController {
 
 
   }
+
+  @GetMapping("/quotes/market/bond/{symbol}")
+  public Iterable<BondDTO> getQBonduote(@PathVariable String symbol) {
+
+    Map<LocalDate,BondDTO> test = quoteService.getBondQuotes(symbol);
+    //on reformate la date
+    return quoteService.getBondQuotes(symbol).values().stream().map(i -> new BondDTO(symbol, dateTimeFormatter.format(quoteDateTimeFormatter.parse(i.getDate())), i.getPrice(), i.getYield(), i.getVolume())).
+      collect(Collectors.toList());
+
+
+  }
+
+
 
 
 }

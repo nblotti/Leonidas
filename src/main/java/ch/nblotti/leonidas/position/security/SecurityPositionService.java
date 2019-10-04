@@ -56,6 +56,8 @@ public class SecurityPositionService {
   @MarketProcess(entity = PositionPO.class, postype = 1)
   public SecurityEntryPO updatePosition(SecurityEntryPO entry) {
 
+
+    getLogger().severe("Creating security positions");
     getLogger().log(Level.FINE, "Started update process");
     AccountPO currentAccountPO = accountService.findAccountById(entry.getAccount());
 
@@ -76,7 +78,7 @@ public class SecurityPositionService {
 
     //5. On duplique les quantités entre les deux dates
     updatePositions(currentAccountPO, aggregatedSecurityEntries);
-
+    getLogger().severe("end security positions");
     return entry;
   }
 

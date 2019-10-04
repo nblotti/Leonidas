@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFac
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jms.annotation.EnableJms;
@@ -16,6 +17,8 @@ import org.springframework.jms.support.converter.MappingJackson2MessageConverter
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.statemachine.StateMachineSystemConstants;
 import org.springframework.web.client.RestTemplate;
 
 import javax.jms.ConnectionFactory;
@@ -75,6 +78,13 @@ public class LeonidasApplication {
     rt.getMessageConverters().add(new StringHttpMessageConverter());
     return rt;
 
+  }
+
+  @Bean(name = StateMachineSystemConstants.TASK_EXECUTOR_BEAN_NAME)
+  public TaskExecutor taskExecutor() {
+    ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+    taskExecutor.setCorePoolSize(3);
+    return taskExecutor;
   }
 
   @Bean

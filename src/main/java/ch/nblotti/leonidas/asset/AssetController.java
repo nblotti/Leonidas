@@ -19,7 +19,6 @@ public class AssetController {
 
     return assetService.findSymbol(exchange, symbol);
 
-
   }
 
 
