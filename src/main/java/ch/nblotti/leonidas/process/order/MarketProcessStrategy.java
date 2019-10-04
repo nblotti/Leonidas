@@ -139,13 +139,13 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
   @JmsListener(destination = "cashpositionbox", containerFactory = "factory")
   public void receiveNewCashPosition(MessageVO messageVO) {
     marketProcessService.setCashFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-   boolean success =  this.getStateMachine().sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
+    this.getStateMachine().sendEvent(ORDER_EVENTS.CASH_POSITION_CREATION_SUCCESSFULL);
   }
 
   @JmsListener(destination = "securitypositionbox", containerFactory = "factory")
   public void receiveNewSecurityPosition(MessageVO messageVO) {
     marketProcessService.setSecurityFinishedForProcess(messageVO.getOrderID(), messageVO.getAccountID());
-    boolean success =  this.getStateMachine().sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
+    this.getStateMachine().sendEvent(ORDER_EVENTS.SECURITY_POSITION_CREATION_SUCCESSFULL);
 
   }
 

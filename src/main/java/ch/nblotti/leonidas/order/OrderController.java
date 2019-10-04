@@ -62,7 +62,7 @@ public class OrderController {
       .setHeader("type", order.getType())
       .setHeader("order", order)
       .build();
-   boolean success =  marketProcessStrategy.sendEvent(message);
+   marketProcessStrategy.sendEvent(message);
 
 
     if (logger.isLoggable(Level.FINE)) {
