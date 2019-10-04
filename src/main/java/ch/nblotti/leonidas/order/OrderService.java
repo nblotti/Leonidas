@@ -61,8 +61,6 @@ public class OrderService {
 
   public boolean isOrderValid(Object order) {
 
-    if (order == null)
-      return false;
-    return true;
+    return !(order == null);
   }
 }

@@ -1,8 +1,6 @@
 package ch.nblotti.leonidas.asset;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class BondPO {
 
 

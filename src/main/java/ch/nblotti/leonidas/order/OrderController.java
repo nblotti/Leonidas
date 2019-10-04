@@ -2,7 +2,6 @@ package ch.nblotti.leonidas.order;
 
 
 import ch.nblotti.leonidas.account.AccountService;
-import ch.nblotti.leonidas.asset.AssetService;
 import ch.nblotti.leonidas.process.MarketProcessService;
 import ch.nblotti.leonidas.process.order.MarketProcessStrategy;
 import ch.nblotti.leonidas.process.order.ORDER_EVENTS;
@@ -38,9 +37,6 @@ public class OrderController {
   AccountService acountService;
 
 
-
-
-
   @GetMapping("/orders")
   public Iterable<OrderPO> findAll() {
 
@@ -62,7 +58,7 @@ public class OrderController {
       .setHeader("type", order.getType())
       .setHeader("order", order)
       .build();
-   marketProcessStrategy.sendEvent(message);
+    marketProcessStrategy.sendEvent(message);
 
 
     if (logger.isLoggable(Level.FINE)) {
