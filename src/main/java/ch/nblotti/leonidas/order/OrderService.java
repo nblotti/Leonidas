@@ -23,9 +23,6 @@ public class OrderService {
   @Autowired
   private AccountService accountService;
 
-  @Autowired
-  AssetService assetService;
-
 
   @GetMapping("/orders")
 
@@ -64,7 +61,7 @@ public class OrderService {
 
 
   public boolean isOrderValid(Object order) {
-    
+
     return true;
   }
 }
