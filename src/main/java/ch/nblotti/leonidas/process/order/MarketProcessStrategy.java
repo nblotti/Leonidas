@@ -167,8 +167,9 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
     builder.configureStates()
       .withStates()
       .initial(ORDER_STATES.READY)
-      .choice(ORDER_STATES.VALID_EVENT)
       .choice(ORDER_STATES.TREATING_EVENT)
+      .state(ORDER_STATES.INVALID_EVENT)
+      .choice(ORDER_STATES.VALID_EVENT)
       .state(ORDER_STATES.MO_ORDER_CREATING)
       .fork(ORDER_STATES.MO_ORDER_CREATED)
       .join(ORDER_STATES.MO_JOIN)
@@ -212,8 +213,8 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
       .and()
       .withChoice()
       .source(ORDER_STATES.TREATING_EVENT)
-      .first(ORDER_STATES.INVALID_EVENT, isOrderInValid())
-      .last(ORDER_STATES.VALID_EVENT)
+      .first(ORDER_STATES.VALID_EVENT, isOrderValid())
+      .last(ORDER_STATES.INVALID_EVENT,null)
       .and()
       .withChoice()
       .source(ORDER_STATES.VALID_EVENT)
@@ -293,12 +294,15 @@ public class MarketProcessStrategy extends CompositeStateMachineListener<ORDER_S
       .target(ORDER_STATES.MO_JOIN)
       .and()
       .withExternal()
-      .source(ORDER_STATES.MO_JOIN).target(ORDER_STATES.READY);
+      .source(ORDER_STATES.MO_JOIN).target(ORDER_STATES.READY)
+      .and()
+      .withExternal()
+      .source(ORDER_STATES.INVALID_EVENT).target(ORDER_STATES.READY);
     return builder.build();
   }
 
-  private Guard<ORDER_STATES, ORDER_EVENTS> isOrderInValid() {
-    return context -> !orderService.isOrderValid(context.getMessageHeader("order"));
+  private Guard<ORDER_STATES, ORDER_EVENTS> isOrderValid() {
+    return context -> orderService.isOrderValid(context.getMessageHeader("order"));
   }
 
 

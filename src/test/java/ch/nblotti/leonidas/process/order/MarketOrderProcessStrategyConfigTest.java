@@ -107,6 +107,7 @@ public class MarketOrderProcessStrategyConfigTest {
     when(optional.isPresent()).thenReturn(false);
 
     marketProcessStrategy.orderListener(messageVO);
+
   }
 
   @Test
@@ -137,29 +138,52 @@ public class MarketOrderProcessStrategyConfigTest {
   }
 
   @Test
+  public void orderListenerOrderNotValid() {
+
+
+    ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
+    ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
+    StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
+    OrderPO orderPO = mock(OrderPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(false);
+
+    marketProcessStrategy.start();
+
+    Message<ORDER_EVENTS> message = MessageBuilder
+      .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
+      .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
+      .build();
+    marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessStrategy.sendEvent(message);
+    verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
+    Assert.assertEquals(ORDER_STATES.INVALID_EVENT, stateCaptor1.getAllValues().get(0).getId());
+
+  }
+
+
+  @Test
   public void cashOrderListenerCashOrder() {
 
-    MessageVO messageVO = mock(MessageVO.class);
-    Optional<OrderPO> optional = mock(Optional.class);
-    when(messageVO.getOrderID()).thenReturn(0l);
+    ArgumentCaptor<State> stateCaptor1 = ArgumentCaptor.forClass(State.class);
+    ArgumentCaptor<State> stateCaptor2 = ArgumentCaptor.forClass(State.class);
+    StateMachineListener mockedStateMachineListenerAdapter = mock(StateMachineListener.class);
     OrderPO orderPO = mock(OrderPO.class);
-    CashEntryPO marketCashEntryTO = mock(CashEntryPO.class);
-    SecurityEntryPO marketSecurityEntryTO = mock(SecurityEntryPO.class);
+    when(orderService.isOrderValid(orderPO)).thenReturn(false);
 
-    when(cashEntryService.fromCashEntryOrder(orderPO)).thenReturn(marketCashEntryTO);
-    when(securityEntryService.fromSecurityEntryOrder(orderPO)).thenReturn(marketSecurityEntryTO);
+    marketProcessStrategy.start();
+
+    Message<ORDER_EVENTS> message = MessageBuilder
+      .withPayload(ORDER_EVENTS.EVENT_RECEIVED)
+      .setHeader("type", ORDER_TYPE.MARKET_ORDER)
+      .setHeader("order", orderPO)
+      .build();
+    marketProcessStrategy.addStateListener(mockedStateMachineListenerAdapter);
+    marketProcessStrategy.sendEvent(message);
+    verify(mockedStateMachineListenerAdapter, times(2)).stateEntered(stateCaptor1.capture());
+    Assert.assertEquals(ORDER_STATES.INVALID_EVENT, stateCaptor1.getAllValues().get(0).getId());
 
 
-    when(orderService.findById(String.valueOf(messageVO.getOrderID()))).thenReturn(optional);
-    when(optional.isPresent()).thenReturn(true);
-    when(optional.get()).thenReturn(orderPO);
-    when(orderPO.getType()).thenReturn(ORDER_TYPE.CASH_ENTRY);
-
-    marketProcessStrategy.orderListener(messageVO);
-    verify(cashEntryService, times(1)).save(marketCashEntryTO);
-
-    verify(cashEntryService, times(0)).fromMarketOrder(orderPO);
-    verify(securityEntryService, times(0)).save(marketSecurityEntryTO);
   }
 
 
