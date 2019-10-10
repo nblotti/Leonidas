@@ -1,5 +1,7 @@
 package ch.nblotti.leonidas.quote;
 
+import ch.nblotti.leonidas.asset.AssetPO;
+import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -159,6 +161,72 @@ public class BondQuoteServiceTest {
     Assert.assertEquals(df, quoteDateTimeFormatter);
   }
 
+
+  @Test(expected = IllegalStateException.class)
+  public void getQuoteForDateNoDateMatch() {
+
+    String symbol = "FB";
+    LocalDate now = LocalDate.now();
+    BondQuoteDTO quoteDTO1 = mock(BondQuoteDTO.class);
+    BondQuoteDTO quoteDTO2 = mock(BondQuoteDTO.class);
+    AssetPO assetPO2 = mock(AssetPO.class);
+    BondQuoteDTO[] quoteDTOS = new BondQuoteDTO[]{quoteDTO1, quoteDTO2};
+    Map<LocalDate, BondQuoteDTO> quoteDTOMap = Maps.newHashMap();
+
+    BondQuoteService spyQuoteService = spy(bondQuoteService);
+
+    when(quoteDTO1.getDate()).thenReturn("01.01.1900");
+    when(quoteDTO2.getDate()).thenReturn("01.01.1901");
+
+    quoteDTOMap.put(LocalDate.parse(quoteDTO1.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO1);
+    quoteDTOMap.put(LocalDate.parse(quoteDTO2.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO2);
+
+
+    doReturn(quoteDTOMap).when(spyQuoteService).getBondQuotes(symbol);
+
+    doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyQuoteService).getDateTimeFormatter();
+    doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyQuoteService).getQuoteDateTimeFormatter();
+
+    spyQuoteService.getQuoteForDate(symbol, LocalDate.parse("01.02.1900", DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+
+
+  }
+
+
+  @Test
+  public void getQuoteForDateMatch() {
+
+    String exchange = "US";
+    String symbol = "FB";
+    LocalDate now = LocalDate.now();
+    BondQuoteDTO quoteDTO1 = mock(BondQuoteDTO.class);
+    BondQuoteDTO quoteDTO2 = mock(BondQuoteDTO.class);
+    AssetPO assetPO2 = mock(AssetPO.class);
+    BondQuoteDTO[] quoteDTOS = new BondQuoteDTO[]{quoteDTO1, quoteDTO2};
+
+    Map<LocalDate, BondQuoteDTO> quoteDTOMap = Maps.newHashMap();
+
+
+    BondQuoteService spyQuoteService = spy(bondQuoteService);
+
+
+    when(quoteDTO1.getDate()).thenReturn("01.01.1900");
+    when(quoteDTO1.getYield()).thenReturn("4.2");
+    when(quoteDTO2.getDate()).thenReturn(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+    when(quoteDTO2.getYield()).thenReturn("2.4");
+    quoteDTOMap.put(LocalDate.parse(quoteDTO1.getDate(),DateTimeFormatter.ofPattern("dd.MM.yyyy")),quoteDTO1);
+    quoteDTOMap.put(LocalDate.parse(quoteDTO2.getDate(),DateTimeFormatter.ofPattern("yyyy-MM-dd")),quoteDTO2);
+
+
+    doReturn(quoteDTOMap).when(spyQuoteService).getBondQuotes(symbol);
+
+    doReturn(DateTimeFormatter.ofPattern("dd.MM.yyyy")).when(spyQuoteService).getDateTimeFormatter();
+    doReturn(DateTimeFormatter.ofPattern("yyyy-MM-dd")).when(spyQuoteService).getQuoteDateTimeFormatter();
+
+    BondQuoteDTO returned = spyQuoteService.getQuoteForDate(symbol, now);
+
+    Assert.assertEquals(quoteDTO2.getYield(), returned.getYield());
+  }
 
 
 }
