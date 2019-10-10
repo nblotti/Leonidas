@@ -3,7 +3,7 @@ package ch.nblotti.leonidas.quote;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class BondDTO {
+public class BondQuoteDTO {
 
 
   private String isin;
@@ -16,11 +16,11 @@ public class BondDTO {
   @JsonProperty("volume")
   private String volume;
 
-  public BondDTO() {
+  public BondQuoteDTO() {
 
   }
 
-  public BondDTO(String isin, String date, String price, String yield, String volume) {
+  public BondQuoteDTO(String isin, String date, String price, String yield, String volume) {
     this.date = date;
     this.isin = isin;
     this.price = price;

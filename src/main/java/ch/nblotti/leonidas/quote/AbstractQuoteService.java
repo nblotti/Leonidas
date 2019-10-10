@@ -64,27 +64,6 @@ public abstract class AbstractQuoteService {
 
   }
 
-   Map<LocalDate, BondDTO> getBondQuotes(String symbol) {
-
-
-    if (cacheManager.getCache(getCashName()).get(symbol) != null)
-      return  ((Map<LocalDate,BondDTO>)cacheManager.getCache(getCashName()).get(symbol).get());
-
-
-    ResponseEntity<BondDTO[]> responseEntity = rt.getForEntity(String.format(quoteUrl, symbol + ".BOND", eodApiToken), BondDTO[].class);
-
-    List<BondDTO> quotes = Arrays.asList(responseEntity.getBody());
-
-    Map<LocalDate, BondDTO> quotesByDate = Maps.newHashMap();
-    quotes.forEach(k -> quotesByDate.put(LocalDate.parse(k.getDate(), getQuoteDateTimeFormatter()), k));
-
-    cacheManager.getCache(getCashName()).put(symbol, quotesByDate);
-
-
-    return quotesByDate;
-
-  }
-
 
   @Scheduled(fixedRate = 10800000)
   public void clearCache() {

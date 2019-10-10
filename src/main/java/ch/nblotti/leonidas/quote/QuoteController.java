@@ -17,6 +17,9 @@ public class QuoteController {
   QuoteService quoteService;
 
   @Autowired
+  BondQuoteService bondQuoteService;
+
+  @Autowired
   private DateTimeFormatter dateTimeFormatter;
 
   DateTimeFormatter quoteDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -34,10 +37,10 @@ public class QuoteController {
   }
 
   @GetMapping("/quotes/market/bond/{symbol}")
-  public Iterable<BondDTO> getQBonduote(@PathVariable String symbol) {
+  public Iterable<BondQuoteDTO> getQBonduote(@PathVariable String symbol) {
 
     //on reformate la date
-    return quoteService.getBondQuotes(symbol).values().stream().map(i -> new BondDTO(symbol, dateTimeFormatter.format(quoteDateTimeFormatter.parse(i.getDate())), i.getPrice(), i.getYield(), i.getVolume())).
+    return bondQuoteService.getBondQuotes(symbol).values().stream().map(i -> new BondQuoteDTO(symbol, dateTimeFormatter.format(quoteDateTimeFormatter.parse(i.getDate())), i.getPrice(), i.getYield(), i.getVolume())).
       collect(Collectors.toList());
 
 
